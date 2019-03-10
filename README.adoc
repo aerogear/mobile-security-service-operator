@@ -16,9 +16,7 @@ endif::[]
 
 ifdef::status[]
 .*Project health*
-image:https://circleci.com/gh/aerogear/mobile-security-service-operator.svg?style=svg[Build Status (CircleCI), link=https://circleci.com/gh/aerogear/mobile-security-service-operator]
 image:https://img.shields.io/:license-Apache2-blue.svg[License (License), link=http://www.apache.org/licenses/LICENSE-2.0]
-image:https://coveralls.io/repos/github/aerogear/mobile-security-service-operator/badge.svg?branch=master[Coverage Status (Coveralls), link=https://coveralls.io/github/aerogear/mobile-security-service-operator?branch=master]
 image:https://goreportcard.com/badge/github.com/aerogear/mobile-security-service-operator[Go Report Card (Go Report Card), link=https://goreportcard.com/report/github.com/aerogear/mobile-security-service-operator]
 endif::[]
 
