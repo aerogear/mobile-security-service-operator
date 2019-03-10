@@ -1,0 +1,8 @@
+vendor
+.vendor-new
+debug
+.env
+dist
+coverage*.out
+.idea/*
+.vscode/*

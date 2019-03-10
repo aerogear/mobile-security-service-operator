@@ -1,0 +1,49 @@
+ifdef::env-github[]
+:status:
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+:table-caption!:
+endif::[]
+
+
+:toc:
+:toc-placement!:
+
+= Mobile Security Service Operator
+
+ifdef::status[]
+.*Project health*
+image:https://circleci.com/gh/aerogear/mobile-security-service-operator.svg?style=svg[Build Status (CircleCI), link=https://circleci.com/gh/aerogear/mobile-security-service-operator]
+image:https://img.shields.io/:license-Apache2-blue.svg[License (License), link=http://www.apache.org/licenses/LICENSE-2.0]
+image:https://coveralls.io/repos/github/aerogear/mobile-security-service-operator/badge.svg?branch=master[Coverage Status (Coveralls), link=https://coveralls.io/github/aerogear/mobile-security-service-operator?branch=master]
+image:https://goreportcard.com/badge/github.com/aerogear/mobile-security-service-operator[Go Report Card (Go Report Card), link=https://goreportcard.com/report/github.com/aerogear/mobile-security-service-operator]
+endif::[]
+
+:toc:
+toc::[]
+
+== Overview
+
+This is the operator component of the AeroGear Mobile Security Service.
+
+== Prerequisites
+
+|===
+|https://golang.org/doc/install[Install Golang]
+|https://github.com/golang/go/wiki/SettingGOPATH[Ensure the $GOPATH environment variable is set]
+|https://golang.github.io/dep/docs/installation.html[Install the dep package manager]
+|===
+
+== Getting Started
+
+== Contributing
+
+All contributions are hugely appreciated. Please see our https://aerogear.org/community/#guides[Contributing Guide] for guidelines on how to open issues and pull requests. Please check out our link:./.github/CODE_OF_CONDUCT.md[Code of Conduct] too.
+
+== Questions
+
+There are a number of ways you can get in in touch with us, please see the https://aerogear.org/community/#contact[AeroGear community].
+
