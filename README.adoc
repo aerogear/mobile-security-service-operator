@@ -37,6 +37,25 @@ This is the operator component of the AeroGear Mobile Security Service.
 
 == Getting Started
 
+=== To install the operator, run:
+
+==== Login as system:admin
+[source,shell]
+----
+$ oc login -u system:admin
+----
+
+==== Deploy operator
+[source,shell]
+----
+$ kubectl create namespace mobile-security-service
+$ kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
+$ kubectl create -f deploy/role.yaml
+$ kubectl create -f deploy/role_binding.yaml
+$ kubectl create -f deploy/service_account.yaml
+$ kubectl create -f deploy/operator.yaml
+----
+
 == Contributing
 
 All contributions are hugely appreciated. Please see our https://aerogear.org/community/#guides[Contributing Guide] for guidelines on how to open issues and pull requests. Please check out our link:./.github/CODE_OF_CONDUCT.md[Code of Conduct] too.
