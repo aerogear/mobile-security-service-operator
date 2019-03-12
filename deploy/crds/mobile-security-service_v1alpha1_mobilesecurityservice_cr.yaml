@@ -1,0 +1,7 @@
+apiVersion: mobile-security-service.aerogear.com/v1alpha1
+kind: MobileSecurityService
+metadata:
+  name: example-mobilesecurityservice
+spec:
+  # Add fields here
+  size: 3
