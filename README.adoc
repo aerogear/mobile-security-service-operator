@@ -39,9 +39,8 @@ This is a POC of an operator project to install the AeroGear Mobile Security Ser
 
 == Getting Started
 
-=== With Minishift
-* https://docs.okd.io/latest/minishift/getting-started/installing.html[Install Minishift]
-* Enable Operators on it as follows.
+=== To run on Minishift
+https://docs.okd.io/latest/minishift/getting-started/installing.html[Install Minishift] then enable Operators on it by running the following commands.
 
 [source,shell]
 ----
@@ -55,15 +54,22 @@ $ minishift addon enable admin-user
 $ minishift start
 ----
 
-=== To install the operator, run:
+=== To install the operator
 
 ==== Login as system:admin
+
+To install the operator is required have admin permissions in the cluster.
+
 [source,shell]
 ----
 $ oc login -u system:admin
 ----
 
+NOTE: This operator will be installed in the cluster level.
+
 ==== To deploy operator
+
+Run the following commands to deploy the operator in your cluster.
 
 [source,shell]
 ----
@@ -75,19 +81,34 @@ $ kubectl create -f deploy/service_account.yaml
 $ kubectl create -f deploy/operator.yaml
 ----
 
-==== To deploy CRD/Mobile Security Service
+NOTE: You can use `oc` tools instead of `kubectl`. E.g. (`$ oc create namespace mobile-security-service`)
+
+=== To deploy Mobile Security Service in a Project(Namespace)
+To deploy the project run the following command inside of the project where you would like to have the https://github.com/aerogear/mobile-security-service[Mobile Security Service] installed and running.
 
 [source,shell]
 ----
+$ oc project <my-project>
 $ kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
 ----
 
-==== To clean all
+=== To remove Mobile Security Service from the Project(Namespace)
+
+The following command will remove all configuration made by the operator in the project/namespace.
+
+[source,shell]
+----
+$ oc project <my-project>
+$ kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
+----
+
+=== To remove operator from your cluster.
+
+The following commands will clean your cluster and remove all objects created for this operator.
 
 [source,shell]
 ----
 $ kubectl delete namespace mobile-security-service
-$ kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
 $ kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
 $ kubectl delete -f deploy/cluster_role.yaml
 $ kubectl delete -f deploy/cluster_role_binding.yaml
@@ -95,7 +116,11 @@ $ kubectl delete -f deploy/service_account.yaml
 $ kubectl delete -f deploy/operator.yaml
 ----
 
-==== Creating Role for no-privilege users (TODO/Check)
+=== To check/change Mobile Security Service configuration
+The environment variables used in this project are configured by the Config Map which is created by the operator in the project where its is installed.
+To have a further understatement over its configuration see https://github.com/aerogear/mobile-security-service#setup-and-configurations[Setup and Configurations] section of https://github.com/aerogear/mobile-security-service[Mobile Security Service].
+
+=== Creating Role for no-privilege users (TODO/Check)
 
 [source,shell]
 ----
@@ -112,4 +137,3 @@ All contributions are hugely appreciated. Please see our https://aerogear.org/co
 == Questions
 
 There are a number of ways you can get in in touch with us, please see the https://aerogear.org/community/#contact[AeroGear community].
-
