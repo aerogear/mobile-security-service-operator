@@ -118,12 +118,12 @@ $ kubectl delete -f deploy/service_account.yaml
 $ kubectl delete -f deploy/operator.yaml
 ----
 
-=== Mobile Security Service Configurations
+== Mobile Security Service Configurations
 
 The environment variables used in this project are configured by the Config Map which is created by the operator in the project where its is installed.
 To have a further understatement over its configuration see https://github.com/aerogear/mobile-security-service#setup-and-configurations[Setup and Configurations] section of https://github.com/aerogear/mobile-security-service[Mobile Security Service].
 
-=== Creating Role for no-privilege users (TODO/Check)
+== Creating Role for no-privilege users (TODO/Check)
 
 [source,shell]
 ----
