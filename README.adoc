@@ -36,7 +36,6 @@ NOTE: This project is a POC
 |https://github.com/golang/go/wiki/SettingGOPATH[Ensure the $GOPATH environment variable is set]
 |https://golang.github.io/dep/docs/installation.html[Install the dep package manager]
 |https://github.com/operator-framework/operator-sdk#quick-start[Install Operator-SDK]
-|https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl[Install kubectl]
 |===
 
 == Getting Started
@@ -71,27 +70,42 @@ NOTE: This operator will be installed in the cluster level.
 
 ==== To deploy Mobile Security Service Operator
 
-Run the following commands to deploy the operator in your cluster.
+Use the following command.
 
 [source,shell]
 ----
-$ kubectl create namespace mobile-security-service
-$ kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
-$ kubectl create -f deploy/cluster_role.yaml
-$ kubectl create -f deploy/cluster_role_binding.yaml
-$ kubectl create -f deploy/service_account.yaml
-$ kubectl create -f deploy/operator.yaml
+$ make deploy
 ----
 
-NOTE: You can use `oc` tools instead of `kubectl`. E.g. (`$ oc create namespace mobile-security-service`)
+NOTE: Following commands which will be executed with the `make deploy` to deploy the operator in your cluster.
+
+[source,shell]
+----
+$ oc create namespace mobile-security-service
+$ oc create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
+$ oc create -f deploy/cluster_role.yaml
+$ oc create -f deploy/cluster_role_binding.yaml
+$ oc create -f deploy/service_account.yaml
+$ oc create -f deploy/operator.yaml
+----
+
+TIP: You can use `kubectl` tool instead of `oc`. E.g. (`$ kubectl create namespace mobile-security-service`)
 
 === To deploy Mobile Security Service in a Project(Namespace)
-To deploy the project run the following command inside of the project where you would like to have the https://github.com/aerogear/mobile-security-service[Mobile Security Service] installed and running.
+
+Use the following command.
 
 [source,shell]
 ----
 $ oc project <my-project>
-$ kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
+$ make deploy-app
+----
+
+NOTE: Following the command which will be executed with the `make deploy-app` to deploy the Mobile Security Service in your project.
+
+[source,shell]
+----
+$ oc apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
 ----
 
 === To remove Mobile Security Service from the Project(Namespace)
@@ -101,21 +115,35 @@ The following command will remove all configuration made by the operator in the 
 [source,shell]
 ----
 $ oc project <my-project>
-$ kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
+$ make undeploy-app
 ----
 
-=== To remove Mobile Security Service Operator from your cluster.
-
-The following commands will clean your cluster and remove all objects created for this operator.
+NOTE: Following the command which will be executed with the `make undeploy-app` to undeploy the Mobile Security Service from your project.
 
 [source,shell]
 ----
-$ kubectl delete namespace mobile-security-service
-$ kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
-$ kubectl delete -f deploy/cluster_role.yaml
-$ kubectl delete -f deploy/cluster_role_binding.yaml
-$ kubectl delete -f deploy/service_account.yaml
-$ kubectl delete -f deploy/operator.yaml
+$ oc delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
+----
+
+=== To remove Mobile Security Service Operator from your cluster
+
+Use the following command.
+
+[source,shell]
+----
+$ make undeploy
+----
+
+NOTE: Following commands which will be executed with the `make undeploy` to undeploy the operator from your cluster.
+
+[source,shell]
+----
+$ oc delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
+$ oc delete -f deploy/cluster_role.yaml
+$ oc delete -f deploy/cluster_role_binding.yaml
+$ oc delete -f deploy/service_account.yaml
+$ oc delete -f deploy/operator.yaml
+$ oc delete namespace mobile-security-service
 ----
 
 == Mobile Security Service Configurations
@@ -132,6 +160,20 @@ oc create \
   --role=mobile-security-service-operator \
   --user=developer
 ----
+
+== Using make commands
+
+|===
+| *Command*                     | *Description*
+| `make deploy`                 | Create mobile-security-service namespace and deploy operator and roles`
+| `make undeploy`               | Remove mobile-security-service namespace and undeploy operator and roles`
+| `make deploy-app`             | Deploy Mobile Security Service in the project`
+| `make undeploy-app`           | Undeploy Mobile Security Service in the project`
+| `make build`                  | Build operator for development proposes`
+| `make publish`                | Publish operator in https://hub.docker.com/[Docker Hub]`
+|===
+
+NOTE: The link:./Makefile[Makefile] is implemented with tasks which you should use to work with.
 
 == Contributing
 
