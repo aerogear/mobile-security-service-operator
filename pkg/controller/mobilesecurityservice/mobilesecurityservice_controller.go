@@ -25,6 +25,7 @@ import (
 
 var log = logf.Log.WithName("controller_mobilesecurityservice")
 
+
 /**
 * USER ACTION REQUIRED: This is a scaffold file intended for the user to modify with their own Controller
 * business logic.  Delete these comments after modifying this file.*
@@ -55,24 +56,26 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 		return err
 	}
 
-	// Watch for changes to secondary resource Deployment and requeue the owner MobileSecurityService
-	err = c.Watch(&source.Kind{Type: &appsv1.Deployment{}}, &handler.EnqueueRequestForOwner{
-		IsController: true,
-		OwnerType:    &mobilesecurityservicev1alpha1.MobileSecurityService{},
-	})
+	/** Watch for changes to secondary resources and requeue the owner MobileSecurityService **/
 
-	// Watch for changes to secondary resource Service and requeue the owner MobileSecurityService
-	err = c.Watch(&source.Kind{Type: &corev1.Service{}}, &handler.EnqueueRequestForOwner{
-		IsController: true,
-		OwnerType:    &mobilesecurityservicev1alpha1.MobileSecurityService{},
-	})
+	//ConfigMap
+	if err:= watchConfigMap(c); err != nil {
+		return err
+	}
 
-	if err != nil {
+	//Deployment
+	if err:= watchDeployment(c); err != nil {
+		return err
+	}
+
+	//Service
+	if err:= watchService(c); err != nil {
 		return err
 	}
 
 	return nil
 }
+
 
 var _ reconcile.Reconciler = &ReconcileMobileSecurityService{}
 
@@ -109,11 +112,29 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 		return reconcile.Result{}, err
 	}
 
-	//Check if the deployment already exists, if not create a new one
-	found := &appsv1.Deployment{}
-	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, found)
+	//Check if the ConfigMap already exists, if not create a new one
+	configmap := &corev1.ConfigMap{}
+	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, configmap)
 	if err != nil && errors.IsNotFound(err) {
-		dep := r.deploymentForMobileSecurityService(instance)
+		cfg := r.getConfigMapForMobileSecurityService(instance)
+		reqLogger.Info("Creating a new ConfigMap", "ConfigMap.Namespace", cfg.Namespace, "ConfigMap.Name", cfg.Name)
+		err = r.client.Create(context.TODO(), cfg)
+		if err != nil {
+			reqLogger.Error(err, "Failed to create new ConfigMap", "ConfigMap.Namespace", cfg.Namespace, "ConfigMap.Name", cfg.Name)
+			return reconcile.Result{}, err
+		}
+		reqLogger.Info("ConfigMap created successfully - return and requeue")
+		return reconcile.Result{Requeue: true}, nil
+	} else if err != nil {
+		reqLogger.Error(err, "Failed to get ConfigMap")
+		return reconcile.Result{}, err
+	}
+
+	//Check if the deployment already exists, if not create a new one
+	deployment := &appsv1.Deployment{}
+	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, deployment)
+	if err != nil && errors.IsNotFound(err) {
+		dep := r.getDeploymentForMobileSecurityService(instance)
 		reqLogger.Info("Creating a new Deployment", "Deployment.Namespace", dep.Namespace, "Deployment.Name", dep.Name)
 		err = r.client.Create(context.TODO(), dep)
 		if err != nil {
@@ -127,13 +148,26 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 		return reconcile.Result{}, err
 	}
 
+	//Ensure the deployment size is the same as the spec
+	reqLogger.Info("Ensure the deployment size is the same as the spec")
+	size := instance.Spec.Size
+	if *deployment.Spec.Replicas != size {
+		deployment.Spec.Replicas = &size
+		err = r.client.Update(context.TODO(), deployment)
+		if err != nil {
+			reqLogger.Error(err, "Failed to update Deployment", "Deployment.Namespace", deployment.Namespace, "Deployment.Name", deployment.Name)
+			return reconcile.Result{}, err
+		}
+		reqLogger.Info("Spec updated - return and requeue")
+		return reconcile.Result{Requeue: true}, nil
+	}
 
 	//Check if the Service already exists, if not create a new one
 	service := &corev1.Service{}
 	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, service)
 	if err != nil && errors.IsNotFound(err) {
 		reqLogger.Info("Define a new service")
-		ser := r.serviceForMobileSecurityService(instance)
+		ser := r.getServiceForMobileSecurityService(instance)
 		reqLogger.Info("Creating a new Service", "Service.Namespace", ser.Namespace, "Service.Name", ser.Name)
 		err = r.client.Create(context.TODO(), ser)
 		if err != nil {
@@ -145,20 +179,6 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 	} else if err != nil {
 		reqLogger.Error(err, "Failed to get Service")
 		return reconcile.Result{}, err
-	}
-
-	//Ensure the deployment size is the same as the spec
-	reqLogger.Info("Ensure the deployment size is the same as the spec")
-	size := instance.Spec.Size
-	if *found.Spec.Replicas != size {
-		found.Spec.Replicas = &size
-		err = r.client.Update(context.TODO(), found)
-		if err != nil {
-			reqLogger.Error(err, "Failed to update Deployment", "Deployment.Namespace", found.Namespace, "Deployment.Name", found.Name)
-			return reconcile.Result{}, err
-		}
-		reqLogger.Info("Spec updated - return and requeue")
-		return reconcile.Result{Requeue: true}, nil
 	}
 
 	//Update the MobileSecurityService status with the pod names
@@ -186,11 +206,31 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 	return reconcile.Result{}, nil
 }
 
-// deploymentForMobileSecurityService returns a MobileSecurityService Deployment object
-func (r *ReconcileMobileSecurityService) deploymentForMobileSecurityService(m *mobilesecurityservicev1alpha1.MobileSecurityService) *appsv1.Deployment {
+// getServiceForMobileSecurityService returns a MobileSecurityService Service object
+func (r *ReconcileMobileSecurityService) getConfigMapForMobileSecurityService(m *mobilesecurityservicev1alpha1.MobileSecurityService) *corev1.ConfigMap {
+	ls := labelsForMobileSecurityService(m.Name)
+	ser := &corev1.ConfigMap{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "v1",
+			Kind:       "ConfigMap",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      m.Name,
+			Namespace: m.Namespace,
+			Labels:    ls,
+		},
+		Data: getConfigMapForMobileSecurityService(),
+	}
+	// Set MobileSecurityService instance as the owner and controller
+	controllerutil.SetControllerReference(m, ser, r.scheme)
+	return ser
+}
+
+// getDeploymentForMobileSecurityService returns a MobileSecurityService Deployment object
+func (r *ReconcileMobileSecurityService) getDeploymentForMobileSecurityService(m *mobilesecurityservicev1alpha1.MobileSecurityService) *appsv1.Deployment {
 	ls := labelsForMobileSecurityService(m.Name)
 	replicas := m.Spec.Size
-
+	envinronment := getAllEnvVarsToSetupMobileSecurityService(m)
 	dep := &appsv1.Deployment{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "apps/v1",
@@ -216,20 +256,17 @@ func (r *ReconcileMobileSecurityService) deploymentForMobileSecurityService(m *m
 
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{{
-						Image:   "cmacedo/mobile-security-service:v0.2.0", //FIXME: the image need to be come from aerogear repo and need to be in a configmap/file
-						Name:    "mobilesecurityservice",
+						Image:   m.Spec.Image,
+						Name:    "security-service",
 						ImagePullPolicy: corev1.PullIfNotPresent,
 						Ports: []corev1.ContainerPort{{
 							ContainerPort: 3000,
 							Name:          "http",
 							Protocol:      "TCP",
 						}},
-						Env: []corev1.EnvVar{
-							{
-								Name:  "PGHOST",
-								Value: "postgresql", //FIXME: It should not be fixed. It need to came from a configMap
-							},
-						},
+						// Get the value from the ConfigMap
+
+						Env: *envinronment,
 						ReadinessProbe: &corev1.Probe{
 							Handler: corev1.Handler{
 								HTTPGet: &corev1.HTTPGetAction{
@@ -241,9 +278,11 @@ func (r *ReconcileMobileSecurityService) deploymentForMobileSecurityService(m *m
 									Scheme: corev1.URISchemeHTTP,
 								},
 							},
-							InitialDelaySeconds: 25,
-							FailureThreshold:    50,
-							TimeoutSeconds:      60,
+							InitialDelaySeconds: 10,
+							FailureThreshold:    3,
+							TimeoutSeconds:      10,
+							PeriodSeconds:       10,
+							SuccessThreshold:    1,
 						},
 						LivenessProbe: &corev1.Probe{
 							Handler: corev1.Handler{
@@ -258,7 +297,10 @@ func (r *ReconcileMobileSecurityService) deploymentForMobileSecurityService(m *m
 							},
 							InitialDelaySeconds: 10,
 							FailureThreshold:    3,
-							TimeoutSeconds:      3,
+							TimeoutSeconds:      10,
+							PeriodSeconds:       10,
+							SuccessThreshold:    1,
+
 						},
 					}},
 
@@ -273,12 +315,12 @@ func (r *ReconcileMobileSecurityService) deploymentForMobileSecurityService(m *m
 }
 
 
-// serviceForMobileSecurityService returns a MobileSecurityService Service object
-func (r *ReconcileMobileSecurityService) serviceForMobileSecurityService(m *mobilesecurityservicev1alpha1.MobileSecurityService) *corev1.Service {
+// getServiceForMobileSecurityService returns a MobileSecurityService Service object
+func (r *ReconcileMobileSecurityService) getServiceForMobileSecurityService(m *mobilesecurityservicev1alpha1.MobileSecurityService) *corev1.Service {
 	ls := labelsForMobileSecurityService(m.Name)
 	ser := &corev1.Service{
 		TypeMeta: metav1.TypeMeta{
-			APIVersion: "core/v1",
+			APIVersion: "v1",
 			Kind:       "Service",
 		},
 		ObjectMeta: metav1.ObjectMeta{
@@ -288,7 +330,7 @@ func (r *ReconcileMobileSecurityService) serviceForMobileSecurityService(m *mobi
 		},
 		Spec: corev1.ServiceSpec{
 			Selector: ls,
-			Type:corev1.ServiceTypeLoadBalancer,
+			Type:corev1.ServiceTypeClusterIP,
 			Ports: []corev1.ServicePort{
 				{
 					TargetPort:  intstr.IntOrString{
@@ -307,17 +349,3 @@ func (r *ReconcileMobileSecurityService) serviceForMobileSecurityService(m *mobi
 	return ser
 }
 
-// labelsForMobileSecurityService returns the labels for selecting the resources
-// belonging to the given MobileSecurityService CR name.
-func labelsForMobileSecurityService(name string) map[string]string {
-	return map[string]string{"app": "mobilesecurityservice", "mobilesecurityservice_cr": name}
-}
-
-// getPodNames returns the pod names of the array of pods passed in
-func getPodNames(pods []corev1.Pod) []string {
-	var podNames []string
-	for _, pod := range pods {
-		podNames = append(podNames, pod.Name)
-	}
-	return podNames
-}

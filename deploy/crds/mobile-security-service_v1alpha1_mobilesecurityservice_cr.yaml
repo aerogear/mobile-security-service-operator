@@ -5,3 +5,4 @@ metadata:
 spec:
   # Add fields here
   size: 1
+  image: "aerogear/mobile-security-service:master"

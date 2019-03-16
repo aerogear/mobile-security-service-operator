@@ -5,23 +5,11 @@ metadata:
   namespace: mobile-security-service
 rules:
 - apiGroups:
-  - ""
+  - "*"
   resources:
-  - pods
-  - services
-  - endpoints
-  - persistentvolumeclaims
-  - events
-  - configmaps
-  - secrets
+  - "*"
   verbs:
-  - '*'
-- apiGroups:
-  - ""
-  resources:
-  - namespaces
-  verbs:
-  - get
+  - "*"
 - apiGroups:
   - apps
   resources:
@@ -29,8 +17,18 @@ rules:
   - daemonsets
   - replicasets
   - statefulsets
+  - serviceaccounts
+  - rolebindings
+  - routes
+  - oauthclients
   verbs:
-  - '*'
+  - "*"
+- apiGroups:
+  - oauth.openshift.io
+  resources:
+  - oauthclients
+  verbs:
+  - "*"
 - apiGroups:
   - monitoring.coreos.com
   resources:
@@ -50,11 +48,5 @@ rules:
   - mobile-security-service.aerogear.com
   resources:
   - '*'
-  verbs:
-  - '*'
-- apiGroups:
-  - oauth.openshift.io
-  resources:
-  - oauthclients
   verbs:
   - '*'

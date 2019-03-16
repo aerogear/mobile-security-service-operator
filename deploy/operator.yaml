@@ -17,7 +17,7 @@ spec:
       containers:
         - name: mobile-security-service-operator
           # Replace this with the built image name
-          image: cmacedo/mobile-security-service-operator:v0.2.0
+          image: cmacedo/mobile-security-service-operator:v0.3.0
           command:
           - mobile-security-service-operator
           imagePullPolicy: Always
