@@ -48,6 +48,13 @@ func getConfigMapForMobileSecurityService() map[string]string {
 	}
 }
 
+// return properties for the response SDK
+func getConfigMapSDKForMobileSecurityService() map[string]string {
+	return map[string]string{
+		"URL": "",
+	}
+}
+
 // return the Env Var for the project
 func getAllEnvVarsToSetupMobileSecurityService(m *mobilesecurityservicev1alpha1.MobileSecurityService) *[]corev1.EnvVar {
 	res := []corev1.EnvVar{}
