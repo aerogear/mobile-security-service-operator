@@ -3,19 +3,16 @@ package mobilesecurityservice
 import (
 	"context"
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
-	"k8s.io/apimachinery/pkg/util/intstr"
 	"reflect"
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
@@ -205,147 +202,3 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 
 	return reconcile.Result{}, nil
 }
-
-// getServiceForMobileSecurityService returns a MobileSecurityService Service object
-func (r *ReconcileMobileSecurityService) getConfigMapForMobileSecurityService(m *mobilesecurityservicev1alpha1.MobileSecurityService) *corev1.ConfigMap {
-	ls := labelsForMobileSecurityService(m.Name)
-	ser := &corev1.ConfigMap{
-		TypeMeta: metav1.TypeMeta{
-			APIVersion: "v1",
-			Kind:       "ConfigMap",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      m.Name,
-			Namespace: m.Namespace,
-			Labels:    ls,
-		},
-		Data: getConfigMapForMobileSecurityService(),
-	}
-	// Set MobileSecurityService instance as the owner and controller
-	controllerutil.SetControllerReference(m, ser, r.scheme)
-	return ser
-}
-
-// getDeploymentForMobileSecurityService returns a MobileSecurityService Deployment object
-func (r *ReconcileMobileSecurityService) getDeploymentForMobileSecurityService(m *mobilesecurityservicev1alpha1.MobileSecurityService) *appsv1.Deployment {
-	ls := labelsForMobileSecurityService(m.Name)
-	replicas := m.Spec.Size
-	envinronment := getAllEnvVarsToSetupMobileSecurityService(m)
-	dep := &appsv1.Deployment{
-		TypeMeta: metav1.TypeMeta{
-			APIVersion: "apps/v1",
-			Kind:       "Deployment",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      m.Name,
-			Namespace: m.Namespace,
-			Labels:    ls,
-		},
-		Spec:appsv1.DeploymentSpec{
-			Replicas: &replicas,
-			Strategy: appsv1.DeploymentStrategy{
-				Type: appsv1.RecreateDeploymentStrategyType,
-			},
-			Selector: &metav1.LabelSelector{
-				MatchLabels: ls,
-			},
-			Template: corev1.PodTemplateSpec{
-				ObjectMeta: metav1.ObjectMeta{
-					Labels: ls,
-				},
-
-				Spec: corev1.PodSpec{
-					Containers: []corev1.Container{{
-						Image:   m.Spec.Image,
-						Name:    "security-service",
-						ImagePullPolicy: corev1.PullIfNotPresent,
-						Ports: []corev1.ContainerPort{{
-							ContainerPort: 3000,
-							Name:          "http",
-							Protocol:      "TCP",
-						}},
-						// Get the value from the ConfigMap
-
-						Env: *envinronment,
-						ReadinessProbe: &corev1.Probe{
-							Handler: corev1.Handler{
-								HTTPGet: &corev1.HTTPGetAction{
-									Path: "/api/healthz",
-									Port: intstr.IntOrString{
-										Type:   intstr.Int,
-										IntVal: int32(3000),
-									},
-									Scheme: corev1.URISchemeHTTP,
-								},
-							},
-							InitialDelaySeconds: 10,
-							FailureThreshold:    3,
-							TimeoutSeconds:      10,
-							PeriodSeconds:       10,
-							SuccessThreshold:    1,
-						},
-						LivenessProbe: &corev1.Probe{
-							Handler: corev1.Handler{
-								HTTPGet: &corev1.HTTPGetAction{
-									Path: "/api/ping",
-									Port: intstr.IntOrString{
-										Type:   intstr.Int,
-										IntVal: int32(3000),
-									},
-									Scheme: corev1.URISchemeHTTP,
-								},
-							},
-							InitialDelaySeconds: 10,
-							FailureThreshold:    3,
-							TimeoutSeconds:      10,
-							PeriodSeconds:       10,
-							SuccessThreshold:    1,
-
-						},
-					}},
-
-				},
-
-			},
-		},
-	}
-	// Set MobileSecurityService instance as the owner and controller
-	controllerutil.SetControllerReference(m, dep, r.scheme)
-	return dep
-}
-
-
-// getServiceForMobileSecurityService returns a MobileSecurityService Service object
-func (r *ReconcileMobileSecurityService) getServiceForMobileSecurityService(m *mobilesecurityservicev1alpha1.MobileSecurityService) *corev1.Service {
-	ls := labelsForMobileSecurityService(m.Name)
-	ser := &corev1.Service{
-		TypeMeta: metav1.TypeMeta{
-			APIVersion: "v1",
-			Kind:       "Service",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      m.Name,
-			Namespace: m.Namespace,
-			Labels:    ls,
-		},
-		Spec: corev1.ServiceSpec{
-			Selector: ls,
-			Type:corev1.ServiceTypeClusterIP,
-			Ports: []corev1.ServicePort{
-				{
-					TargetPort:  intstr.IntOrString{
-						Type:   intstr.Int,
-						IntVal: int32(3000),
-					},
-					Port:       3000,
-					Protocol:   "TCP",
-				},
-			},
-		},
-
-	}
-	// Set MobileSecurityService instance as the owner and controller
-	controllerutil.SetControllerReference(m, ser, r.scheme)
-	return ser
-}
-
