@@ -25,7 +25,9 @@ toc::[]
 
 == Overview
 
-This is a POC of an operator project to install the AeroGear Mobile Security Service.
+A https://commons.openshift.org/sig/OpenshiftOperators.html[Operator] based on the https://github.com/operator-framework/operator-sdk[Operator SDK] that installs and maintains https://github.com/aerogear/mobile-security-service[AeroGear Mobile Security Service] on a cluster.
+
+NOTE: This project is a POC
 
 == Prerequisites
 
@@ -54,7 +56,7 @@ $ minishift addon enable admin-user
 $ minishift start
 ----
 
-=== To install the operator
+=== To install Mobile Security Service Operator in cluster
 
 ==== Login as system:admin
 
@@ -67,7 +69,7 @@ $ oc login -u system:admin
 
 NOTE: This operator will be installed in the cluster level.
 
-==== To deploy operator
+==== To deploy Mobile Security Service Operator
 
 Run the following commands to deploy the operator in your cluster.
 
@@ -102,7 +104,7 @@ $ oc project <my-project>
 $ kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
 ----
 
-=== To remove operator from your cluster.
+=== To remove Mobile Security Service Operator from your cluster.
 
 The following commands will clean your cluster and remove all objects created for this operator.
 
@@ -116,7 +118,8 @@ $ kubectl delete -f deploy/service_account.yaml
 $ kubectl delete -f deploy/operator.yaml
 ----
 
-=== To check/change Mobile Security Service configuration
+=== Mobile Security Service Configurations
+
 The environment variables used in this project are configured by the Config Map which is created by the operator in the project where its is installed.
 To have a further understatement over its configuration see https://github.com/aerogear/mobile-security-service#setup-and-configurations[Setup and Configurations] section of https://github.com/aerogear/mobile-security-service[Mobile Security Service].
 
