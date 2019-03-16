@@ -83,6 +83,7 @@ NOTE: Following commands which will be executed with the `make deploy` to deploy
 ----
 $ oc create namespace mobile-security-service
 $ oc create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
+$ oc create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
 $ oc create -f deploy/cluster_role.yaml
 $ oc create -f deploy/cluster_role_binding.yaml
 $ oc create -f deploy/service_account.yaml
@@ -91,7 +92,7 @@ $ oc create -f deploy/operator.yaml
 
 TIP: You can use `kubectl` tool instead of `oc`. E.g. (`$ kubectl create namespace mobile-security-service`)
 
-=== To deploy Mobile Security Service in a Project(Namespace)
+=== To deploy Mobile Security Service in a Project(Namespace) with its database
 
 Use the following command.
 
@@ -101,14 +102,15 @@ $ oc project <my-project>
 $ make deploy-app
 ----
 
-NOTE: Following the command which will be executed with the `make deploy-app` to deploy the Mobile Security Service in your project.
+NOTE: Following the commands which will be executed with the `make deploy-app` to deploy the Mobile Security Service and its database in your project.
 
 [source,shell]
 ----
 $ oc apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
+$ oc apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
 ----
 
-=== To remove Mobile Security Service from the Project(Namespace)
+=== To remove Mobile Security Service from the Project(Namespace) and its database
 
 The following command will remove all configuration made by the operator in the project/namespace.
 
@@ -118,11 +120,12 @@ $ oc project <my-project>
 $ make undeploy-app
 ----
 
-NOTE: Following the command which will be executed with the `make undeploy-app` to undeploy the Mobile Security Service from your project.
+NOTE: Following the commands which will be executed with the `make undeploy-app` to undeploy the Mobile Security Service and its database from your project.
 
 [source,shell]
 ----
 $ oc delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
+$ oc delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
 ----
 
 === To remove Mobile Security Service Operator from your cluster
@@ -139,6 +142,7 @@ NOTE: Following commands which will be executed with the `make undeploy` to unde
 [source,shell]
 ----
 $ oc delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
+$ oc delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
 $ oc delete -f deploy/cluster_role.yaml
 $ oc delete -f deploy/cluster_role_binding.yaml
 $ oc delete -f deploy/service_account.yaml
@@ -146,11 +150,31 @@ $ oc delete -f deploy/operator.yaml
 $ oc delete namespace mobile-security-service
 ----
 
+=== To deploy Mobile Security Service project without the database
+
+Note that this operator has one type for the project and another for its database. In this way, its possible deploy them separately.
+
+Use the following command to deploy just the Mobile Security Service in your project
+
+[source,shell]
+----
+$ make deploy-app-only
+----
+
+NOTE: Following the command which will be executed with the `make deploy-app-only` to deploy the Mobile Security Service into your project.
+
+[source,shell]
+----
+$ oc create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
+----
+
 == Mobile Security Service Configurations
 
-The environment variables used in this project are configured by the Config Map which is created by the operator in the project where its is installed.
-To have a further understatement over its configuration see https://github.com/aerogear/mobile-security-service#setup-and-configurations[Setup and Configurations] section of https://github.com/aerogear/mobile-security-service[Mobile Security Service].
+The environment variables used in this project are configured by the Config Map which is created by the operator. To have a further understatement over its configuration see https://github.com/aerogear/mobile-security-service#setup-and-configurations[Setup and Configurations] section of https://github.com/aerogear/mobile-security-service[Mobile Security Service].
 
+TIP: For example, check that the database name and its details are mapped in the ConfigMap used by Mobile Security Service application and database. In this, way for example to connect to the database with the default values you may use inside of its contained the command: `psql -h localhost -U postgresql mobile_security_service
+
+NOTE: To test/check it in the container with the default values you can
 == Creating Role for no-privilege users (TODO/Check)
 
 [source,shell]
@@ -167,10 +191,13 @@ oc create \
 | *Command*                     | *Description*
 | `make deploy`                 | Create mobile-security-service namespace and deploy operator and roles`
 | `make undeploy`               | Remove mobile-security-service namespace and undeploy operator and roles`
-| `make deploy-app`             | Deploy Mobile Security Service in the project`
-| `make undeploy-app`           | Undeploy Mobile Security Service in the project`
+| `make deploy-app`             | Deploy Mobile Security Service and its database in the project`
+| `make deploy-app-only`        | Deploy Mobile Security Service without its database in the project`
+| `make undeploy-app`           | Undeploy Mobile Security Service e and its database in from the project`
 | `make build`                  | Build operator for development proposes`
 | `make publish`                | Publish operator in https://hub.docker.com/[Docker Hub]`
+| `make vet`                    | Examines source code and reports suspicious constructs using https://golang.org/cmd/vet/[vet]
+| `make fmt`                    | Formats code using https://golang.org/cmd/gofmt/[gofmt]
 |===
 
 NOTE: The link:./Makefile[Makefile] is implemented with tasks which you should use to work with.
