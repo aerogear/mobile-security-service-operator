@@ -1,7 +1,6 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  creationTimestamp: null
   name: mobile-security-service-operator
   namespace: mobile-security-service
 rules:
@@ -51,5 +50,11 @@ rules:
   - mobile-security-service.aerogear.com
   resources:
   - '*'
+  verbs:
+  - '*'
+- apiGroups:
+  - oauth.openshift.io
+  resources:
+  - oauthclients
   verbs:
   - '*'

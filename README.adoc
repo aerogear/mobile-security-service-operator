@@ -25,7 +25,7 @@ toc::[]
 
 == Overview
 
-This is the operator component of the AeroGear Mobile Security Service.
+This is a POC of an operator project to install the AeroGear Mobile Security Service.
 
 == Prerequisites
 
@@ -33,9 +33,27 @@ This is the operator component of the AeroGear Mobile Security Service.
 |https://golang.org/doc/install[Install Golang]
 |https://github.com/golang/go/wiki/SettingGOPATH[Ensure the $GOPATH environment variable is set]
 |https://golang.github.io/dep/docs/installation.html[Install the dep package manager]
+|https://github.com/operator-framework/operator-sdk#quick-start[Install Operator-SDK]
+|https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl[Install kubectl]
 |===
 
 == Getting Started
+
+=== With Minishift
+* https://docs.okd.io/latest/minishift/getting-started/installing.html[Install Minishift]
+* Enable Operators on it as follows.
+
+[source,shell]
+----
+# create a new profile to test the operator
+$ minishift profile set operator
+
+# enable the admin-user add-on
+$ minishift addon enable admin-user
+
+# start the instance
+$ minishift start
+----
 
 === To install the operator, run:
 
@@ -45,15 +63,46 @@ This is the operator component of the AeroGear Mobile Security Service.
 $ oc login -u system:admin
 ----
 
-==== Deploy operator
+==== To deploy operator
+
 [source,shell]
 ----
 $ kubectl create namespace mobile-security-service
 $ kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
-$ kubectl create -f deploy/role.yaml
-$ kubectl create -f deploy/role_binding.yaml
+$ kubectl create -f deploy/cluster_role.yaml
+$ kubectl create -f deploy/cluster_role_binding.yaml
 $ kubectl create -f deploy/service_account.yaml
 $ kubectl create -f deploy/operator.yaml
+----
+
+==== To deploy CRD/Mobile Security Service
+
+[source,shell]
+----
+$ kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
+----
+
+==== To clean all
+
+[source,shell]
+----
+$ kubectl delete namespace mobile-security-service
+$ kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
+$ kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
+$ kubectl delete -f deploy/cluster_role.yaml
+$ kubectl delete -f deploy/cluster_role_binding.yaml
+$ kubectl delete -f deploy/service_account.yaml
+$ kubectl delete -f deploy/operator.yaml
+----
+
+==== Creating Role for no-privilege users (TODO/Check)
+
+[source,shell]
+----
+oc create \
+  rolebinding developer-mobile-security-service-operator \
+  --role=mobile-security-service-operator \
+  --user=developer
 ----
 
 == Contributing
