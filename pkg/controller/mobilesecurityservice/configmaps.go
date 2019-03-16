@@ -26,3 +26,24 @@ func (r *ReconcileMobileSecurityService) getConfigMapForMobileSecurityService(m 
 	controllerutil.SetControllerReference(m, ser, r.scheme)
 	return ser
 }
+
+// getServiceForMobileSecurityService returns a MobileSecurityService Service resource
+func (r *ReconcileMobileSecurityService) getConfigMapSDKForMobileSecurityService(m *mobilesecurityservicev1alpha1.MobileSecurityService) *corev1.ConfigMap {
+	ls := labelsForMobileSecurityService(m.Name)
+	name := m.Name + "-sdk"
+	ser := &corev1.ConfigMap{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "v1",
+			Kind:       "ConfigMap",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      name,
+			Namespace: m.Namespace,
+			Labels:    ls,
+		},
+		Data: getConfigMapSDKForMobileSecurityService(),
+	}
+	// Set MobileSecurityService instance as the owner and controller
+	controllerutil.SetControllerReference(m, ser, r.scheme)
+	return ser
+}

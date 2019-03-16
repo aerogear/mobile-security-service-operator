@@ -127,6 +127,25 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 		return reconcile.Result{}, err
 	}
 
+	//Check if the SDK ConfigMap already exists, if not create a new one
+	configmapsdk := &corev1.ConfigMap{}
+	configmapsdk_name := instance.Name+"-sdk"
+	err = r.client.Get(context.TODO(), types.NamespacedName{Name: configmapsdk_name, Namespace: instance.Namespace}, configmapsdk)
+	if err != nil && errors.IsNotFound(err) {
+		cfgSDK := r.getConfigMapSDKForMobileSecurityService(instance)
+		reqLogger.Info("Creating a new ConfigMapSDK", "ConfigMapSDK.Namespace", cfgSDK.Namespace, "ConfigMapSDK.Name", cfgSDK.Name)
+		err = r.client.Create(context.TODO(), cfgSDK)
+		if err != nil {
+			reqLogger.Error(err, "Failed to create new ConfigMapSDK", "ConfigMapSDK.Namespace", cfgSDK.Namespace, "ConfigMapSDK.Name", cfgSDK.Name)
+			return reconcile.Result{}, err
+		}
+		reqLogger.Info("ConfigMap created successfully - return and requeue")
+		return reconcile.Result{Requeue: true}, nil
+	} else if err != nil {
+		reqLogger.Error(err, "Failed to get ConfigMapSDK")
+		return reconcile.Result{}, err
+	}
+
 	//Check if the deployment already exists, if not create a new one
 	deployment := &appsv1.Deployment{}
 	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, deployment)
