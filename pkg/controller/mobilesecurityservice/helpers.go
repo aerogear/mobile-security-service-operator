@@ -1,51 +1,14 @@
 package mobilesecurityservice
 
 import (
-	corev1 "k8s.io/api/core/v1"
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
+	corev1 "k8s.io/api/core/v1"
 )
 
-// labelsForMobileSecurityService returns the labels for selecting the resources
-// belonging to the given MobileSecurityService CR name.
-func labelsForMobileSecurityService(name string) map[string]string {
+// Returns an string map with the labels which wil be associated to the kubernetes/openshift objects
+// which will be created and managed by this operator
+func getAppLabels(name string) map[string]string {
 	return map[string]string{"app": "mobilesecurityservice", "mobilesecurityservice_cr": name}
-}
-
-func getAnnotationsForMobileSecurityIngress(name string) map[string]string {
-	return map[string]string{"kubernetes.io/ingress.class": "nginx", "mobilesecurityservice_cr": name}
-}
-
-// getPodNames returns the pod names of the array of pods passed in
-func getPodNames(pods []corev1.Pod) []string {
-	var podNames []string
-	for _, pod := range pods {
-		podNames = append(podNames, pod.Name)
-	}
-	return podNames
-}
-
-// return the list of environment variables of the Mobile Security Service Project
-func getConfigMapForMobileSecurityService() map[string]string {
-	return map[string]string{
-		"PGHOST": "postgresql",
-		"PGUSER": "postgresql",
-		"PGPASSWORD": "postgres",
-		"PGDATABASE": "mobile_security_service",
-		"PORT": "3000",
-		"LOG_LEVEL":                        "info",
-		"LOG_FORMAT":                       "json",
-		"ACCESS_CONTROL_ALLOW_ORIGIN":      "*",
-		"ACCESS_CONTROL_ALLOW_CREDENTIALS": "false",
-		"STATIC_FILES_DIR":                 "static",
-		"PGPORT":                           "5432",
-		"PGSSLMODE":                        "disable",
-		"PGCONNECT_TIMEOUT":                "5",
-		"PGAPPNAME":                        "",
-		"PGSSLCERT":                        "",
-		"PGSSLKEY":                         "",
-		"PGSSLROOTCERT":                    "",
-		"DB_MAX_CONNECTIONS":               "100",
-	}
 }
 
 // return properties for the response SDK
@@ -55,10 +18,10 @@ func getConfigMapSDKForMobileSecurityService() map[string]string {
 	}
 }
 
-// return the Env Var for the project
-func getAllEnvVarsToSetupMobileSecurityService(m *mobilesecurityservicev1alpha1.MobileSecurityService) *[]corev1.EnvVar {
+// Helper to build the env vars which will be configured in the deployment of the Mobile Security Service Project
+func buildAppEnvVars(m *mobilesecurityservicev1alpha1.MobileSecurityService) *[]corev1.EnvVar {
 	res := []corev1.EnvVar{}
-	for key := range getConfigMapForMobileSecurityService() {
+	for key := range getAppEnvVarsMap(m) {
 		env := corev1.EnvVar{
 			Name: key,
 			ValueFrom: &corev1.EnvVarSource{
@@ -75,3 +38,25 @@ func getAllEnvVarsToSetupMobileSecurityService(m *mobilesecurityservicev1alpha1.
 	return &res
 }
 
+// Helper to get a map[string]string with the key and values required/used to setup the Mobile Security Service Project
+func getAppEnvVarsMap(m *mobilesecurityservicev1alpha1.MobileSecurityService) map[string]string {
+	return map[string]string{
+		"PGHOST":                           m.Spec.DatabaseHost,
+		"LOG_LEVEL":                        m.Spec.LogLevel,
+		"LOG_FORMAT":                       m.Spec.LogFormat,
+		"ACCESS_CONTROL_ALLOW_ORIGIN":      m.Spec.AccessControlAllowOrigin,
+		"ACCESS_CONTROL_ALLOW_CREDENTIALS": m.Spec.AccessControlAllowCredentials,
+		"PGDATABASE":                       m.Spec.DatabaseName,
+		"PGPASSWORD":                       m.Spec.DatabasePassword,
+		"PGUSER":                           m.Spec.DatabaseUser,
+	}
+}
+
+// getPodNames returns the pod names of the array of pods passed in
+func getPodNames(pods []corev1.Pod) []string {
+	var podNames []string
+	for _, pod := range pods {
+		podNames = append(podNames, pod.Name)
+	}
+	return podNames
+}

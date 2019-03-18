@@ -3,6 +3,17 @@ kind: MobileSecurityService
 metadata:
   name: mobile-security-service-app
 spec:
-  # Add fields here
   size: 1
   image: "aerogear/mobile-security-service:master"
+  containerName: "application"
+  databaseName: "mobile_security_service"
+  databasePassword: "postgres"
+  databaseUser: "postgresql"
+  databaseHost: "mobile-security-service-db"
+  memoryLimit: "512Mi"
+  memoryRequest: "512Mi"
+  port: 3000
+  logLevel: "info"
+  logFormat: "json"
+  accessControlAllowOrigin: "*"
+  accessControlAllowCredentials: "false"

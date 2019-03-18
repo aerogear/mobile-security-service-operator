@@ -13,8 +13,20 @@ type MobileSecurityServiceSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
-	Size int32 `json:"size"`
-	Image string `json:"image"`
+	Size                          int32  `json:"size"`
+	Image                         string `json:"image"`
+	ContainerName                 string `json:"containerName"`
+	DatabaseName                  string `json:"databaseName"`
+	DatabasePassword              string `json:"databasePassword"`
+	DatabaseUser                  string `json:"databaseUser"`
+	DatabaseHost                  string `json:"databaseHost"`
+	MemoryLimit                   string `json:"memoryLimit"`
+	MemoryRequest                 string `json:"memoryRequest"`
+	Port                          int32  `json:"port,omitempty"`
+	LogLevel                      string `json:"logLevel,omitempty"`
+	LogFormat                     string `json:"logFormat,omitempty"`
+	AccessControlAllowOrigin      string `json:"accessControlAllowOrigin"`
+	AccessControlAllowCredentials string `json:"accessControlAllowCredentials"`
 }
 
 // MobileSecurityServiceStatus defines the observed state of MobileSecurityService

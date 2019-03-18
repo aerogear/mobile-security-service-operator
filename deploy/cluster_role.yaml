@@ -2,7 +2,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: mobile-security-service-operator
-  namespace: mobile-security-service
+  namespace: mobile-security-service-operator
 rules:
 - apiGroups:
   - "*"
@@ -50,3 +50,9 @@ rules:
   - '*'
   verbs:
   - '*'
+- apiGroups:
+  - route.openshift.io
+  resources:
+  - routes
+  verbs:
+  - "*"

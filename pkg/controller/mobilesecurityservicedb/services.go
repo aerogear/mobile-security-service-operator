@@ -1,4 +1,4 @@
-package mobilesecurityservice
+package mobilesecurityservicedb
 
 import (
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
@@ -9,9 +9,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
-// buildAppService returns a MobileSecurityService Service resource
-func (r *ReconcileMobileSecurityService) buildAppService(m *mobilesecurityservicev1alpha1.MobileSecurityService) *corev1.Service {
-	ls := getAppLabels(m.Name)
+//Returns the Service object for the Mobile Security Service Database
+func (r *ReconcileMobileSecurityServiceDB) buildDBService(m *mobilesecurityservicev1alpha1.MobileSecurityServiceDB) *corev1.Service {
+	ls := getDBLabels(m.Name)
 	ser := &corev1.Service{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "v1",
@@ -27,17 +27,18 @@ func (r *ReconcileMobileSecurityService) buildAppService(m *mobilesecurityservic
 			Type:     corev1.ServiceTypeClusterIP,
 			Ports: []corev1.ServicePort{
 				{
+					Name: m.Name,
 					TargetPort: intstr.IntOrString{
 						Type:   intstr.Int,
-						IntVal: m.Spec.Port,
+						IntVal: m.Spec.DatabasePort,
 					},
-					Port:     m.Spec.Port,
+					Port:     m.Spec.DatabasePort,
 					Protocol: "TCP",
 				},
 			},
 		},
 	}
-	// Set MobileSecurityService instance as the owner and controller
+	// Set MobileSecurityServiceDB instance as the owner and controller
 	controllerutil.SetControllerReference(m, ser, r.scheme)
 	return ser
 }

@@ -7,9 +7,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
-// getServiceForMobileSecurityService returns a MobileSecurityService Service resource
-func (r *ReconcileMobileSecurityService) getConfigMapForMobileSecurityService(m *mobilesecurityservicev1alpha1.MobileSecurityService) *corev1.ConfigMap {
-	ls := labelsForMobileSecurityService(m.Name)
+// Returns the ConfigMap with the properties used to setup/config the Mobile Security Service Project
+func (r *ReconcileMobileSecurityService) buildAppConfigMap(m *mobilesecurityservicev1alpha1.MobileSecurityService) *corev1.ConfigMap {
+	ls := getAppLabels(m.Name)
 	ser := &corev1.ConfigMap{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "v1",
@@ -20,16 +20,16 @@ func (r *ReconcileMobileSecurityService) getConfigMapForMobileSecurityService(m 
 			Namespace: m.Namespace,
 			Labels:    ls,
 		},
-		Data: getConfigMapForMobileSecurityService(),
+		Data: getAppEnvVarsMap(m),
 	}
 	// Set MobileSecurityService instance as the owner and controller
 	controllerutil.SetControllerReference(m, ser, r.scheme)
 	return ser
 }
 
-// getServiceForMobileSecurityService returns a MobileSecurityService Service resource
-func (r *ReconcileMobileSecurityService) getConfigMapSDKForMobileSecurityService(m *mobilesecurityservicev1alpha1.MobileSecurityService) *corev1.ConfigMap {
-	ls := labelsForMobileSecurityService(m.Name)
+// Returns the ConfigMap with the properties used to setup/config the Mobile Security Service Project
+func (r *ReconcileMobileSecurityService) buildAppSDKConfigMap(m *mobilesecurityservicev1alpha1.MobileSecurityService) *corev1.ConfigMap {
+	ls := getAppLabels(m.Name)
 	name := m.Name + "-sdk"
 	ser := &corev1.ConfigMap{
 		TypeMeta: metav1.TypeMeta{
