@@ -81,7 +81,7 @@ NOTE: Following commands which will be executed with the `make deploy` to deploy
 
 [source,shell]
 ----
-$ oc create namespace mobile-security-service
+$ oc create namespace mobile-security-service-operator
 $ oc create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
 $ oc create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
 $ oc create -f deploy/cluster_role.yaml
@@ -147,7 +147,7 @@ $ oc delete -f deploy/cluster_role.yaml
 $ oc delete -f deploy/cluster_role_binding.yaml
 $ oc delete -f deploy/service_account.yaml
 $ oc delete -f deploy/operator.yaml
-$ oc delete namespace mobile-security-service
+$ oc delete namespace mobile-security-service-operator
 ----
 
 === To deploy Mobile Security Service project without the database
@@ -172,9 +172,8 @@ $ oc create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservic
 
 The environment variables used in this project are configured by the Config Map which is created by the operator. To have a further understatement over its configuration see https://github.com/aerogear/mobile-security-service#setup-and-configurations[Setup and Configurations] section of https://github.com/aerogear/mobile-security-service[Mobile Security Service].
 
-TIP: For example, check that the database name and its details are mapped in the ConfigMap used by Mobile Security Service application and database. In this, way for example to connect to the database with the default values you may use inside of its contained the command: `psql -h localhost -U postgresql mobile_security_service
+TIP: For example, see that the name of the database is mapped in the ConfigMap which is used by Mobile Security Service application and database. Note that to connect to the database with the default values you may use the command: `psql -h localhost -U postgresql mobile_security_service.
 
-NOTE: To test/check it in the container with the default values you can
 == Creating Role for no-privilege users (TODO/Check)
 
 [source,shell]
