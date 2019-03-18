@@ -9,7 +9,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
-//Watch for changes to secondary resources and reconcileNewObject the owner MobileSecurityService
+//Watch for changes to secondary resources and create the owner MobileSecurityService
 //Watch ConfigMap objects created in the project/namespace
 func watchConfigMap(c controller.Controller) error {
 	err := c.Watch(&source.Kind{Type: &corev1.ConfigMap{}}, &handler.EnqueueRequestForOwner{
@@ -19,7 +19,7 @@ func watchConfigMap(c controller.Controller) error {
 	return err
 }
 
-//Watch for changes to secondary resources and reconcileNewObject the owner MobileSecurityService
+//Watch for changes to secondary resources and create the owner MobileSecurityService
 //Watch Service objects created in the project/namespace
 func watchService(c controller.Controller) error {
 	err := c.Watch(&source.Kind{Type: &corev1.Service{}}, &handler.EnqueueRequestForOwner{
@@ -29,7 +29,7 @@ func watchService(c controller.Controller) error {
 	return err
 }
 
-//Watch for changes to secondary resources and reconcileNewObject the owner MobileSecurityService
+//Watch for changes to secondary resources and create the owner MobileSecurityService
 //Watch Deployment objects created in the project/namespace
 func watchDeployment(c controller.Controller) error {
 	err := c.Watch(&source.Kind{Type: &appsv1.Deployment{}}, &handler.EnqueueRequestForOwner{
