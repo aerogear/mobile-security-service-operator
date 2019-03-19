@@ -4,19 +4,27 @@ metadata:
   name: mobile-security-service-app
 spec:
   size: 1
+  # It is the image:tag used to create the mobile security service deployment
   image: "aerogear/mobile-security-service:master"
   containerName: "application"
+  # The following values will be used to create the ConfigMap with the Environment Variables
+  # which will be used by thee Mobile Security Service App and Database
   databaseName: "mobile_security_service"
   databasePassword: "postgres"
   databaseUser: "postgresql"
   databaseHost: "mobile-security-service-db"
-  memoryLimit: "512Mi"
-  memoryRequest: "512Mi"
   port: 3000
   logLevel: "info"
   logFormat: "json"
   accessControlAllowOrigin: "*"
   accessControlAllowCredentials: "false"
-  # Add here the cluster IP/Name HOST. E.g 192.168.64.9
-  # You can use "$ oc status | grep server" or "kubectl cluster-info" to get this cluster info
+  # The following properties will define the resources for the Mobile Security Service App deployment
+  memoryLimit: "512Mi"
+  memoryRequest: "512Mi"
+  # The following data will be used to create the ingress/route in the namespace where the Mobile Security Service App
+  # will be deployed.
+  # NOTE:
+  # - Replace "{{clusterHost}}" for your cluster HOST. E.g 192.168.64.9
+  # - You can use "$ oc status | grep server" or "kubectl cluster-info" to get this cluster info
   clusterHost: "{{clusterHost}}"
+  hostSufix: ".nip.io"

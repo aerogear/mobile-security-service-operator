@@ -12,7 +12,6 @@ import (
 // build the ingress/route object
 func (r *ReconcileMobileSecurityService) buildAppIngress(m *mobilesecurityservicev1alpha1.MobileSecurityService) *v1beta1.Ingress {
 	ls := getAppLabels(m.Name)
-	hostName := m.Name + "-" + m.Namespace + "." + m.Spec.ClusterHost + ".nip.io"
 	ing := &v1beta1.Ingress{
 		TypeMeta: v1.TypeMeta{
 			APIVersion: "extensions/v1beta1",
@@ -30,7 +29,7 @@ func (r *ReconcileMobileSecurityService) buildAppIngress(m *mobilesecurityservic
 			},
 			Rules: []v1beta1.IngressRule{
 				{
-					Host: hostName,
+					Host: getAppIngressHost(m),
 					IngressRuleValue: v1beta1.IngressRuleValue{
 						HTTP: &v1beta1.HTTPIngressRuleValue{
 							Paths: []v1beta1.HTTPIngressPath{
