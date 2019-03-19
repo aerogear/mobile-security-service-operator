@@ -27,6 +27,7 @@ type MobileSecurityServiceSpec struct {
 	LogFormat                     string `json:"logFormat,omitempty"`
 	AccessControlAllowOrigin      string `json:"accessControlAllowOrigin"`
 	AccessControlAllowCredentials string `json:"accessControlAllowCredentials"`
+	ClusterHost                   string `json:"clusterHost"`
 }
 
 // MobileSecurityServiceStatus defines the observed state of MobileSecurityService

@@ -9,7 +9,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
-//Watch for changes to secondary resources and reconcileNewObject the owner MobileSecurityServiceDB
+//Watch for changes to secondary resources and create the owner MobileSecurityServiceDB
 
 func watchPersistenceVolumeClaim(c controller.Controller) error {
 	err := c.Watch(&source.Kind{Type: &corev1.PersistentVolumeClaim{}}, &handler.EnqueueRequestForOwner{
@@ -28,7 +28,7 @@ func watchService(c controller.Controller) error {
 	return err
 }
 
-//Watch for changes to secondary resources and reconcileNewObject the owner MobileSecurityServiceDB
+//Watch for changes to secondary resources and create the owner MobileSecurityServiceDB
 //Watch Deployment objects created in the project/namespace
 func watchDeployment(c controller.Controller) error {
 	err := c.Watch(&source.Kind{Type: &appsv1.Deployment{}}, &handler.EnqueueRequestForOwner{
