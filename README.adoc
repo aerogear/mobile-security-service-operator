@@ -73,9 +73,11 @@ Update the "mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml" with
 
 [source,yaml]
 ----
-  # Add here the cluster IP/Name HOST. E.g 192.168.64.9
-  # You can use "oc status | grep server" or "kubectl cluster-info" to get this cluster info
+  # NOTE:
+  # - Replace "{{clusterHost}}" for your cluster HOST. E.g 192.168.64.9
+  # - You can use "$ oc status | grep server" or "kubectl cluster-info" to get this cluster info
   clusterHost: "{{clusterHost}}"
+  hostSufix: ".nip.io"
 ----
 
 ==== To deploy Mobile Security Service Operator

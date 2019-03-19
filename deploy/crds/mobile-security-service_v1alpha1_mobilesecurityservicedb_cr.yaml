@@ -6,6 +6,8 @@ spec:
   size: 1
   image: "postgres:9.6"
   containerName: "database"
+  # Following the default values for the Env Variables which will be created by the operator
+  # for the Mobile Security Service Database deployment
   databaseName: "mobile_security_service"
   databasePassword: "postgres"
   databaseUser: "postgresql"
@@ -13,4 +15,7 @@ spec:
   databaseMemoryLimit: "512Mi"
   databaseMemoryRequest: "512Mi"
   databaseStorageRequest: "1Gi"
+  # The configMapName define the configMap which should be used in order to
+  # get the values of the Env Variables created by the Mobile Security Service Database deployment,
+  # However, if this ConfigMap be not found the default values defined above will be used instead of
   configMapName: "mobile-security-service-app"
