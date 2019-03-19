@@ -4,6 +4,7 @@ import (
 	"context"
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/go-logr/logr"
+	"k8s.io/api/extensions/v1beta1"
 	"reflect"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -26,6 +27,7 @@ const (
 	DEEPLOYMENT   = "Deployment"
 	SDK_CONFIGMAP = "SDKConfigMap"
 	SERVICE       = "Service"
+	INGRESS       = "Ingress"
 )
 
 var log = logf.Log.WithName("controller_mobilesecurityservice")
@@ -69,6 +71,11 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 
 	//Service
 	if err := watchService(c); err != nil {
+		return err
+	}
+
+	//Ingress
+	if err:= watchIngress(c); err != nil {
 		return err
 	}
 
@@ -127,6 +134,8 @@ func buildObject(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.
 		return r.buildAppDeployment(instance), nil
 	case SERVICE:
 		return r.buildAppService(instance), nil
+	case INGRESS:
+		return r.buildAppIngress(instance), nil
 	default:
 		msg := "Failed to recognize type of object" + kind + " into the Namespace " + instance.Namespace
 		panic(msg)
@@ -196,6 +205,19 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 	if *deployment.Spec.Replicas != size {
 		deployment.Spec.Replicas = &size
 		return update(r, deployment, reqLogger)
+	}
+
+	//Check if the deployment already exists, if not create a new one
+
+	ingress := &v1beta1.Ingress{}
+	reqLogger.Info("**ClusterNameInstance:", "value", instance.ClusterName)
+	reqLogger.Info("**ClusterNameIngress:" ,"value",ingress.ClusterName)
+	reqLogger.Info("**ClusterIngressGetClusterName:" , "value",ingress.GetClusterName())
+	reqLogger.Info("**ClusterInstanceGetClusterName:" , "value", instance.GetClusterName())
+
+	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, ingress)
+	if err != nil {
+		return create(r, instance, reqLogger, INGRESS, err)
 	}
 
 	//Update the MobileSecurityService status with the pod names
