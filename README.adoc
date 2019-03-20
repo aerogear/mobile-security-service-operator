@@ -36,6 +36,7 @@ NOTE: This project is a POC
 |https://github.com/golang/go/wiki/SettingGOPATH[Ensure the $GOPATH environment variable is set]
 |https://golang.github.io/dep/docs/installation.html[Install the dep package manager]
 |https://github.com/operator-framework/operator-sdk#quick-start[Install Operator-SDK]
+|https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl[Install kubectl]
 |===
 
 == Getting Started
@@ -93,16 +94,16 @@ NOTE: Following commands which will be executed with the `make deploy` to deploy
 
 [source,shell]
 ----
-$ oc create namespace mobile-security-service-operator
-$ oc create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
-$ oc create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
-$ oc create -f deploy/cluster_role.yaml
-$ oc create -f deploy/cluster_role_binding.yaml
-$ oc create -f deploy/service_account.yaml
-$ oc create -f deploy/operator.yaml
+$ kubectl create namespace mobile-security-service-operator
+$ kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
+$ kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
+$ kubectl create -f deploy/cluster_role.yaml
+$ kubectl create -f deploy/cluster_role_binding.yaml
+$ kubectl create -f deploy/service_account.yaml
+$ kubectl create -f deploy/operator.yaml
 ----
 
-TIP: You can use `kubectl` tool instead of `oc`. E.g. (`$ kubectl create namespace mobile-security-service`)
+TIP: You can use `oc` tool instead of `kubectl`. E.g. (`$ oc create namespace mobile-security-service`)
 
 === To deploy Mobile Security Service in a Project(Namespace) with its database
 
@@ -118,8 +119,8 @@ NOTE: Following the commands which will be executed with the `make deploy-app` t
 
 [source,shell]
 ----
-$ oc apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
-$ oc apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
+$ kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
+$ kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
 ----
 
 === To remove Mobile Security Service from the Project(Namespace) and its database
@@ -136,8 +137,8 @@ NOTE: Following the commands which will be executed with the `make undeploy-app`
 
 [source,shell]
 ----
-$ oc delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
-$ oc delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
+$ kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
+$ kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
 ----
 
 === To remove Mobile Security Service Operator from your cluster
@@ -153,13 +154,13 @@ NOTE: Following commands which will be executed with the `make undeploy` to unde
 
 [source,shell]
 ----
-$ oc delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
-$ oc delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
-$ oc delete -f deploy/cluster_role.yaml
-$ oc delete -f deploy/cluster_role_binding.yaml
-$ oc delete -f deploy/service_account.yaml
-$ oc delete -f deploy/operator.yaml
-$ oc delete namespace mobile-security-service-operator
+$ kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
+$ kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
+$ kubectl delete -f deploy/cluster_role.yaml
+$ kubectl delete -f deploy/cluster_role_binding.yaml
+$ kubectl delete -f deploy/service_account.yaml
+$ kubectl delete -f deploy/operator.yaml
+$ kubectl delete namespace mobile-security-service-operator
 ----
 
 === To deploy Mobile Security Service project without the database
@@ -186,16 +187,6 @@ The environment variables used in this project are configured by the Config Map 
 
 TIP: For example, see that the name of the database is mapped in the ConfigMap which is used by Mobile Security Service application and database. Note that to connect to the database with the default values you may use the command: `psql -h localhost -U postgresql mobile_security_service.
 
-== Creating Role for no-privilege users (TODO/Check)
-
-[source,shell]
-----
-oc create \
-  rolebinding developer-mobile-security-service-operator \
-  --role=mobile-security-service-operator \
-  --user=developer
-----
-
 == Using make commands
 
 |===
@@ -212,6 +203,47 @@ oc create \
 |===
 
 NOTE: The link:./Makefile[Makefile] is implemented with tasks which you should use to work with.
+
+== To publish new version of operator
+
+Following the steps.
+
+=== Updating the operator tag version
+
+* Replace the tag of the image in the `deploy/operator.yaml` file.
+
+[source,yaml]
+----
+  # Replace this with the built image name
+  image: aerogear/mobile-security-service-operator:0.1.0
+----
+
+NOTE: In this example the tag `0.1.0` will be replaced for the new one.
+
+* Replace the tag in the `Makefile` file.
+
+[source,shell]
+----
+TAG= 0.1.0
+----
+
+NOTE: In this example the tag `0.1.0` will be replaced for the new one.
+
+IMPORTANT: Follow the https://semver.org/[Semantic Versioning] to define the new tags
+
+=== Building and pushing the new version
+
+Run the following commands
+
+[source,shell]
+----
+$ make build
+$ make publish
+----
+
+== Supportability
+
+This operator was developed using the k8s APIs and should work well in Kubernetes and OpenShift clusters.
 
 == Contributing
 
