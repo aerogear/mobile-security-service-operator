@@ -21,6 +21,8 @@ deploy:
 	kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
 	kubectl create -f deploy/cluster_role.yaml
 	kubectl create -f deploy/cluster_role_binding.yaml
+	kubectl create -f deploy/role.yaml
+	kubectl create -f deploy/role_binding.yaml
 	kubectl create -f deploy/service_account.yaml
 	kubectl create -f deploy/operator.yaml
 
@@ -33,6 +35,8 @@ undeploy:
 	kubectl delete -f deploy/cluster_role_binding.yaml
 	kubectl delete -f deploy/service_account.yaml
 	kubectl delete -f deploy/operator.yaml
+	kubectl delete -f deploy/role.yaml
+	kubectl delete -f deploy/role_binding.yaml
 	kubectl delete namespace mobile-security-service-operator
 
 .PHONY: deploy-app
