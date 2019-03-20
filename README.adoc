@@ -181,30 +181,7 @@ NOTE: Following the command which will be executed with the `make deploy-app-onl
 $ oc create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
 ----
 
-== Mobile Security Service Configurations
-
-The environment variables used in this project are configured by the Config Map which is created by the operator. To have a further understatement over its configuration see https://github.com/aerogear/mobile-security-service#setup-and-configurations[Setup and Configurations] section of https://github.com/aerogear/mobile-security-service[Mobile Security Service].
-
-TIP: For example, see that the name of the database is mapped in the ConfigMap which is used by Mobile Security Service application and database. Note that to connect to the database with the default values you may use the command: `psql -h localhost -U postgresql mobile_security_service.
-
-== Using make commands
-
-|===
-| *Command*                     | *Description*
-| `make deploy`                 | Create mobile-security-service namespace and deploy operator and roles`
-| `make undeploy`               | Remove mobile-security-service namespace and undeploy operator and roles`
-| `make deploy-app`             | Deploy Mobile Security Service and its database in the project`
-| `make deploy-app-only`        | Deploy Mobile Security Service without its database in the project`
-| `make undeploy-app`           | Undeploy Mobile Security Service e and its database in from the project`
-| `make build`                  | Build operator for development proposes`
-| `make publish`                | Publish operator in https://hub.docker.com/[Docker Hub]`
-| `make vet`                    | Examines source code and reports suspicious constructs using https://golang.org/cmd/vet/[vet]
-| `make fmt`                    | Formats code using https://golang.org/cmd/gofmt/[gofmt]
-|===
-
-NOTE: The link:./Makefile[Makefile] is implemented with tasks which you should use to work with.
-
-== To publish new version of operator
+== To publish an new version of this operator
 
 Following the steps.
 
@@ -241,13 +218,36 @@ $ make build
 $ make publish
 ----
 
-== Supportability
+== Mobile Security Service Configurations
 
-This operator was developed using the k8s APIs and should work well in Kubernetes and OpenShift clusters.
+The environment variables used in this project are configured by the Config Map which is created by the operator. To have a further understatement over its configuration see https://github.com/aerogear/mobile-security-service#setup-and-configurations[Setup and Configurations] section of https://github.com/aerogear/mobile-security-service[Mobile Security Service].
+
+TIP: For example, see that the name of the database is mapped in the ConfigMap which is used by Mobile Security Service application and database. Note that to connect to the database with the default values you may use the command: `psql -h localhost -U postgresql mobile_security_service.
+
+== Using make commands
+
+|===
+| *Command*                     | *Description*
+| `make deploy`                 | Create mobile-security-service namespace and deploy operator and roles`
+| `make undeploy`               | Remove mobile-security-service namespace and undeploy operator and roles`
+| `make deploy-app`             | Deploy Mobile Security Service and its database in the project`
+| `make deploy-app-only`        | Deploy Mobile Security Service without its database in the project`
+| `make undeploy-app`           | Undeploy Mobile Security Service e and its database in from the project`
+| `make build`                  | Build operator for development proposes`
+| `make publish`                | Publish operator in https://hub.docker.com/[Docker Hub]`
+| `make vet`                    | Examines source code and reports suspicious constructs using https://golang.org/cmd/vet/[vet]
+| `make fmt`                    | Formats code using https://golang.org/cmd/gofmt/[gofmt]
+|===
+
+NOTE: The link:./Makefile[Makefile] is implemented with tasks which you should use to work with.
 
 == Contributing
 
 All contributions are hugely appreciated. Please see our https://aerogear.org/community/#guides[Contributing Guide] for guidelines on how to open issues and pull requests. Please check out our link:./.github/CODE_OF_CONDUCT.md[Code of Conduct] too.
+
+== Supportability
+
+This operator was developed using the k8s APIs and should work well in Kubernetes and OpenShift clusters.
 
 == Questions
 
