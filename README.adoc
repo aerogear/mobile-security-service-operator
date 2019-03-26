@@ -41,6 +41,16 @@ NOTE: This project is a POC
 
 == Getting Started
 
+=== Getting the project
+
+[source,shell]
+----
+$ mkdir -p $GOPATH/src/github.com/aerogear/mobile-security-service-operator
+$ cd $GOPATH/src/github.com/aerogear/mobile-security-service-operator
+$ git clone https://github.com/aerogear/mobile-security-service-operator.git
+$ cd $GOPATH/src/github.com/aerogear/mobile-security-service-operator
+----
+
 === To run on Minishift
 https://docs.okd.io/latest/minishift/getting-started/installing.html[Install Minishift] then enable Operators on it by running the following commands.
 
