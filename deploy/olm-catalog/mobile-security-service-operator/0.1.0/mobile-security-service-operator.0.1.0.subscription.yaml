@@ -1,0 +1,12 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: mobile-security-service-operator
+  namespace: mobile-security-service-operator
+spec:
+  name: mobile-security-service-operator
+  source: mobile-security-service-operator
+  sourceNamespace: mobile-security-service-operator
+  startingCSV: mobile-security-service-operator.0.1.0
+  installPlanApproval: Automatic
+  channel: alpha

@@ -1,0 +1,9 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: InstallPlan
+metadata:
+  namespace: mobile-security-service-operator
+  name: mobile-security-service-operator
+spec:
+  clusterServiceVersionNames:
+  - mobile-security-service-operator.0.1.0
+  approval: Automatic

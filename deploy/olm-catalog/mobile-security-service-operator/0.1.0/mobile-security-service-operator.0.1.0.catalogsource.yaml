@@ -1,0 +1,10 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: mobile-security-service-operator
+  namespace: mobile-security-service-operator
+spec:
+  displayName: Mobile Security Service Operator
+  image: ""
+  publisher: Aerogear
+  sourceType: grpc

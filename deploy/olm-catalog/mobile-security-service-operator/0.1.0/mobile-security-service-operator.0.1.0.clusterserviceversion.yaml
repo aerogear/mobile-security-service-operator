@@ -1,0 +1,137 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    capabilities: Basic Install
+  name: mobile-security-service-operator.0.1.0
+  namespace: mobile-security-service-operator
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - kind: MobileSecurityService
+      name: mobilesecurityservices.mobile-security-service.aerogear.com
+      version: v1alpha1
+      description: Mobile Security Service APP Operator
+      displayName: Mobile Security Service APP Operator
+    - kind: MobileSecurityServiceDB
+      name: mobilesecurityservicedbs.mobile-security-service.aerogear.com
+      version: v1alpha1
+      description: Mobile Security Service DB Operator
+      displayName: Mobile Security Service DB Operator
+  description: Mobile Security Service Operator description
+  displayName: Mobile Security Service Operator
+  install:
+    spec:
+      deployments:
+      - name: mobile-security-service-operator
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              name: mobile-security-service-operator
+          strategy: {}
+          template:
+            metadata:
+              labels:
+                name: mobile-security-service-operator
+            spec:
+              containers:
+                - command:
+                  - mobile-security-service-operator
+                  env:
+                  - name: WATCH_NAMESPACE
+                    valueFrom:
+                      fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+                  - name: POD_NAME
+                    valueFrom:
+                      fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.name
+                  - name: OPERATOR_NAME
+                    value: mobile-security-service-operator
+                  image: 'aerogear/mobile-security-service-operator:0.1.0'
+                  imagePullPolicy: Always
+                  name: mobile-security-service-operator
+                  resources: {}
+                  terminationMessagePath: /dev/termination-log
+                  terminationMessagePolicy: File
+              dnsPolicy: ClusterFirst
+              restartPolicy: Always
+              schedulerName: default-scheduler
+              securityContext: {}
+              serviceAccount: mobile-security-service-operator
+              serviceAccountName: mobile-security-service-operator
+              terminationGracePeriodSeconds: 30
+      permissions:
+      - rules:
+        - apiGroups:
+          - mobile-security-service.aerogear.com
+          resources:
+          - pods
+          - services
+          - endpoints
+          - persistentvolumeclaims
+          - events
+          - configmaps
+          - secrets
+          verbs:
+          - '*'
+        - apiGroups:
+          - ""
+          resources:
+          - namespaces
+          verbs:
+          - get
+        - apiGroups:
+          - apps
+          resources:
+          - deployments
+          - daemonsets
+          - replicasets
+          - statefulsets
+          verbs:
+          - '*'
+        - apiGroups:
+          - monitoring.coreos.com
+          resources:
+          - servicemonitors
+          verbs:
+          - get
+          - create
+        - apiGroups:
+          - apps
+          resourceNames:
+          - mobile-security-service-app
+          - mobile-security-service-db
+          resources:
+          - deployments/finalizers
+          verbs:
+          - '*'
+        serviceAccountName: mobile-security-service-operator
+    strategy: deployment
+  installModes:
+  - type: OwnNamespace
+    supported: true
+  - type: SingleNamespace
+    supported: true
+  - type: MultiNamespace
+    supported: false
+  - type: AllNamespaces
+    supported: true
+  maturity: alpha
+  provider:
+    name: Aerogear
+  version: 0.1.0
+  keywords:
+    - mobile
+  maintainers:
+  - email: aerogear@googlegroups.com
+    name: Aerogear
+  links:
+  - name: Aerogear
+    url: https://aerogear.org/
+  - name: Mobile Security Service Operator Source Code
+    url: https://github.com/aerogear/mobile-security-service-operator

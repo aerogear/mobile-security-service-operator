@@ -213,3 +213,33 @@ vet:
 fmt:
 	@echo go fmt
 	go fmt $$(go list ./... | grep -v /vendor/)
+
+.PHONY: undeploy-olm
+undeploy-olm:
+	@echo Undeploying Mobile Security Service OLM Resources:
+	kubectl delete namespace mobile-security-service-operator
+	kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
+	kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
+	kubectl delete -f deploy/cluster_role.yaml
+	kubectl delete -f deploy/cluster_role_binding.yaml
+	kubectl delete -f deploy/role.yaml
+	kubectl delete -f deploy/role_binding.yaml
+	kubectl delete -f deploy/service_account.yaml
+	kubectl delete -f deploy/olm-catalog/mobile-security-service-operator/0.1.0/mobile-security-service-operator.0.1.0.install.yaml
+	kubectl delete -f deploy/olm-catalog/mobile-security-service-operator/0.1.0/mobile-security-service-operator.0.1.0.operatorgroup.yaml
+	kubectl delete -f deploy/olm-catalog/mobile-security-service-operator/0.1.0/mobile-security-service-operator.0.1.0.subscription.yaml
+	kubectl delete -f deploy/olm-catalog/mobile-security-service-operator/0.1.0/mobile-security-service-operator.0.1.0.catalogsource.yaml
+	kubectl delete -f deploy/olm-catalog/mobile-security-service-operator/0.1.0/mobile-security-service-operator.0.1.0.clusterserviceversion.yaml
+
+.PHONY: undeploy
+undeploy:
+	@echo Undeploy Mobile Security Service Operator:
+	kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
+	kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
+	kubectl delete -f deploy/cluster_role.yaml
+	kubectl delete -f deploy/cluster_role_binding.yaml
+	kubectl delete -f deploy/service_account.yaml
+	kubectl delete -f deploy/operator.yaml
+	kubectl delete -f deploy/role.yaml
+	kubectl delete -f deploy/role_binding.yaml
+	kubectl delete namespace mobile-security-service-operator
