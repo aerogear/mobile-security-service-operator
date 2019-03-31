@@ -29,15 +29,15 @@ deploy:
 .PHONY: undeploy
 undeploy:
 	@echo Undeploy Mobile Security Service Operator:
-	kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
-	kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
-	kubectl delete -f deploy/cluster_role.yaml
-	kubectl delete -f deploy/cluster_role_binding.yaml
-	kubectl delete -f deploy/service_account.yaml
-	kubectl delete -f deploy/operator.yaml
-	kubectl delete -f deploy/role.yaml
-	kubectl delete -f deploy/role_binding.yaml
-	kubectl delete namespace mobile-security-service-operator
+	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
+	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
+	- kubectl delete -f deploy/cluster_role.yaml
+	- kubectl delete -f deploy/cluster_role_binding.yaml
+	- kubectl delete -f deploy/service_account.yaml
+	- kubectl delete -f deploy/operator.yaml
+	- kubectl delete -f deploy/role.yaml
+	- kubectl delete -f deploy/role_binding.yaml
+	- kubectl delete namespace mobile-security-service-operator
 
 .PHONY: deploy-app
 deploy-app:
@@ -58,8 +58,8 @@ deploy-db-only:
 .PHONY: undeploy-app
 undeploy-app:
 	@echo Undeploying Mobile Security Service and Database from the project:
-	kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
-	kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
+	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
+	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
 
 .PHONY: undeploy-app-only
 undeploy-app-only:
