@@ -2,6 +2,7 @@ apiVersion: mobile-security-service.aerogear.com/v1alpha1
 kind: MobileSecurityServiceDB
 metadata:
   name: mobile-security-service-db
+  namespace: mobile-security-service-operator
 spec:
   size: 1
   image: "postgres:9.6"

@@ -13,18 +13,31 @@ BINARY_LINUX_64 = ./dist/linux_amd64/$(BINARY)
 
 LDFLAGS=-ldflags "-w -s -X main.Version=${TAG}"
 
+
+.PHONY: deploy-all
+deploy-all:
+	@echo Deploying Mobile Security Service Operator and Service in the namespace "mobile-security-service-operator":
+	make deploy
+	make deploy-app
+
+.PHONY: undeploy-all
+undeploy-all:
+	@echo UnDeploying Mobile Security Service Operator and Service and removing the namespace "mobile-security-service-operator":
+	make undeploy
+	make undeploy-app
+
 .PHONY: deploy
 deploy:
 	@echo Deploying Mobile Security Service Operator:
-	kubectl create namespace mobile-security-service-operator
-	kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
-	kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
-	kubectl create -f deploy/cluster_role.yaml
-	kubectl create -f deploy/cluster_role_binding.yaml
-	kubectl create -f deploy/role.yaml
-	kubectl create -f deploy/role_binding.yaml
-	kubectl create -f deploy/service_account.yaml
-	kubectl create -f deploy/operator.yaml
+	- kubectl create namespace mobile-security-service-operator
+	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
+	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
+	- kubectl create -f deploy/cluster_role.yaml
+	- kubectl create -f deploy/cluster_role_binding.yaml
+	- kubectl create -f deploy/role.yaml
+	- kubectl create -f deploy/role_binding.yaml
+	- kubectl create -f deploy/service_account.yaml
+	- kubectl create -f deploy/operator.yaml
 
 .PHONY: undeploy
 undeploy:
