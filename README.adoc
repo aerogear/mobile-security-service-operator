@@ -284,6 +284,26 @@ $ oc create rolebinding developer-mobile-security-service-operator --role=mobile
 $ oc create rolebinding developer-mobile-security-service --role=mobile-security-service --user=developer
 ----
 
+== Local development
+
+=== To build and publish a development tag
+
+[source,shell]
+----
+$ make build-dev
+$ make publish-dev
+----
+
+=== To use locally the development tag
+
+Update the image tag in the file `/mobile-security-service-operator/deploy/operator.yaml` with the development tag as follows.
+
+[source,yaml]
+----
+# Replace this with the built image name
+image: aerogear/mobile-security-service-operator:0.1.0-dev
+----
+
 == Using make commands
 
 |===
@@ -296,8 +316,10 @@ $ oc create rolebinding developer-mobile-security-service --role=mobile-security
 | `make deploy-app`             | Deploy Mobile Security Service and its database in the project`
 | `make deploy-app-only`        | Deploy Mobile Security Service without its database in the project`
 | `make undeploy-app`           | Undeploy Mobile Security Service e and its database in from the project`
-| `make build`                  | Build operator for development proposes`
+| `make build`                  | Build operator`
 | `make publish`                | Publish operator in https://hub.docker.com/[Docker Hub]`
+| `make build-dev`              | Build operator for development proposes`
+| `make publish-dev`            | Publish operator in https://hub.docker.com/[Docker Hub] for development proposes`
 | `make vet`                    | Examines source code and reports suspicious constructs using https://golang.org/cmd/vet/[vet]
 | `make fmt`                    | Formats code using https://golang.org/cmd/gofmt/[gofmt]
 |===

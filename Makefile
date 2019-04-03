@@ -5,6 +5,7 @@ APP_FILE=./cmd/manager/main.go
 BIN_DIR := $(GOPATH)/bin
 BINARY ?= mobile-security-service-operator
 TAG= 0.1.0
+DEV= dev
 DOCKER-ORG=aerogear
 DOCKER-REPO=mobile-security-service-operator
 
@@ -93,6 +94,18 @@ build:
 publish:
 	@echo Publishing operator in $(DOCKER-ORG)/$(DOCKER-REPO) with the tag $(TAG):
 	docker push $(DOCKER-ORG)/$(DOCKER-REPO):$(TAG)
+
+
+.PHONY: build-dev
+build-dev:
+	@echo Buinding operator with the tag $(TAG)$(DEV):
+	operator-sdk build $(DOCKER-ORG)/$(DOCKER-REPO):$(TAG)-$(DEV)
+
+
+.PHONY: publish-dev
+publish-dev:
+	@echo Publishing operator in $(DOCKER-ORG)/$(DOCKER-REPO) with the tag $(TAG)-$(DEV):
+	docker push $(DOCKER-ORG)/$(DOCKER-REPO):$(TAG)-$(DEV)
 
 .PHONY: vet
 vet:
