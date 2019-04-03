@@ -66,6 +66,28 @@ $ minishift addon enable admin-user
 $ minishift start
 ----
 
+=== To install the Operator and Service
+
+Use the following command.
+
+[source,shell]
+----
+$ make deploy-all
+----
+
+IMPORTANT: To install the Operator and Service you need be logged as admin since they will be in the cluster level.
+
+=== To uninstall the Operator and Service
+
+Use the following command.
+
+[source,shell]
+----
+$ make undeploy-all
+----
+
+== More options to install
+
 === To install Mobile Security Service Operator in cluster
 
 ==== Login as system:admin
@@ -91,7 +113,7 @@ Update the "mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml" with
   hostSufix: ".nip.io"
 ----
 
-==== To deploy Mobile Security Service Operator
+==== To deploy ONLY Mobile Security Service Operator
 
 Use the following command.
 
@@ -115,13 +137,12 @@ $ kubectl create -f deploy/operator.yaml
 
 TIP: You can use `oc` tool instead of `kubectl`. E.g. (`$ oc create namespace mobile-security-service`)
 
-=== To deploy Mobile Security Service in a Project(Namespace) with its database
+=== To deploy ONLY Mobile Security Service with its database
 
 Use the following command.
 
 [source,shell]
 ----
-$ oc project <my-project>
 $ make deploy-app
 ----
 
@@ -133,13 +154,12 @@ $ kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityse
 $ kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
 ----
 
-=== To remove Mobile Security Service from the Project(Namespace) and its database
+=== To remove ONLY Mobile Security Service from and its database
 
-The following command will remove all configuration made by the operator in the project/namespace.
+Use the following command.
 
 [source,shell]
 ----
-$ oc project <my-project>
 $ make undeploy-app
 ----
 
@@ -151,7 +171,7 @@ $ kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecuritys
 $ kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
 ----
 
-=== To remove Mobile Security Service Operator from your cluster
+=== To remove ONLY Mobile Security Service Operator from your cluster
 
 Use the following command.
 
@@ -173,23 +193,43 @@ $ kubectl delete -f deploy/operator.yaml
 $ kubectl delete namespace mobile-security-service-operator
 ----
 
-=== To deploy Mobile Security Service project without the database
+=== To deploy Mobile Security Service App without the database
 
 Note that this operator has one type for the project and another for its database. In this way, its possible deploy them separately.
 
-Use the following command to deploy just the Mobile Security Service in your project
+Use the following command to deploy only the Mobile Security Service App.
 
 [source,shell]
 ----
 $ make deploy-app-only
 ----
 
-NOTE: Following the command which will be executed with the `make deploy-app-only` to deploy the Mobile Security Service into your project.
+NOTE: Following the command which will be executed with the `make deploy-app-only` to deploy the Mobile Security Service App.
 
 [source,shell]
 ----
 $ oc create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
 ----
+
+NOTE: Also, you can use `make undeploy-app-only`
+
+=== To deploy ONLY Mobile Security Service Database
+
+Use the following command to deploy only the Mobile Security Service Database.
+
+[source,shell]
+----
+$ make deploy-db-only
+----
+
+NOTE: Following the command which will be executed with the `make deploy-db-only` to deploy the Mobile Security Service DB.
+
+[source,shell]
+----
+$ oc create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
+----
+
+NOTE: Also, you can use `make undeploy-db-only`
 
 == To publish an new version of this operator
 
@@ -248,6 +288,9 @@ $ oc create rolebinding developer-mobile-security-service --role=mobile-security
 
 |===
 | *Command*                     | *Description*
+| `make deploy-all`             | Create mobile-security-service-operator namespace and deploy operator, roles and Service`
+| `make undeploy-all`           | Delete mobile-security-service-operator namespace and undeploy operator, roles and Service`
+| `make undeploy`               | Remove mobile-security-service namespace and undeploy operator and roles`
 | `make deploy`                 | Create mobile-security-service namespace and deploy operator and roles`
 | `make undeploy`               | Remove mobile-security-service namespace and undeploy operator and roles`
 | `make deploy-app`             | Deploy Mobile Security Service and its database in the project`
