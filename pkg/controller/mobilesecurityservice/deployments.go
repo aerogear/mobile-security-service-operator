@@ -42,7 +42,7 @@ func (r *ReconcileMobileSecurityService) buildAppDeployment(m *mobilesecurityser
 					Containers: []corev1.Container{{
 						Image:           m.Spec.Image,
 						Name:            m.Spec.ContainerName,
-						ImagePullPolicy: corev1.PullIfNotPresent,
+						ImagePullPolicy: corev1.PullAlways,
 						Ports: []corev1.ContainerPort{{
 							ContainerPort: m.Spec.Port,
 							Name:          "http",
