@@ -210,11 +210,7 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 	//Check if the deployment already exists, if not create a new one
 
 	ingress := &v1beta1.Ingress{}
-	reqLogger.Info("**ClusterNameInstance:", "value", instance.ClusterName)
-	reqLogger.Info("**ClusterNameIngress:" ,"value",ingress.ClusterName)
-	reqLogger.Info("**ClusterIngressGetClusterName:" , "value",ingress.GetClusterName())
-	reqLogger.Info("**ClusterInstanceGetClusterName:" , "value", instance.GetClusterName())
-
+	reqLogger.Info("**Status:", "value", r.client.Status())
 	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, ingress)
 	if err != nil {
 		return create(r, instance, reqLogger, INGRESS, err)
