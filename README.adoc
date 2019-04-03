@@ -51,7 +51,8 @@ $ git clone https://github.com/aerogear/mobile-security-service-operator.git
 $ cd $GOPATH/src/github.com/aerogear/mobile-security-service-operator
 ----
 
-=== To run on Minishift
+=== Installing Minishift
+
 https://docs.okd.io/latest/minishift/getting-started/installing.html[Install Minishift] then enable Operators on it by running the following commands.
 
 [source,shell]
@@ -66,31 +67,7 @@ $ minishift addon enable admin-user
 $ minishift start
 ----
 
-=== To install the Operator and Service
-
-Use the following command.
-
-[source,shell]
-----
-$ make deploy-all
-----
-
-IMPORTANT: To install the Operator and Service you need be logged as admin since they will be in the cluster level.
-
-=== To uninstall the Operator and Service
-
-Use the following command.
-
-[source,shell]
-----
-$ make undeploy-all
-----
-
-== More options to install
-
-=== To install Mobile Security Service Operator in cluster
-
-==== Login as system:admin
+=== Logging as system:admin
 
 To install the operator is required have admin permissions in the cluster.
 
@@ -101,7 +78,8 @@ $ oc login -u system:admin
 
 NOTE: This operator will be installed in the cluster level.
 
-==== To config Mobile Security Service Operator
+=== Configuring the Operator
+
 Update the "mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml" with your cluster info. Following the place.
 
 [source,yaml]
@@ -113,16 +91,40 @@ Update the "mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml" with
   hostSufix: ".nip.io"
 ----
 
-==== To deploy ONLY Mobile Security Service Operator
+=== Creating Operator, Service and Roles in the cluster
 
 Use the following command.
 
 [source,shell]
 ----
-$ make deploy
+$ make create-all
 ----
 
-NOTE: Following commands which will be executed with the `make deploy` to deploy the operator in your cluster.
+IMPORTANT: To apply you need be logged as admin. (`oc login -u system:admin`)
+
+=== Deleting the Operator, Service and roles from hee cluster
+
+Use the following command.
+
+[source,shell]
+----
+$ make delete-all
+----
+
+IMPORTANT: To delete you need be logged as admin. (`oc login -u system:admin`)
+
+== More options to install
+
+=== To create ONLY Mobile Security Service Operator
+
+Use the following command.
+
+[source,shell]
+----
+$ make create-oper
+----
+
+NOTE: Following commands which will be executed with the `make create-oper` to create the operator and its namespace in your cluster.
 
 [source,shell]
 ----
@@ -137,16 +139,16 @@ $ kubectl create -f deploy/operator.yaml
 
 TIP: You can use `oc` tool instead of `kubectl`. E.g. (`$ oc create namespace mobile-security-service`)
 
-=== To deploy ONLY Mobile Security Service with its database
+=== To create ONLY Mobile Security Service with its database
 
 Use the following command.
 
 [source,shell]
 ----
-$ make deploy-app
+$ make create-app
 ----
 
-NOTE: Following the commands which will be executed with the `make deploy-app` to deploy the Mobile Security Service and its database in your project.
+NOTE: Following the commands which will be executed with the `make create-app` to create the Mobile Security Service App and its database.
 
 [source,shell]
 ----
@@ -154,16 +156,16 @@ $ kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityse
 $ kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
 ----
 
-=== To remove ONLY Mobile Security Service from and its database
+=== To remove ONLY Mobile Security Service App
 
 Use the following command.
 
 [source,shell]
 ----
-$ make undeploy-app
+$ make delete-app
 ----
 
-NOTE: Following the commands which will be executed with the `make undeploy-app` to undeploy the Mobile Security Service and its database from your project.
+NOTE: Following the commands which will be executed with the `make delete-app` to delete the Mobile Security Service App and its database.
 
 [source,shell]
 ----
@@ -171,16 +173,16 @@ $ kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecuritys
 $ kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
 ----
 
-=== To remove ONLY Mobile Security Service Operator from your cluster
+=== To remove ONLY Mobile Security Service Operator
 
 Use the following command.
 
 [source,shell]
 ----
-$ make undeploy
+$ make delete-oper
 ----
 
-NOTE: Following commands which will be executed with the `make undeploy` to undeploy the operator from your cluster.
+NOTE: Following commands which will be executed with the `make delete-oper` to delete the operator from your cluster and the namespace.
 
 [source,shell]
 ----
@@ -193,43 +195,61 @@ $ kubectl delete -f deploy/operator.yaml
 $ kubectl delete namespace mobile-security-service-operator
 ----
 
-=== To deploy Mobile Security Service App without the database
+=== To create ONLY Mobile Security Service App without the database
 
 Note that this operator has one type for the project and another for its database. In this way, its possible deploy them separately.
 
-Use the following command to deploy only the Mobile Security Service App.
+Use the following command to create only the Mobile Security Service App.
 
 [source,shell]
 ----
-$ make deploy-app-only
+$ make create-app-only
 ----
 
-NOTE: Following the command which will be executed with the `make deploy-app-only` to deploy the Mobile Security Service App.
+NOTE: Following the command which will be executed with the `make create-app-only` to create the Mobile Security Service App.
 
 [source,shell]
 ----
 $ oc create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
 ----
 
-NOTE: Also, you can use `make undeploy-app-only`
+NOTE: Also, you can use `make delete-app-only`
 
-=== To deploy ONLY Mobile Security Service Database
+=== To create ONLY Mobile Security Service Database
 
-Use the following command to deploy only the Mobile Security Service Database.
+Use the following command to create only the Mobile Security Service Database.
 
 [source,shell]
 ----
-$ make deploy-db-only
+$ make create-db-only
 ----
 
-NOTE: Following the command which will be executed with the `make deploy-db-only` to deploy the Mobile Security Service DB.
+NOTE: Following the command which will be executed with the `make  create-db-only` to create the Mobile Security Service DB.
 
 [source,shell]
 ----
 $ oc create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
 ----
 
-NOTE: Also, you can use `make undeploy-db-only`
+NOTE: Also, you can use `make delete-db-only`
+
+== Mobile Security Service Application and Database configurations
+
+The environment variables used in this project are configured by the Config Map which is created by the operator. To have a further understatement over its configuration see https://github.com/aerogear/mobile-security-service#setup-and-configurations[Setup and Configurations] section of https://github.com/aerogear/mobile-security-service[Mobile Security Service].
+
+TIP: For example, see that the name of the database is mapped in the ConfigMap which is used by Mobile Security Service application and database. Note that to connect to the database with the default values you may use the command: `psql -h localhost -U postgresql mobile_security_service.
+
+== Creating Role for no-privilege users are able to create the application and database in their namespaces
+
+By executing the following commands you will create roles in the cluster which will allow the <user> create the Mobile Security Service Application and Database in their namespaces. However, the Mobile Security Service Operator is cluster scoped and will still only accessible for the system admin users. (E.g `oc login -u system:admin`)
+
+[source,shell]
+----
+$ oc create rolebinding developer-mobile-security-service-operator --role=mobile-security-service-operator --user=<user>
+$ oc create rolebinding developer-mobile-security-service --role=mobile-security-service --user=developer
+----
+
+== Local development
 
 == To publish an new version of this operator
 
@@ -268,24 +288,6 @@ $ make build
 $ make publish
 ----
 
-== Mobile Security Service Application and Database configurations
-
-The environment variables used in this project are configured by the Config Map which is created by the operator. To have a further understatement over its configuration see https://github.com/aerogear/mobile-security-service#setup-and-configurations[Setup and Configurations] section of https://github.com/aerogear/mobile-security-service[Mobile Security Service].
-
-TIP: For example, see that the name of the database is mapped in the ConfigMap which is used by Mobile Security Service application and database. Note that to connect to the database with the default values you may use the command: `psql -h localhost -U postgresql mobile_security_service.
-
-== Creating Role for no-privilege users are able to create the application and database in their namespaces
-
-By executing the following commands you will create roles in the cluster which will allow the <user> create the Mobile Security Service Application and Database in their namespaces. However, the Mobile Security Service Operator is cluster scoped and will still only accessible for the system admin users. (E.g `oc login -u system:admin`)
-
-[source,shell]
-----
-$ oc create rolebinding developer-mobile-security-service-operator --role=mobile-security-service-operator --user=<user>
-$ oc create rolebinding developer-mobile-security-service --role=mobile-security-service --user=developer
-----
-
-== Local development
-
 === To build and publish a development tag
 
 [source,shell]
@@ -294,7 +296,7 @@ $ make build-dev
 $ make publish-dev
 ----
 
-=== To use locally the development tag
+=== To use locally the image from development tag
 
 Update the image tag in the file `/mobile-security-service-operator/deploy/operator.yaml` with the development tag as follows.
 
@@ -308,16 +310,22 @@ image: aerogear/mobile-security-service-operator:0.1.0-dev
 
 |===
 | *Command*                     | *Description*
-| `make deploy-all`             | Create mobile-security-service-operator namespace and deploy operator, roles and Service`
-| `make undeploy-all`           | Delete mobile-security-service-operator namespace and undeploy operator, roles and Service`
-| `make undeploy`               | Remove mobile-security-service namespace and undeploy operator and roles`
-| `make deploy`                 | Create mobile-security-service namespace and deploy operator and roles`
-| `make undeploy`               | Remove mobile-security-service namespace and undeploy operator and roles`
-| `make deploy-app`             | Deploy Mobile Security Service and its database in the project`
-| `make deploy-app-only`        | Deploy Mobile Security Service without its database in the project`
-| `make undeploy-app`           | Undeploy Mobile Security Service e and its database in from the project`
-| `make build`                  | Build operator`
-| `make publish`                | Publish operator in https://hub.docker.com/[Docker Hub]`
+| `make create-all`             | Create mobile-security-service-operator namespace, operator, service and roles`
+| `make delete-all`             | Delete mobile-security-service-operator namespace, operator, service and roles`
+| `make create-oper`            | Create mobile-security-service namespace, operator and roles`
+| `make delete-oper`            | Delete mobile-security-service namespace, operator and roles`
+| `make create-olm`             | Create mobile-security-service namespace, catalogue operator(olm) and roles`
+| `make delete-olm`             | Delete mobile-security-service namespace, catalogue operator(olm) and roles`
+| `make create-app`             | Create Mobile Security Service App and its database in the project`
+| `make create-app-only`        | Create Mobile Security Service App without its database`
+| `make delete-app`             | Delete Mobile Security Service App and its database`
+| `make delete-app-only`        | Delete Mobile Security Service App only`
+| `make create-db-only`         | Create Mobile Security Service Database without its application`
+| `make delete-db-only`         | Delete Mobile Security Service Database only`
+| `make apply-bind-crd`         | Apply Mobile Security Service Bind CRD`
+| `make delete-bind-crd`        | Delete Mobile Security Service Bind CRD`
+| `make build`                  | Build operator with its tag`
+| `make publish`                | Publish operator in https://hub.docker.com/[Docker Hub] with its tag`
 | `make build-dev`              | Build operator for development proposes`
 | `make publish-dev`            | Publish operator in https://hub.docker.com/[Docker Hub] for development proposes`
 | `make vet`                    | Examines source code and reports suspicious constructs using https://golang.org/cmd/vet/[vet]

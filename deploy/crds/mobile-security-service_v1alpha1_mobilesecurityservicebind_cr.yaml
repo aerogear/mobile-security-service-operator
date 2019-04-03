@@ -1,0 +1,7 @@
+apiVersion: mobile-security-service.aerogear.com/v1alpha1
+kind: MobileSecurityServiceBind
+metadata:
+  name: mobile-security-service-bind
+spec:
+  # Add fields here
+  size: 1

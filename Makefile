@@ -15,21 +15,21 @@ BINARY_LINUX_64 = ./dist/linux_amd64/$(BINARY)
 LDFLAGS=-ldflags "-w -s -X main.Version=${TAG}"
 
 
-.PHONY: deploy-all
-deploy-all:
-	@echo Deploying Mobile Security Service Operator and Service in the namespace "mobile-security-service-operator":
-	make deploy
-	make deploy-app
+.PHONY: create-all
+create-all:
+	@echo Create Mobile Security Service Operator and Service in the namespace "mobile-security-service-operator":
+	make create
+	make create-app
 
-.PHONY: undeploy-all
-undeploy-all:
-	@echo UnDeploying Mobile Security Service Operator and Service and removing the namespace "mobile-security-service-operator":
-	make undeploy
-	make undeploy-app
+.PHONY: delete-all
+delete-all:
+	@echo Delete Mobile Security Service Operator, Service and namespace "mobile-security-service-operator":
+	make delete
+	make delete-app
 
-.PHONY: deploy
-deploy:
-	@echo Deploying Mobile Security Service Operator:
+.PHONY: create-oper
+create-oper:
+	@echo Create Mobile Security Service Operator:
 	- kubectl create namespace mobile-security-service-operator
 	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
 	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
@@ -39,10 +39,11 @@ deploy:
 	- kubectl create -f deploy/role_binding.yaml
 	- kubectl create -f deploy/service_account.yaml
 	- kubectl create -f deploy/operator.yaml
+	- make apply-bind-crd
 
-.PHONY: undeploy
-undeploy:
-	@echo Undeploy Mobile Security Service Operator:
+.PHONY: delete-oper
+delete-oper:
+	@echo Deleting Mobile Security Service Operator and namespace:
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
 	- kubectl delete -f deploy/cluster_role.yaml
@@ -51,38 +52,49 @@ undeploy:
 	- kubectl delete -f deploy/operator.yaml
 	- kubectl delete -f deploy/role.yaml
 	- kubectl delete -f deploy/role_binding.yaml
+	- make delete-bind-crd
 	- kubectl delete namespace mobile-security-service-operator
 
-.PHONY: deploy-app
-deploy-app:
-	@echo Deploying Mobile Security Service and Database into project:
+.PHONY: create-app
+create-app:
+	@echo Creating Mobile Security Service and Database into project:
 	kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
 	kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
 
-.PHONY: deploy-app-only
-deploy-app-only:
-	@echo Deploying Mobile Security Service and Database into project:
+.PHONY: apply-bind-crd
+apply-bind-crd:
+	@echo Applying Mobile Security Service Bind CRD:
+	kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_crd.yaml
+
+.PHONY: delete-bind-crd
+delete-bind-crd:
+	@echo Deleting Mobile Security Service Bind CRD:
+	kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_crd.yaml
+
+.PHONY: create-app-only
+create-app-only:
+	@echo Creating Mobile Security Service App only:
 	kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
 
-.PHONY: deploy-db-only
-deploy-db-only:
-	@echo Deploying Mobile Security Service and Database into project:
+.PHONY: create-db-only
+create-db-only:
+	@echo Creating Mobile Security Service Database only:
 	kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
 
-.PHONY: undeploy-app
-undeploy-app:
-	@echo Undeploying Mobile Security Service and Database from the project:
+.PHONY: delete-app
+delete-app:
+	@echo Deleting Mobile Security Service and Database:
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
 
-.PHONY: undeploy-app-only
-undeploy-app-only:
-	@echo Undeploying Mobile Security Service and Database from the project:
+.PHONY: delete-app-only
+delete-app-only:
+	@echo Deleting Mobile Security Service App only:
 	kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
 
-.PHONY: undeploy-db-only
-undeploy-db-only:
-	@echo Undeploying Mobile Security Service and Database from the project:
+.PHONY: delete-db-only
+delete-db-only:
+	@echo Deleting Mobile Security Service Database only:
 	kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
 
 .PHONY: build
