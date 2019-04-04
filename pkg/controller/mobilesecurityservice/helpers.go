@@ -27,7 +27,6 @@ func getAppIngressHost(m *mobilesecurityservicev1alpha1.MobileSecurityService) s
 	return hostName;
 }
 
-
 //To transform the object into a string with its json
 func getSdkConfigStringJsonFormat(sdk *models.SDKConfig) string{
 	jsonSdk, _ := json.Marshal(sdk)
@@ -36,23 +35,6 @@ func getSdkConfigStringJsonFormat(sdk *models.SDKConfig) string{
 	buf.ReadFrom(res)
 	b := buf.Bytes()
 	return *(*string)(unsafe.Pointer(&b))
-}
-
-//TODO: Implement this func to get all services available for this project when/if it started to have services
-func getServices() []models.SDKConfigService{
-	//service := *models.NewSDKConfigServices("","")
-	res := []models.SDKConfigService{}
-	//res = append(res, service)
-	return res
-}
-
-// return properties for the response SDK
-func getConfigMapSDKForMobileSecurityService(m *mobilesecurityservicev1alpha1.MobileSecurityService) map[string]string {
-	url:= "http://" + getAppIngressHost(m)
-	sdk := models.NewSDKConfig(m, url, getServices())
-	return map[string]string{
-		"SDKConfig": getSdkConfigStringJsonFormat(sdk),
-	}
 }
 
 // Helper to build the env vars which will be configured in the deployment of the Mobile Security Service Project

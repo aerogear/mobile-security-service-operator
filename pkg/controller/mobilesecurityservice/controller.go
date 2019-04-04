@@ -25,7 +25,6 @@ import (
 const (
 	CONFIGMAP     = "ConfigMap"
 	DEEPLOYMENT   = "Deployment"
-	SDK_CONFIGMAP = "SDKConfigMap"
 	SERVICE       = "Service"
 	INGRESS       = "Ingress"
 )
@@ -128,8 +127,6 @@ func buildObject(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.
 	switch kind {
 	case CONFIGMAP:
 		return r.buildAppConfigMap(instance), nil
-	case SDK_CONFIGMAP:
-		return r.buildAppSDKConfigMap(instance), nil
 	case DEEPLOYMENT:
 		return r.buildAppDeployment(instance), nil
 	case SERVICE:
@@ -182,14 +179,6 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, service)
 	if err != nil {
 		return create(r, instance, reqLogger, SERVICE, err)
-	}
-
-	//Check if the SDK ConfigMap already exists, if not create a new one
-	configmapsdk := &corev1.ConfigMap{}
-	configmapsdk_name := instance.Name + "-sdk"
-	err = r.client.Get(context.TODO(), types.NamespacedName{Name: configmapsdk_name, Namespace: instance.Namespace}, configmapsdk)
-	if err != nil {
-		return create(r, instance, reqLogger, SDK_CONFIGMAP, err)
 	}
 
 	//Check if the deployment already exists, if not create a new one
