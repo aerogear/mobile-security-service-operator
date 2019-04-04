@@ -2,7 +2,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   creationTimestamp: null
-  name: mobile-security-service-bind
+  name: mobile-security-service
 rules:
 - apiGroups:
   - mobile-security-service.aerogear.com
@@ -42,7 +42,8 @@ rules:
 - apiGroups:
   - apps
   resourceNames:
-  - mobile-security-service-bind
+  - mobile-security-service-app
+  - mobile-security-service-db
   resources:
   - deployments/finalizers
   verbs:
