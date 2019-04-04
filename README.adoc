@@ -91,7 +91,7 @@ Update the "mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml" with
   hostSufix: ".nip.io"
 ----
 
-=== Creating Operator, Service and Roles in the cluster
+=== Creating Operator, Service and Roles
 
 Use the following command.
 
@@ -102,7 +102,8 @@ $ make create-all
 
 IMPORTANT: To apply you need be logged as admin. (`oc login -u system:admin`)
 
-=== Deleting the Operator, Service and roles from hee cluster
+
+=== Deleting the Operator, Service and Roles
 
 Use the following command.
 
@@ -113,7 +114,7 @@ $ make delete-all
 
 IMPORTANT: To delete you need be logged as admin. (`oc login -u system:admin`)
 
-== More options to install
+== More specific options to install
 
 === To create ONLY Mobile Security Service Operator
 
@@ -233,6 +234,17 @@ $ oc create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservic
 
 NOTE: Also, you can use `make delete-db-only`
 
+=== To Only Create the Bind
+
+By the following command will be possible to create the Bind which watches the applications and perform the required actions when the Mobile Security Service is binding, unbinding and/or rebinding to them.
+
+[source,shell]
+----
+$ make create-bind
+----
+
+NOTE: Also, you can use `make delete-bind`
+
 == Mobile Security Service Application and Database configurations
 
 The environment variables used in this project are configured by the Config Map which is created by the operator. To have a further understatement over its configuration see https://github.com/aerogear/mobile-security-service#setup-and-configurations[Setup and Configurations] section of https://github.com/aerogear/mobile-security-service[Mobile Security Service].
@@ -246,7 +258,7 @@ By executing the following commands you will create roles in the cluster which w
 [source,shell]
 ----
 $ oc create rolebinding developer-mobile-security-service-operator --role=mobile-security-service-operator --user=<user>
-$ oc create rolebinding developer-mobile-security-service --role=mobile-security-service --user=developer
+$ oc create rolebinding developer-mobile-security-service --role=mobile-security-service --user=<user>
 ----
 
 == Local development
@@ -322,8 +334,8 @@ image: aerogear/mobile-security-service-operator:0.1.0-dev
 | `make delete-app-only`        | Delete Mobile Security Service App only`
 | `make create-db-only`         | Create Mobile Security Service Database without its application`
 | `make delete-db-only`         | Delete Mobile Security Service Database only`
-| `make apply-bind-crd`         | Apply Mobile Security Service Bind CRD`
-| `make delete-bind-crd`        | Delete Mobile Security Service Bind CRD`
+| `make create-bind`            | Create Mobile Security Service Bind`
+| `make delete-bind`            | Delete Mobile Security Service Bind`
 | `make build`                  | Build operator with its tag`
 | `make publish`                | Publish operator in https://hub.docker.com/[Docker Hub] with its tag`
 | `make build-dev`              | Build operator for development proposes`

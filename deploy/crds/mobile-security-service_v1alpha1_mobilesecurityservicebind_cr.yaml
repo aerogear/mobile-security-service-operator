@@ -2,6 +2,7 @@ apiVersion: mobile-security-service.aerogear.com/v1alpha1
 kind: MobileSecurityServiceBind
 metadata:
   name: mobile-security-service-bind
+  namespace: mobile-security-service-operator
 spec:
   # Add fields here
   size: 1
