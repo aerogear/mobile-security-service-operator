@@ -8,9 +8,9 @@ import (
 )
 
 // Returns the ConfigMap with the properties used to setup/config the Mobile Security Service Project
-func (r *ReconcileMobileSecurityServiceBind) buildAppBindSDKConfigMap(m *mobilesecurityservicev1alpha1.MobileSecurityServiceBind, mss *mobilesecurityservicev1alpha1.MobileSecurityService) *corev1.ConfigMap {
+func (r *ReconcileMobileSecurityServiceBind) buildAppBindSDKConfigMap(m *mobilesecurityservicev1alpha1.MobileSecurityServiceBind, pod corev1.Pod) *corev1.ConfigMap {
 	ls := getAppLabelsForSDKConfigMap(m.Name)
-	name := m.Name + "-sdk"
+	name := pod.Name + "-sdk"
 	ser := &corev1.ConfigMap{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "v1",
@@ -18,10 +18,10 @@ func (r *ReconcileMobileSecurityServiceBind) buildAppBindSDKConfigMap(m *mobiles
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
-			Namespace: m.Namespace,
+			Namespace: pod.Namespace,
 			Labels:    ls,
 		},
-		Data: getConfigMapSDKForMobileSecurityService(mss),
+		Data: getConfigMapSDKForMobileSecurityService(m),
 	}
 	// Set MobileSecurityService instance as the owner and controller
 	controllerutil.SetControllerReference(m, ser, r.scheme)
