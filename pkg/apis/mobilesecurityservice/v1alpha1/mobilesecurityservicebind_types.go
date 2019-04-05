@@ -14,6 +14,11 @@ type MobileSecurityServiceBindSpec struct {
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
 	Size int32  `json:"size"`
+	WatchKeyLabelSelector string `json:"watchKeyLabelSelector,omitempty"`
+	WatchValueLabelSelector string `json:"watchValueLabelSelector,omitempty"`
+	WatchNamespaceSelector string `json:"watchNamespaceSelector,omitempty"`
+	AppKeyLabelSelector string `json:"appKeyLabelSelector"`
+	AppValueLabelSelector string `json:"appValueLabelSelector"`
 }
 
 // MobileSecurityServiceBindStatus defines the observed state of MobileSecurityServiceBind

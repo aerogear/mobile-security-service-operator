@@ -25,9 +25,7 @@ toc::[]
 
 == Overview
 
-A https://commons.openshift.org/sig/OpenshiftOperators.html[Operator] based on the https://github.com/operator-framework/operator-sdk[Operator SDK] that installs and maintains https://github.com/aerogear/mobile-security-service[AeroGear Mobile Security Service] on a cluster.
-
-NOTE: This project is a POC
+A https://commons.openshift.org/sig/OpenshiftOperators.html[Operator] based on the https://github.com/operator-framework/operator-sdk[Operator SDK] to manage, install, configure the https://github.com/aerogear/mobile-security-service[Mobile Security Service] on a OpenShift/Kubernetes cluster.
 
 == Prerequisites
 
@@ -43,6 +41,8 @@ NOTE: This project is a POC
 
 === Getting the project
 
+By the following commands you will create a local directory and clone this project.
+
 [source,shell]
 ----
 $ mkdir -p $GOPATH/src/github.com/aerogear/mobile-security-service-operator
@@ -51,7 +51,7 @@ $ git clone https://github.com/aerogear/mobile-security-service-operator.git
 $ cd $GOPATH/src/github.com/aerogear/mobile-security-service-operator
 ----
 
-=== Installing Minishift
+=== Installing on Minishift
 
 https://docs.okd.io/latest/minishift/getting-started/installing.html[Install Minishift] then enable Operators on it by running the following commands.
 
@@ -67,17 +67,6 @@ $ minishift addon enable admin-user
 $ minishift start
 ----
 
-=== Logging as system:admin
-
-To install the operator is required have admin permissions in the cluster.
-
-[source,shell]
-----
-$ oc login -u system:admin
-----
-
-NOTE: This operator will be installed in the cluster level.
-
 === Configuring the Operator
 
 Update the "mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml" with your cluster info. Following the place.
@@ -91,7 +80,7 @@ Update the "mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml" with
   hostSufix: ".nip.io"
 ----
 
-=== Creating Operator, Service and Roles
+=== Installing the Operator, Service and Roles on the cluster
 
 Use the following command.
 
@@ -100,10 +89,9 @@ Use the following command.
 $ make create-all
 ----
 
-IMPORTANT: To apply you need be logged as admin. (`oc login -u system:admin`)
+WARING: To create all you need be logged as admin. Use `oc login -u system:admin`.
 
-
-=== Deleting the Operator, Service and Roles
+=== Removing the Operator, Service and Roles on the cluster
 
 Use the following command.
 
@@ -114,15 +102,21 @@ $ make delete-all
 
 IMPORTANT: To delete you need be logged as admin. (`oc login -u system:admin`)
 
-== Mobile Security Service Application and Database configurations
+== Configurations and Options
 
-The environment variables used in this project are configured by the Config Map which is created by the operator. To have a further understatement over its configuration see https://github.com/aerogear/mobile-security-service#setup-and-configurations[Setup and Configurations] section of https://github.com/aerogear/mobile-security-service[Mobile Security Service].
+=== Environment Variables
 
-TIP: For example, see that the name of the database is mapped in the ConfigMap which is used by Mobile Security Service application and database. Note that to connect to the database with the default values you may use the command: `psql -h localhost -U postgresql mobile_security_service.
+The environment variables are used to configure the https://github.com/aerogear/mobile-security-service[Mobile Security Service] Application and Database. For a further understatement over its configuration see https://github.com/aerogear/mobile-security-service#setup-and-configurations[Setup and Configurations] section in https://github.com/aerogear/mobile-security-service[Mobile Security Service] README.
 
-== Creating Role for no-privilege users are able to create the application and database in their namespaces
+NOTE: All values used in the default configuration came from the config-map which is managed and created by the Operator.
 
-By executing the following commands you will create roles in the cluster which will allow the <user> create the Mobile Security Service Application and Database in their namespaces. However, the Mobile Security Service Operator is cluster scoped and will still only accessible for the system admin users. (E.g `oc login -u system:admin`)
+=== Watch specifications for the MobileSecurityServiceBind (CR)
+
+The Bind watches the applications in the cluster in order to create, delete and update the data in the https://github.com/aerogear/mobile-security-service[Mobile Security Service] by it REST API. It is the CR responsible for "bind/unbind/re-bind" the applications to the Service and by it CR properties which follows you will be able to define what applications should be watched/checked by this operator. For a further understanding check the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml] file.
+
+=== Role for no-privilege users are able to create the Mobile Security Service App and Database
+
+By executing the following commands you will create roles in the cluster which will allow the <user> create the Mobile Security Service Application and Database in their namespaces. In this would not be required be the system:admin. However, the Mobile Security Service Operator is cluster scoped and will still only accessible for the system admin users. (E.g `oc login -u system:admin`)
 
 [source,shell]
 ----
@@ -159,7 +153,7 @@ NOTE: In this example the tag `0.1.0` will be replaced for the new one.
 
 IMPORTANT: Follow the https://semver.org/[Semantic Versioning] to define the new tags
 
-=== Building and pushing the new version
+=== Building and publish a new version tag in docker.hub
 
 Run the following commands
 

@@ -6,3 +6,17 @@ metadata:
 spec:
   # Add fields here
   size: 1
+  # Watch filter setup for the Bind CR
+  # The watchKeyLabelSelector and watchValueLabelSelector defines the label key:value which will be watched by this type
+  # The watchNamespaceSelector defined an specific namespace for be watched by this type
+  # IMPORTANT: If no values be configured here the type will watch in the same namespace where the bind type was applied
+  # NOTES:
+  #     If just the key and label be filled then the bind will check in all namespaces the deployments with them
+  #     If just the watchNamespaceSelector be filled then the bind will consider all from this namespace only
+  #     Also, both can be filled and the filter will be aggregated, in this way the bind will watch the namespace and filter by the key:value selector as well
+  watchKeyLabelSelector: app
+  watchValueLabelSelector: mdc
+  watchNamespaceSelector:
+  # The following attributes defined the key:value label used to inform that the app is bind to the service
+  appKeyLabelSelector: mobilesecurityservice
+  appValueLabelSelector: bind
