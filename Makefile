@@ -25,9 +25,19 @@ create-all:
 .PHONY: delete-all
 delete-all:
 	@echo Delete Mobile Security Service Operator, Service and namespace "mobile-security-service-operator":
-	make delete-oper
-	make delete-app
-	make delete-bind
+	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
+	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
+	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml
+	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
+	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
+	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_crd.yaml
+	- kubectl delete -f deploy/cluster_role.yaml
+	- kubectl delete -f deploy/cluster_role_binding.yaml
+	- kubectl delete -f deploy/service_account.yaml
+	- kubectl delete -f deploy/operator.yaml
+	- kubectl delete -f deploy/role.yaml
+	- kubectl delete -f deploy/role_binding.yaml
+	- kubectl delete namespace mobile-security-service-operator
 
 .PHONY: create-oper
 create-oper:
