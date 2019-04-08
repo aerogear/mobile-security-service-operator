@@ -17,13 +17,22 @@ func getAppLabels(name string) map[string]string {
 	return map[string]string{"app": "mobilesecurityservice", "mobilesecurityservice_cr": name}
 }
 
+// Returns an string name with the name of the configMap
+func getConfigMapName(m *mobilesecurityservicev1alpha1.MobileSecurityService) string{
+	if len(m.Spec.ConfigMapName) > 0 {
+		return m.Spec.ConfigMapName
+	}
+	return m.Name
+}
+
 func getAppLabelsForSDKConfigMap(name string) map[string]string {
 	return map[string]string{"app": "mobilesecurityservice", "mobilesecurityservice_cr": name, "name": name+"-sdk-config"}
 }
 
+//TODO: Centralized
 // It will build the HOST for the router/ingress created for the Mobile Security Service App
 func getAppIngressHost(m *mobilesecurityservicev1alpha1.MobileSecurityService) string {
-	hostName := m.Name + "-" + m.Namespace + "." + m.Spec.ClusterHost + m.Spec.HostSufix
+	hostName := "mobile-security-service-app" + "." + m.Spec.ClusterHost + m.Spec.HostSufix
 	return hostName;
 }
 
@@ -46,7 +55,7 @@ func buildAppEnvVars(m *mobilesecurityservicev1alpha1.MobileSecurityService) *[]
 			ValueFrom: &corev1.EnvVarSource{
 				ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 					LocalObjectReference: corev1.LocalObjectReference{
-						Name: m.Name,
+						Name: getConfigMapName(m),
 					},
 					Key: key,
 				},

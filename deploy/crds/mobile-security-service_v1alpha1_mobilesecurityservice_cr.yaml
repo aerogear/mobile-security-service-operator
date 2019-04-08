@@ -28,4 +28,11 @@ spec:
   # - Replace "{{clusterHost}}" for your cluster HOST. E.g 192.168.64.9
   # - You can use "$ oc status | grep server" or "kubectl cluster-info" to get this cluster info
   clusterHost: "{{clusterHost}}"
+  # The hostSufix will be used to created the route/ingress
   hostSufix: ".nip.io"
+  # The configMapName define the configMap which should be created and used in order to
+  # get the values of the Env Variables created by the Mobile Security Service controller.
+  # NOTE:
+  #    If this ConfigMap be not found the default values defined above will be used directly instead of.
+  #    If the name be nt specified then it will be the Mobile Security Service instance name.
+  configMapName: "mss-config"

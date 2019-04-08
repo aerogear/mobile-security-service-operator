@@ -19,6 +19,8 @@ type MobileSecurityServiceBindSpec struct {
 	WatchNamespaceSelector string `json:"watchNamespaceSelector,omitempty"`
 	AppKeyLabelSelector string `json:"appKeyLabelSelector"`
 	AppValueLabelSelector string `json:"appValueLabelSelector"`
+	ClusterHost                   string `json:"clusterHost"`
+	HostSufix                     string `json:"hostSufix"`
 }
 
 // MobileSecurityServiceBindStatus defines the observed state of MobileSecurityServiceBind

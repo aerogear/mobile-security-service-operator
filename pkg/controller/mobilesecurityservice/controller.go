@@ -169,7 +169,7 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 
 	//Check if the ConfigMap already exists, if not create a new one
 	configMap := &corev1.ConfigMap{}
-	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, configMap)
+	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Spec.ConfigMapName, Namespace: instance.Namespace}, configMap)
 	if err != nil {
 		return create(r, instance, reqLogger, CONFIGMAP, err)
 	}

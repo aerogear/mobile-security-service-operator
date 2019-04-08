@@ -105,6 +105,13 @@ The environment variables are used to configure the https://github.com/aerogear/
 
 NOTE: All values used in the default configuration came from the config-map which is managed and created by the Operator.
 
+=== Config Map Name to store Environment Variables values
+
+The Mobile Security Service CRD will create the configMap to store these values. The name of the configMap is specified in ./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService].
+
+NOTE: If the name of this ConfigMap be not specified then the name of the Mobile Security Service instance will be used instead of.
+NOTE: The link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml[MobileSecurityServiceDB] and ./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService] should specified the same name for this ConfigMap in order to allow the App and Database share its usage.
+
 === Watch specifications for the MobileSecurityServiceBind (CR)
 
 The Bind watches the applications in the cluster in order to create, delete and update the data in the https://github.com/aerogear/mobile-security-service[Mobile Security Service] by it REST API. It is the CR responsible for "bind/unbind/re-bind" the applications to the Service and by it CR properties which follows you will be able to define what applications should be watched/checked by this operator. For a further understanding check the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml] file.
@@ -226,8 +233,6 @@ NOTE: The image/tag used from https://github.com/aerogear/mobile-security-servic
 | `make delete-all`             | Delete mobile-security-service-operator namespace, operator, service and roles
 | `make create-oper`            | Create mobile-security-service namespace, operator and roles
 | `make delete-oper`            | Delete mobile-security-service namespace, operator and roles
-| `make create-olm`             | Create mobile-security-service namespace, catalogue operator(olm) and roles
-| `make delete-olm`             | Delete mobile-security-service namespace, catalogue operator(olm) and roles
 | `make create-app`             | Create Mobile Security Service App and its database in the project
 | `make create-app-only`        | Create Mobile Security Service App without its database
 | `make delete-app`             | Delete Mobile Security Service App and its database

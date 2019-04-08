@@ -12,7 +12,7 @@ type SDKConfig struct{
 	Services              []SDKConfigService `json:"services,omitempty"`
 }
 
-func NewSDKConfig(m *mobilesecurityservicev1alpha1.MobileSecurityService, host string, services []SDKConfigService) *SDKConfig {
+func NewSDKConfig(m *mobilesecurityservicev1alpha1.MobileSecurityServiceBind, host string, services []SDKConfigService) *SDKConfig {
 	cfg := new(SDKConfig)
 	cfg.Name = m.Name
 	cfg.Namespace = m.Namespace

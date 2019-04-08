@@ -37,13 +37,6 @@ func getPodNames(pods []corev1.Pod) []string {
 	return podNames
 }
 
-// It will build the HOST for the router/ingress created for the Mobile Security Service App
-func getAppIngressHost(m *mobilesecurityservicev1alpha1.MobileSecurityService) string {
-	hostName := m.Name + "-" + m.Namespace + "." + m.Spec.ClusterHost + m.Spec.HostSufix
-	return hostName;
-}
-
-
 //To transform the object into a string with its json
 func getSdkConfigStringJsonFormat(sdk *models.SDKConfig) string{
 	jsonSdk, _ := json.Marshal(sdk)
@@ -63,7 +56,7 @@ func getServices() []models.SDKConfigService{
 }
 
 // return properties for the response SDK
-func getConfigMapSDKForMobileSecurityService(m *mobilesecurityservicev1alpha1.MobileSecurityService) map[string]string {
+func getConfigMapSDKForMobileSecurityService(m *mobilesecurityservicev1alpha1.MobileSecurityServiceBind) map[string]string {
 	url:= "http://" + getAppIngressHost(m)
 	sdk := models.NewSDKConfig(m, url, getServices())
 	return map[string]string{
@@ -105,3 +98,15 @@ func getWatchListOps(instance *mobilesecurityservicev1alpha1.MobileSecurityServi
 	}
 	return listOps
 }
+
+//TODO: Centralized
+// It will build the HOST for the router/ingress created for the Mobile Security Service App
+func getAppIngressHost(m *mobilesecurityservicev1alpha1.MobileSecurityServiceBind) string {
+	hostName := "mobile-security-service-app" + "." + m.Spec.ClusterHost + m.Spec.HostSufix
+	return hostName;
+}
+
+func getURLServiceRestAPI(m *mobilesecurityservicev1alpha1.MobileSecurityServiceBind) string {
+	return getAppIngressHost(m) + "/api/"
+}
+

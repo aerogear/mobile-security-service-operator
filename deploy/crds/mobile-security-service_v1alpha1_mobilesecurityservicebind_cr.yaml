@@ -20,3 +20,11 @@ spec:
   # The following attributes defined the key:value label used to inform that the app is bind to the service
   appKeyLabelSelector: mobilesecurityservice
   appValueLabelSelector: bind
+  # The following data will be used to do requests using the ingress/route created for the Mobile Security Service App
+  # NOTE:
+  # - Replace "{{clusterHost}}" for your cluster HOST. E.g 192.168.64.9
+  # - You can use "$ oc status | grep server" or "kubectl cluster-info" to get this cluster info
+  # IMPORTANT: The clusterHost and hostSufix need to be the same values configured in the mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
+  clusterHost: "{{clusterHost}}"
+  # The hostSufix which was used to created the route/ingress
+  hostSufix: ".nip.io"

@@ -29,6 +29,7 @@ type MobileSecurityServiceSpec struct {
 	AccessControlAllowCredentials string `json:"accessControlAllowCredentials"`
 	ClusterHost                   string `json:"clusterHost"`
 	HostSufix                     string `json:"hostSufix"`
+	ConfigMapName                 string `json:"configMapName,omitempty"`
 }
 
 // MobileSecurityServiceStatus defines the observed state of MobileSecurityService
