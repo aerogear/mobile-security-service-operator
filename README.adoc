@@ -25,7 +25,9 @@ toc::[]
 
 == Overview
 
-A https://commons.openshift.org/sig/OpenshiftOperators.html[Operator] based on the https://github.com/operator-framework/operator-sdk[Operator SDK] to manage, install, configure the https://github.com/aerogear/mobile-security-service[Mobile Security Service] on a OpenShift/Kubernetes cluster.
+A https://commons.openshift.org/sig/OpenshiftOperators.html[Operator] based on the https://github.com/operator-framework/operator-sdk[Operator SDK] to run the https://github.com/aerogear/mobile-security-service[Mobile Security Service] on a OpenShift/Kubernetes cluster.
+
+image::https://user-images.githubusercontent.com/7708031/55628052-9ad02d00-57a7-11e9-8a53-f1d5c845358a.png[Create Server,align="center"]
 
 == Prerequisites
 
@@ -39,61 +41,54 @@ A https://commons.openshift.org/sig/OpenshiftOperators.html[Operator] based on t
 
 == Getting Started
 
-=== Getting the project
+=== Cloning the repository
 
 By the following commands you will create a local directory and clone this project.
 
 [source,shell]
 ----
-$ mkdir -p $GOPATH/src/github.com/aerogear/mobile-security-service-operator
-$ cd $GOPATH/src/github.com/aerogear/mobile-security-service-operator
-$ git clone https://github.com/aerogear/mobile-security-service-operator.git
-$ cd $GOPATH/src/github.com/aerogear/mobile-security-service-operator
+$ git clone git@github.com:aerogear/mobile-security-service.git $GOPATH/src/github.com/aerogear/mobile-security-service-operator
 ----
 
-=== Installing on Minishift
+=== Minishift installation and setup
 
 https://docs.okd.io/latest/minishift/getting-started/installing.html[Install Minishift] then enable Operators on it by running the following commands.
 
 [source,shell]
 ----
 # create a new profile to test the operator
-$ minishift profile set operator
+$ minishift profile set mss-operator
 
 # enable the admin-user add-on
 $ minishift addon enable admin-user
+
+# add insecure registry to download the images from docker
+$ minishift config set insecure-registry 172.30.0.0/16
 
 # start the instance
 $ minishift start
 ----
 
-=== Configuring the Operator
+=== Configuring
 
-Update the "mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml" with your cluster info. Following the place.
+Update the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml] with your cluster/host IP.
 
-[source,yaml]
-----
-  # NOTE:
-  # - Replace "{{clusterHost}}" for your cluster HOST. E.g 192.168.64.9
-  # - You can use "$ oc status | grep server" or "kubectl cluster-info" to get this cluster info
-  clusterHost: "{{clusterHost}}"
-  hostSufix: ".nip.io"
-----
+NOTE: The `clusterHost` will be used to generated the route/ingress source as in the ConfigMap created with the SDK JSON config.
 
-=== Installing the Operator, Service and Roles on the cluster
+=== Installing
 
-Use the following command.
+Use the following command to create the Operator, the Service and its roles on the cluster.
 
 [source,shell]
 ----
 $ make create-all
 ----
 
-WARING: To create all you need be logged as admin. Use `oc login -u system:admin`.
+IMPORTANT: To create all you need be logged as admin. Use `oc login -u system:admin`.
 
-=== Removing the Operator, Service and Roles on the cluster
+=== Removing
 
-Use the following command.
+Use the following command to delete the Operator, the Service and its roles from the cluster.
 
 [source,shell]
 ----
@@ -124,15 +119,53 @@ $ oc create rolebinding developer-mobile-security-service-operator --role=mobile
 $ oc create rolebinding developer-mobile-security-service --role=mobile-security-service --user=<user>
 ----
 
-== Local development
+== Development
 
-== To publish an new version of this operator
+=== Architecture
 
-Following the steps.
+==== CRD Definitions
 
-=== Updating the operator tag version
+|===
+| *CustomResourceDefinition*    | *Description*
+| link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService]             | Packages, manages, installs and configures the https://github.com/aerogear/mobile-security-service[Mobile Security Service] on the cluster.
+| link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml[MobileSecurityServiceDB]             | Packages, manages, installs and configures the https://github.com/aerogear/mobile-security-service[Mobile Security Service] Database on the cluster.
+| link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[MobileSecurityServiceBind]             | Watches the pods for creates, deletes and updates the apps in the Service REST API. Performs the bind, unbind and rebind actions between the service and application.
+|===
 
-* Replace the tag of the image in the `deploy/operator.yaml` file.
+==== Resources managed by each CRD Controller
+
+* *link:./pkg/controller/mobilesecurityservice/controller.go[Mobile Security Service]*
+|===
+| *Resource*    | *Description*
+| link:./pkg/controller/mobilesecurityservice/configmaps.go[configmaps.go]             | Define the ConfigMap resources required for the Mobile Security Service Application and its Database. It will create the mobile-security-service-app` which map the values used in the Environment Variables of both.
+| link:./pkg/controller/mobilesecurityservice/deployments.go[deployments.go]           | Define the Deployment resource of Mobile Security Service Application. (E.g container and resources definitions)
+| link:./pkg/controller/mobilesecurityservice/ingress.go[ingress.go]                   | Define the route/ingress resource required to allow access to the Mobile Security Service Application.
+| link:./pkg/controller/mobilesecurityservice/services.go[services.go]                 | Define the Service resource of Mobile Security Service Application.
+|===
+
+* *link:./pkg/controller/mobilesecurityservicedb/controller.go[Mobile Security Service Database]*
+|===
+| *Resource*    | *Description*
+| link:./pkg/controller/mobilesecurityservicedb/deployments.go[deployments.go]           | Define the Deployment resource of Mobile Security Service Database. (E.g container and resources definitions)
+| link:./pkg/controller/mobilesecurityservicedb/pvs.go[pvs.go]                           | Define the PersistentVolumeClaim resource used by its Database.
+| link:./pkg/controller/mobilesecurityservice/services.go[services.go]                   | Define the Service resource of Mobile Security Service Database.
+|===
+
+* *link:./pkg/controller/mobilesecurityservicebind/controller.go[Mobile Security Service Bind]*
+|===
+| *Resource*    | *Description*
+| link:./pkg/controller/mobilesecurityservicebind/configmaps.go[configmaps.go]           | Define the ConfigMap resources managed by the Bind. It creates the ConfigMap with the config JSON for the SDK.
+|===
+
+=== Build/Publish tags
+
+To publish an new version of this operator following the steps.
+
+NOTE: Check into the https://hub.docker.com/r/aerogear/mobile-security-service-operator[Docker Hub] the tags published already.
+
+==== Updating the operator tag version
+
+* Replace the tag of the image in the link:./deploy/operator.yaml[operator.yaml] file.
 
 [source,yaml]
 ----
@@ -142,18 +175,18 @@ Following the steps.
 
 NOTE: In this example the tag `0.1.0` will be replaced for the new one.
 
-* Replace the tag in the `Makefile` file.
+* Replace the tag in the link:./Makefile[Makefile] file.
 
 [source,shell]
 ----
-TAG= 0.1.0
+TAG=0.1.0
 ----
 
 NOTE: In this example the tag `0.1.0` will be replaced for the new one.
 
 IMPORTANT: Follow the https://semver.org/[Semantic Versioning] to define the new tags
 
-=== Building and publish a new version tag in docker.hub
+==== Building and publish a new version tag in Docker Hub
 
 Run the following commands
 
@@ -163,7 +196,9 @@ $ make build
 $ make publish
 ----
 
-=== To build and publish a development tag
+=== Creating dev tags
+
+The dev tags will allow you test locally the changes performed in the project without affect the tag published into the https://hub.docker.com/r/aerogear/mobile-security-service-operator[Docker Hub].
 
 [source,shell]
 ----
@@ -171,9 +206,9 @@ $ make build-dev
 $ make publish-dev
 ----
 
-=== To use locally the image from development tag
+=== Using the dev tags
 
-Update the image tag in the file `/mobile-security-service-operator/deploy/operator.yaml` with the development tag as follows.
+Update the image tag in the file link:./deploy/operator.yaml[operator.yaml] with the development tag as follows.
 
 [source,yaml]
 ----
@@ -181,28 +216,30 @@ Update the image tag in the file `/mobile-security-service-operator/deploy/opera
 image: aerogear/mobile-security-service-operator:0.1.0-dev
 ----
 
+NOTE: The image/tag used from https://github.com/aerogear/mobile-security-service[Mobile Security Service] is defined in link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml] file.
+
 == Using make commands
 
 |===
 | *Command*                     | *Description*
-| `make create-all`             | Create mobile-security-service-operator namespace, operator, service and roles`
-| `make delete-all`             | Delete mobile-security-service-operator namespace, operator, service and roles`
-| `make create-oper`            | Create mobile-security-service namespace, operator and roles`
-| `make delete-oper`            | Delete mobile-security-service namespace, operator and roles`
-| `make create-olm`             | Create mobile-security-service namespace, catalogue operator(olm) and roles`
-| `make delete-olm`             | Delete mobile-security-service namespace, catalogue operator(olm) and roles`
-| `make create-app`             | Create Mobile Security Service App and its database in the project`
-| `make create-app-only`        | Create Mobile Security Service App without its database`
-| `make delete-app`             | Delete Mobile Security Service App and its database`
-| `make delete-app-only`        | Delete Mobile Security Service App only`
-| `make create-db-only`         | Create Mobile Security Service Database without its application`
-| `make delete-db-only`         | Delete Mobile Security Service Database only`
-| `make create-bind`            | Create Mobile Security Service Bind`
-| `make delete-bind`            | Delete Mobile Security Service Bind`
-| `make build`                  | Build operator with its tag`
-| `make publish`                | Publish operator in https://hub.docker.com/[Docker Hub] with its tag`
-| `make build-dev`              | Build operator for development proposes`
-| `make publish-dev`            | Publish operator in https://hub.docker.com/[Docker Hub] for development proposes`
+| `make create-all`             | Create mobile-security-service-operator namespace, operator, service and roles
+| `make delete-all`             | Delete mobile-security-service-operator namespace, operator, service and roles
+| `make create-oper`            | Create mobile-security-service namespace, operator and roles
+| `make delete-oper`            | Delete mobile-security-service namespace, operator and roles
+| `make create-olm`             | Create mobile-security-service namespace, catalogue operator(olm) and roles
+| `make delete-olm`             | Delete mobile-security-service namespace, catalogue operator(olm) and roles
+| `make create-app`             | Create Mobile Security Service App and its database in the project
+| `make create-app-only`        | Create Mobile Security Service App without its database
+| `make delete-app`             | Delete Mobile Security Service App and its database
+| `make delete-app-only`        | Delete Mobile Security Service App only
+| `make create-db-only`         | Create Mobile Security Service Database without its application
+| `make delete-db-only`         | Delete Mobile Security Service Database only
+| `make create-bind`            | Create Mobile Security Service Bind
+| `make delete-bind`            | Delete Mobile Security Service Bind
+| `make build`                  | Build operator with its tag
+| `make publish`                | Publish operator in https://hub.docker.com/[Docker Hub] with its tag
+| `make build-dev`              | Build operator for development proposes
+| `make publish-dev`            | Publish operator in https://hub.docker.com/[Docker Hub] for development proposes
 | `make vet`                    | Examines source code and reports suspicious constructs using https://golang.org/cmd/vet/[vet]
 | `make fmt`                    | Formats code using https://golang.org/cmd/gofmt/[gofmt]
 |===
