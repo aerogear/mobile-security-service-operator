@@ -1,13 +1,35 @@
 package models
 
+import (
+	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
+	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
+)
+
+const (
+	ID = "security"
+	Name = "security"
+	Type = "security"
+)
+
 type SDKConfigService struct{
+	ID					  string     `json:"id"`
 	Name                  string     `json:"name"`
-	Host             	  string     `json:"host"`
+	Type                  string     `json:"type"`
+	URL             	  string     `json:"url"`
+	ConfigService         ConfigService `json:"config,omitempty"`
 }
 
-func NewSDKConfigServices(serviceName, serviceHost string) *SDKConfigService {
+func NewSDKConfigServices(m *mobilesecurityservicev1alpha1.MobileSecurityServiceBind) *SDKConfigService {
 	service := new(SDKConfigService)
-	service.Name = serviceName
-	service.Host = serviceHost
+	service.ID = ID
+	service.Name = Name
+	service.Type = Type
+	service.URL = utils.GetAppIngressURL(m.Spec.Protocol, m.Spec.ClusterHost, m.Spec.HostSufix)
+	service.ConfigService = *NewConfigService(service.URL)
 	return service
 }
+
+
+
+
+

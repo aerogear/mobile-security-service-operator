@@ -14,7 +14,7 @@ spec:
   #     If just the key and label be filled then the bind will check in all namespaces the deployments with them
   #     If just the watchNamespaceSelector be filled then the bind will consider all from this namespace only
   #     Also, both can be filled and the filter will be aggregated, in this way the bind will watch the namespace and filter by the key:value selector as well
-  watchKeyLabelSelector: app
+  watchKeyLabelSelector: owner
   watchValueLabelSelector: mdc
   watchNamespaceSelector:
   # The following attributes defined the key:value label used to inform that the app is bind to the service
@@ -26,5 +26,10 @@ spec:
   # - You can use "$ oc status | grep server" or "kubectl cluster-info" to get this cluster info
   # IMPORTANT: The clusterHost and hostSufix need to be the same values configured in the mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
   clusterHost: "{{clusterHost}}"
+  protocol: "http"
   # The hostSufix which was used to created the route/ingress
   hostSufix: ".nip.io"
+  # The appNameLabel spec defines the key label which will have the name of the app
+  appNameLabel: "app"
+  # The appIdLabel spec defines the key label which will have the id of the app
+  appIdLabel: "appId"
