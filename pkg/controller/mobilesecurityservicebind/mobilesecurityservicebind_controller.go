@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
+	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"github.com/aerogear/mobile-security-service/pkg/models"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
@@ -11,6 +12,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"net/http"
+	"reflect"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
@@ -25,6 +27,7 @@ var log = logf.Log.WithName("controller_mobilesecurityservicebind")
 
 const (
 	SDK_CONFIGMAP = "SDKConfigMap"
+	APP_REST = "APP_REST"
 )
 
 /**
@@ -58,13 +61,12 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	}
 
 	/** Watch for changes to secondary resources and create the owner MobileSecurityService **/
-
 	//ConfigMap
 	if err := watchConfigMap(c); err != nil {
 		return err
 	}
 
-	//ConfigMap
+	//Pod
 	if err := watchPod(c); err != nil {
 		return err
 	}
@@ -82,38 +84,67 @@ type ReconcileMobileSecurityServiceBind struct {
 	scheme *runtime.Scheme
 }
 
-//Update the object and reconcile it
-func update(r *ReconcileMobileSecurityServiceBind, obj runtime.Object, reqLogger logr.Logger) (reconcile.Result, error) {
-	err := r.client.Update(context.TODO(), obj)
-	if err != nil {
-		reqLogger.Error(err, "Failed to update Spec")
-		return reconcile.Result{}, err
-	}
-	reqLogger.Info("Spec updated - return and create")
-	return reconcile.Result{Requeue: true}, nil
-}
-
+//Build the object and create the object in the queue/reconcile
 func create(r *ReconcileMobileSecurityServiceBind, pod corev1.Pod, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceBind, reqLogger logr.Logger, kind string, err error) (reconcile.Result, error) {
 	obj, errBuildObject := buildObject(reqLogger, pod, instance, r, kind)
 	if errBuildObject != nil {
 		return reconcile.Result{}, errBuildObject
 	}
 	if errors.IsNotFound(err) {
-		reqLogger.Info("Creating a new ", "kind", kind, "Namespace", pod.Namespace)
+		reqLogger.Info("Creating a new ", "kind", kind, "Pod.Namespace", pod.Namespace, "Pod.Name", pod.Name)
 		err = r.client.Create(context.TODO(), obj)
 		if err != nil {
-			reqLogger.Error(err, "Failed to create new ", "kind", kind, "Namespace", pod.Namespace)
+			reqLogger.Error(err, "Failed to create new ", "kind", kind, "Pod.Namespace", pod.Namespace, "Pod.Name", pod.Name)
 			return reconcile.Result{}, err
 		}
-		reqLogger.Info("Created successfully - return and create", "kind", kind, "Namespace", pod.Namespace)
+		reqLogger.Info("Created successfully - return and create", "kind", kind, "Pod.Namespace", pod.Namespace, "Pod.Name", pod.Name)
 		return reconcile.Result{Requeue: true}, nil
 	}
-	reqLogger.Error(err, "Failed to get", "kind", kind, "Namespace", pod.Namespace)
+	reqLogger.Error(err, "Failed to build", "kind", kind, "Pod.Namespace", pod.Namespace, "Pod.Name", pod.Name)
 	return reconcile.Result{}, err
 }
 
+//Delete the object and reconcile it
+func delete(r *ReconcileMobileSecurityServiceBind, obj runtime.Object, reqLogger logr.Logger ) (reconcile.Result, error) {
+	reqLogger.Info("Deleting a new object ", "kind", obj.GetObjectKind())
+	err := r.client.Delete(context.TODO(), obj)
+	if err != nil {
+		reqLogger.Error(err, "Failed to delete ", "kind", obj.GetObjectKind())
+		return reconcile.Result{}, err
+	}
+	reqLogger.Info("Delete with successfully - return and requeue", "kind", obj.GetObjectKind())
+	return reconcile.Result{Requeue: true}, nil
+}
+
+//Call the REST API to create the app
+func createRest(r *ReconcileMobileSecurityServiceBind, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceBind, pod corev1.Pod, reqLogger logr.Logger, kind string, err error) (reconcile.Result, error) {
+	appName := utils.GetAppNameByPodLabel(pod, instance)
+	appId := utils.GetAppIdByPodLabel(pod, instance)
+	app, errBuildObject := json.Marshal(models.App{AppID:appId, AppName:appName}) //FIXME:It is getting an error - Create new App in the Rest Service
+
+	if errBuildObject != nil {
+		return reconcile.Result{}, errBuildObject
+	}
+	if errors.IsNotFound(err) {
+		reqLogger.Info("Creating a new ", "kind", kind, "Pod.Namespace", pod.Namespace, "Pod.Name", pod.Name)
+
+		log.WithValues("Request.Namespace", pod.Namespace, "** BODY:", strings.NewReader(string(app)))
+		_, err := http.NewRequest(http.MethodPost, "http://mobile-security-service-app.192.168.64.16.nip.io/api/apps", strings.NewReader(string(app)))
+
+		if err != nil {
+			reqLogger.Error(err, "Failed to create new ", "kind", kind, "Pod.Namespace", pod.Namespace, "Pod.Name", pod.Name)
+			return reconcile.Result{}, err
+		}
+		reqLogger.Info("Created successfully - return and create", "kind", kind, "Pod.Namespace", pod.Namespace, "Pod.Name", pod.Name)
+		return reconcile.Result{Requeue: true}, nil
+	}
+	reqLogger.Error(err, "Failed to build", "kind", kind, "Pod.Namespace", pod.Namespace, "Pod.Name", pod.Name)
+	return reconcile.Result{}, err
+}
+
+//Build Objects for MobileSecurityServiceBind
 func buildObject(reqLogger logr.Logger, pod corev1.Pod, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceBind, r *ReconcileMobileSecurityServiceBind, kind string) (runtime.Object, error) {
-	reqLogger.Info("Check "+kind, "into the namespace", pod.Namespace)
+	reqLogger.Info("Building Object ", "kind", kind, "Pod.Namespace", pod.Namespace, "Pod.Name", pod.Name)
 	switch kind {
 	case SDK_CONFIGMAP:
 		return r.buildAppBindSDKConfigMap(instance, pod), nil
@@ -121,6 +152,18 @@ func buildObject(reqLogger logr.Logger, pod corev1.Pod, instance *mobilesecurity
 		msg := "Failed to recognize type of object" + kind + " into the Namespace " + pod.Namespace
 		panic(msg)
 	}
+}
+
+//Fetch MobileSecurityServiceBind instance
+func fetch(r *ReconcileMobileSecurityServiceBind, reqLogger logr.Logger, err error) (reconcile.Result, error) {
+	if errors.IsNotFound(err) {
+		// Return and don't create
+		reqLogger.Info("Mobile Security Service Bind resource not found. Ignoring since object must be deleted")
+		return reconcile.Result{}, nil
+	}
+	// Error reading the object - create the request.
+	reqLogger.Error(err, "Failed to get Mobile Security Service Bind")
+	return reconcile.Result{}, err
 }
 
 // Reconcile reads that state of the cluster for a MobileSecurityServiceBind object and makes changes based on the state read
@@ -132,67 +175,76 @@ func (r *ReconcileMobileSecurityServiceBind) Reconcile(request reconcile.Request
 	reqLogger := log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
 	reqLogger.Info("Reconciling MobileSecurityServiceBind")
 
-
-	// Fetch the MobileSecurityServiceBind instance
 	instance := &mobilesecurityservicev1alpha1.MobileSecurityServiceBind{}
-	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
 
+	//Fetch the MobileSecurityServiceBind instance
+	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
 	if err != nil {
-		if errors.IsNotFound(err) {
-			// Request object not found, could have been deleted after reconcile request.
-			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
-			// Return and don't requeue
-			return reconcile.Result{}, nil
-		}
-		// Error reading the object - requeue the request.
-		return reconcile.Result{}, err
+		return fetch(r, reqLogger, err)
 	}
 
+	//Check the key:labels and/or namespace which should be watched to get the bind apps
+	listAppOps := getAppWatchListOps(instance,reqLogger)
 
-	//Check the key:labels and/or namespace which should be watched
-	listOps := getWatchListOps(instance,reqLogger)
-
-	//Check all Deployments in the Namespace where the Bind was installed and with the labelSelector and ValueSelector Specified
-	reqLogger.Info("Watching pods by specs ...")
-	podList := &corev1.PodList{}
-	err = r.client.List(context.TODO(), &listOps, podList)
+	//Check all pods which are bind to the service
+	reqLogger.Info("Checking pods application according to the specs ...")
+	appPodList := &corev1.PodList{}
+	err = r.client.List(context.TODO(), &listAppOps, appPodList)
 	if err == nil {
-		reqLogger.Info("Listing all pods by specs ...")
-		if len(podList.Items) > 0 {
-			reqLogger.Info("Found pods by specs ...")
+		if len(appPodList.Items) > 0 {
+			reqLogger.Info("Found pods by specs defined ...")
 		}
-		for i := 0; i < len(podList.Items); i++ {
-			//TODO: In progress:
-			pod := podList.Items[i]
-			reqLogger.Info("*** PodName"+pod.Name)
-			log.WithValues("Request.Namespace", request.Namespace, "Pod:", pod)
 
-			//Check if the SDK ConfigMap already exists, if not create a new one
+		for i := 0; i < len(appPodList.Items); i++ {
+			pod := appPodList.Items[i]
+			appName := utils.GetAppNameByPodLabel(pod, instance)
+			isBind := isBind(pod, instance)
+			reqLogger.Info("Pod bind status",  "Pod.Namespace", pod.Namespace, "Pod.Name", pod.Name, "Pod.isBind", isBind)
+
+			reqLogger.Info("Checking if has SDK ConfigMap already exists for the pod ...")
 			configmapsdk := &corev1.ConfigMap{}
-			configmapsdk_name := pod.Name + "-sdk"
-			err = r.client.Get(context.TODO(), types.NamespacedName{Name: configmapsdk_name, Namespace: pod.Namespace}, configmapsdk)
-			if err != nil {
+			configMapName := appName + "-sdk"
+			reqLogger.Info("Search for the SDKConfigMap in:", "Pod.Namespace", pod.Namespace, "Pod.Name", pod.Name, "ConfigMap.Name", configMapName)
+			err = r.client.Get(context.TODO(), types.NamespacedName{Name: configMapName, Namespace: pod.Namespace}, configmapsdk)
+
+			if err != nil && isBind {
+				reqLogger.Info("Creating the SDKConfigMap ...")
 				return create(r, pod, instance, reqLogger, SDK_CONFIGMAP, err)
 			}
 
-			//Check if the APP was created
-			appId := string(pod.UID)
-			app, _ := json.Marshal(models.App{AppID:appId, AppName:pod.Name})
-			log.WithValues("Request.Namespace", request.Namespace, "** BODY:", strings.NewReader(string(app)))
-			req, err := http.NewRequest(http.MethodPost, "http://mobile-security-service-app.192.168.64.16.nip.io/api/apps", strings.NewReader(string(app)))
-
-			if err != nil{
-				log.WithValues("Request.Namespace", request.Namespace, "Error to POST app from Service REST API:", err)
-			} else {
-				log.WithValues("Request.Namespace", request.Namespace, "Response from POST app from Service REST API:", req)
+			if !isBind && configmapsdk.Name == configMapName {
+				reqLogger.Info("Deleting the SDKConfigMap ...")
+				return delete(r, configmapsdk, reqLogger)
 			}
 
-			//Check if the APP changed the name
+			//if isBind {
+			//	reqLogger.Info("Creating the App in the Rest Service for the pod: " + pod.Name)
+			//	return createRest(r, pod, reqLogger, APP_REST, err)
+			//}
 		}
-	} else {
-		log.WithValues("Request.Namespace", request.Namespace, "*** Error to List pods by spec:", err)
+	}
+
+	reqLogger.Info("Updating the MobileSecurityServiceBind status with the pod names")
+	podList := &corev1.PodList{}
+	err = r.client.List(context.TODO(), &listAppOps, podList)
+	if err != nil {
+		reqLogger.Error(err, "Failed to list pods", "MobileSecurityServiceBind.Namespace", instance.Namespace, "MobileSecurityServiceBind.Name", instance.Name)
+		return reconcile.Result{}, err
+	}
+	reqLogger.Info("Get pod names")
+	podNames := utils.GetPodNames(podList.Items)
+	reqLogger.Info("Update status.Nodes if needed")
+	if !reflect.DeepEqual(podNames, instance.Status.Nodes) {
+		instance.Status.Nodes = podNames
+		err := r.client.Status().Update(context.TODO(), instance)
+		if err != nil {
+			reqLogger.Error(err, "Failed to update MobileSecurityServiceBind status")
+			return reconcile.Result{}, err
+		}
 	}
 
 	return reconcile.Result{}, nil
 }
+
+
 

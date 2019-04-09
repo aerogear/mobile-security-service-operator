@@ -83,12 +83,3 @@ func (r *ReconcileMobileSecurityServiceDB) getDatabasePasswordEnvVar(m *mobilese
 		Value: m.Spec.DatabasePassword,
 	}
 }
-
-// getPodNames returns the pod names of the array of pods passed in
-func getPodNames(pods []corev1.Pod) []string {
-	var podNames []string
-	for _, pod := range pods {
-		podNames = append(podNames, pod.Name)
-	}
-	return podNames
-}

@@ -3,6 +3,7 @@ package mobilesecurityservicedb
 import (
 	"context"
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
+	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/labels"
 	"reflect"
@@ -161,21 +162,21 @@ func (r *ReconcileMobileSecurityServiceDB) Reconcile(request reconcile.Request) 
 		return fetch(r, reqLogger, err)
 	}
 
-	//Check if the PV already exists, if not create a new one
+	reqLogger.Info("Checking if the DB PersistentVolumeClaim already exists, if not create a new one")
 	pv := &corev1.PersistentVolumeClaim{}
 	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, pv)
 	if err != nil {
 		return create(r, instance, reqLogger, PVC, err)
 	}
 
-	//Check if the Service already exists, if not create a new one
+	reqLogger.Info("Checking if the DB Service already exists, if not create a new one")
 	service := &corev1.Service{}
 	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, service)
 	if err != nil {
 		return create(r, instance, reqLogger, SERVICE, err)
 	}
 
-	//Check if the deployment already exists, if not create a new one
+	reqLogger.Info("Checking if the DB deployment already exists, if not create a new one")
 	deployment := &appsv1.Deployment{}
 	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, deployment)
 	if err != nil {
@@ -183,25 +184,24 @@ func (r *ReconcileMobileSecurityServiceDB) Reconcile(request reconcile.Request) 
 	}
 
 	//Ensure the deployment size is the same as the spec
-	reqLogger.Info("Ensure the Mobile Security Service Database deployment size is the same as the spec")
+	reqLogger.Info("Ensuring the MobileSecurityServiceDB deployment size is the same as the spec")
 	size := instance.Spec.Size
 	if *deployment.Spec.Replicas != size {
 		deployment.Spec.Replicas = &size
 		return update(r, deployment, reqLogger)
 	}
 
-	//Update the MobileSecurityService status with the pod names
-	//List the pods for this MobileSecurityService's deployment
+	reqLogger.Info("Updating the MobileSecurityServiceDB status with the pod names")
 	podList := &corev1.PodList{}
 	labelSelector := labels.SelectorFromSet(getDBLabels(instance.Name))
 	listOps := &client.ListOptions{Namespace: instance.Namespace, LabelSelector: labelSelector}
 	err = r.client.List(context.TODO(), listOps, podList)
 	if err != nil {
-		reqLogger.Error(err, "Failed to list DB pods", "MobileSecurityService.Namespace", instance.Namespace, "MobileSecurityService.Name", instance.Name)
+		reqLogger.Error(err, "Failed to list DB pods", "MobileSecurityServiceDB.Namespace", instance.Namespace, "MobileSecurityServiceDB.Name", instance.Name)
 		return reconcile.Result{}, err
 	}
 	reqLogger.Info("Get DB pod names")
-	podNames := getPodNames(podList.Items)
+	podNames := utils.GetPodNames(podList.Items)
 	reqLogger.Info("Update status.Nodes if needed regards MobileSecurityServiceDB")
 	if !reflect.DeepEqual(podNames, instance.Status.Nodes) {
 		instance.Status.Nodes = podNames

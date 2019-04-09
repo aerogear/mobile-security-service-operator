@@ -21,6 +21,9 @@ type MobileSecurityServiceBindSpec struct {
 	AppValueLabelSelector string `json:"appValueLabelSelector"`
 	ClusterHost                   string `json:"clusterHost"`
 	HostSufix                     string `json:"hostSufix"`
+	Protocol                      string `json:"protocol"`
+	AppNameLabel                  string `json:"appNameLabel"`
+	AppIdLabel                    string `json:"appIdLabel"`
 }
 
 // MobileSecurityServiceBindStatus defines the observed state of MobileSecurityServiceBind

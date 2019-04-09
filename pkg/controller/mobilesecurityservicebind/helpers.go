@@ -1,7 +1,6 @@
 package mobilesecurityservicebind
 
 import (
-	"bytes"
 	"encoding/json"
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/models"
@@ -9,10 +8,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"strings"
-	"unsafe"
 )
-
 
 // Returns an string map with the labels which wil be associated to the kubernetes/openshift objects
 // which will be created and managed by this operator
@@ -20,45 +16,19 @@ func getAppLabels(name string) map[string]string {
 	return map[string]string{"app": "mobilesecurityservice", "mobilesecurityservicebind_cr": name}
 }
 
-func getAppLabelsSelectorMDCApp(labelSelector, valueSelector string) map[string]string {
-	return map[string]string{labelSelector: valueSelector}
-}
-
 func getAppLabelsForSDKConfigMap(name string) map[string]string {
 	return map[string]string{"app": "mobilesecurityservice", "mobilesecurityservicebind_cr": name, "name": name+"-sdk-config"}
 }
 
-// getPodNames returns the pod names of the array of pods passed in
-func getPodNames(pods []corev1.Pod) []string {
-	var podNames []string
-	for _, pod := range pods {
-		podNames = append(podNames, pod.Name)
-	}
-	return podNames
-}
-
 //To transform the object into a string with its json
 func getSdkConfigStringJsonFormat(sdk *models.SDKConfig) string{
-	jsonSdk, _ := json.Marshal(sdk)
-	res:= strings.NewReader(string(jsonSdk))
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(res)
-	b := buf.Bytes()
-	return *(*string)(unsafe.Pointer(&b))
-}
-
-//TODO: Implement this func to get all services available for this project when/if it started to have services
-func getServices() []models.SDKConfigService{
-	//service := *models.NewSDKConfigServices("","")
-	res := []models.SDKConfigService{}
-	//res = append(res, service)
-	return res
+	jsonSdk, _ := json.MarshalIndent(sdk, "", "\t")
+	return string(jsonSdk)
 }
 
 // return properties for the response SDK
-func getConfigMapSDKForMobileSecurityService(m *mobilesecurityservicev1alpha1.MobileSecurityServiceBind) map[string]string {
-	url:= "http://" + getAppIngressHost(m)
-	sdk := models.NewSDKConfig(m, url, getServices())
+func getConfigMapSDKForMobileSecurityService(m *mobilesecurityservicev1alpha1.MobileSecurityServiceBind, pod corev1.Pod) map[string]string {
+	sdk := models.NewSDKConfig(m, pod)
 	return map[string]string{
 		"SDKConfig": getSdkConfigStringJsonFormat(sdk),
 	}
@@ -66,6 +36,14 @@ func getConfigMapSDKForMobileSecurityService(m *mobilesecurityservicev1alpha1.Mo
 // return true when the key and label spec are filled
 func hasWatchLabelSelectors(m *mobilesecurityservicev1alpha1.MobileSecurityServiceBind) bool {
 	if len(m.Spec.WatchKeyLabelSelector) > 0 && len(m.Spec.WatchValueLabelSelector) > 0  {
+		return true
+	}
+	return false
+}
+
+// return true when the key and label spec are filled
+func hasBindLabelSelectors(m *mobilesecurityservicev1alpha1.MobileSecurityServiceBind) bool {
+	if len(m.Spec.AppKeyLabelSelector) > 0 && len(m.Spec.AppValueLabelSelector) > 0  {
 		return true
 	}
 	return false
@@ -80,9 +58,13 @@ func hasWatchNamespaceSelector(m *mobilesecurityservicev1alpha1.MobileSecuritySe
 }
 
 //Return the List with Ops to tell what resources the Bind should watch
-func getWatchListOps(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceBind, reqLogger logr.Logger) client.ListOptions {
+func getAppWatchListOps(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceBind, reqLogger logr.Logger) client.ListOptions {
+	labelSelector := labels.SelectorFromSet(map[string]string{instance.Spec.WatchKeyLabelSelector: instance.Spec.WatchValueLabelSelector})
+	return getListOptionsToFilterResources(instance, reqLogger, labelSelector)
+}
+
+func getListOptionsToFilterResources(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceBind, reqLogger logr.Logger, labelSelector labels.Selector) client.ListOptions {
 	var listOps client.ListOptions
-	labelSelector := labels.SelectorFromSet(getAppLabelsSelectorMDCApp(instance.Spec.WatchKeyLabelSelector, instance.Spec.WatchValueLabelSelector))
 	if hasWatchLabelSelectors(instance) && hasWatchNamespaceSelector(instance) {
 		reqLogger.Info("Watching by WatchNamespaceSelector and by the WatchLabelSelectors ...")
 		listOps = client.ListOptions{Namespace: instance.Spec.WatchNamespaceSelector, LabelSelector: labelSelector}
@@ -99,14 +81,13 @@ func getWatchListOps(instance *mobilesecurityservicev1alpha1.MobileSecurityServi
 	return listOps
 }
 
-//TODO: Centralized
-// It will build the HOST for the router/ingress created for the Mobile Security Service App
-func getAppIngressHost(m *mobilesecurityservicev1alpha1.MobileSecurityServiceBind) string {
-	hostName := "mobile-security-service-app" + "." + m.Spec.ClusterHost + m.Spec.HostSufix
-	return hostName;
+// return true when the pod has the labels to tell that the pod is bind to the service
+func isBind(pod corev1.Pod, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceBind) bool {
+	var isBind = false
+	if val, ok := pod.Labels[instance.Spec.AppKeyLabelSelector]; ok {
+		if val == instance.Spec.AppValueLabelSelector {
+			isBind = true
+		}
+	}
+	return isBind
 }
-
-func getURLServiceRestAPI(m *mobilesecurityservicev1alpha1.MobileSecurityServiceBind) string {
-	return getAppIngressHost(m) + "/api/"
-}
-

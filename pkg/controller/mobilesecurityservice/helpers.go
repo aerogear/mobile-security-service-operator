@@ -29,13 +29,6 @@ func getAppLabelsForSDKConfigMap(name string) map[string]string {
 	return map[string]string{"app": "mobilesecurityservice", "mobilesecurityservice_cr": name, "name": name+"-sdk-config"}
 }
 
-//TODO: Centralized
-// It will build the HOST for the router/ingress created for the Mobile Security Service App
-func getAppIngressHost(m *mobilesecurityservicev1alpha1.MobileSecurityService) string {
-	hostName := "mobile-security-service-app" + "." + m.Spec.ClusterHost + m.Spec.HostSufix
-	return hostName;
-}
-
 //To transform the object into a string with its json
 func getSdkConfigStringJsonFormat(sdk *models.SDKConfig) string{
 	jsonSdk, _ := json.Marshal(sdk)
@@ -78,13 +71,4 @@ func getAppEnvVarsMap(m *mobilesecurityservicev1alpha1.MobileSecurityService) ma
 		"PGPASSWORD":                       m.Spec.DatabasePassword,
 		"PGUSER":                           m.Spec.DatabaseUser,
 	}
-}
-
-// getPodNames returns the pod names of the array of pods passed in
-func getPodNames(pods []corev1.Pod) []string {
-	var podNames []string
-	for _, pod := range pods {
-		podNames = append(podNames, pod.Name)
-	}
-	return podNames
 }

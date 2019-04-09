@@ -18,7 +18,6 @@ func watchConfigMap(c controller.Controller) error {
 	return err
 }
 
-//TODO: Check if it will be or not really required
 func watchPod(c controller.Controller) error {
 	err := c.Watch(&source.Kind{Type:&corev1.Pod{}}, &handler.EnqueueRequestForOwner{
 		IsController: true,

@@ -71,7 +71,7 @@ $ minishift start
 
 === Configuring
 
-Update the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml] with your cluster/host IP.
+Update the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml] and the file link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml] with your cluster/host IP.
 
 NOTE: The `clusterHost` will be used to generated the route/ingress source as in the ConfigMap created with the SDK JSON config.
 
@@ -105,7 +105,7 @@ The environment variables are used to configure the https://github.com/aerogear/
 
 NOTE: All values used in the default configuration came from the config-map which is managed and created by the Operator.
 
-=== Config Map Name to store Environment Variables values
+=== ConfigMap Name to store Environment Variables values
 
 The Mobile Security Service CRD will create the configMap to store these values. The name of the configMap is specified in ./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService].
 
@@ -115,6 +115,12 @@ NOTE: The link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserv
 === Watch specifications for the MobileSecurityServiceBind (CR)
 
 The Bind watches the applications in the cluster in order to create, delete and update the data in the https://github.com/aerogear/mobile-security-service[Mobile Security Service] by it REST API. It is the CR responsible for "bind/unbind/re-bind" the applications to the Service and by it CR properties which follows you will be able to define what applications should be watched/checked by this operator. For a further understanding check the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml] file.
+
+=== Key labels which store the name and ID of the applications
+
+In the The link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebiind_cr.yaml[MobileSecurityServiceBind] you can find the specifications `appNameLabel` and `appIdLabel` which defined the labels to store the values. The name and id of the application is used to synchronized this data with the https://github.com/aerogear/mobile-security-service[Mobile Security Service].
+
+NOTE: The default values are `app` and `appId`
 
 === Role for no-privilege users are able to create the Mobile Security Service App and Database
 

@@ -2,6 +2,7 @@ package mobilesecurityservice
 
 import (
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
+	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
@@ -29,7 +30,7 @@ func (r *ReconcileMobileSecurityService) buildAppIngress(m *mobilesecurityservic
 			},
 			Rules: []v1beta1.IngressRule{
 				{
-					Host: getAppIngressHost(m),
+					Host: utils.GetAppIngress(m.Spec.ClusterHost, m.Spec.HostSufix),
 					IngressRuleValue: v1beta1.IngressRuleValue{
 						HTTP: &v1beta1.HTTPIngressRuleValue{
 							Paths: []v1beta1.HTTPIngressPath{
