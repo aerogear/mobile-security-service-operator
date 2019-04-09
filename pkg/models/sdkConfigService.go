@@ -24,7 +24,7 @@ func NewSDKConfigServices(m *mobilesecurityservicev1alpha1.MobileSecurityService
 	service.ID = ID
 	service.Name = Name
 	service.Type = Type
-	service.URL = utils.GetAppIngressURL(m.Spec.Protocol, m.Spec.ClusterHost, m.Spec.HostSufix)
+	service.URL = utils.GetAppIngressURL(m)
 	service.ConfigService = *NewConfigService(service.URL)
 	return service
 }

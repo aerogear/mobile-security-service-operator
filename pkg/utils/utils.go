@@ -7,8 +7,8 @@ import (
 
 const APP_URL =  "mobile-security-service-app"
 
-func GetAppIngressURL(protocol, host, hostSufix string) string {
-	return protocol +"://" + APP_URL + "." + host + hostSufix
+func GetAppIngressURL(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceBind) string {
+	return instance.Spec.Protocol +"://" + APP_URL + "." + instance.Spec.ClusterHost + instance.Spec.HostSufix
 }
 
 func GetAppIngress(host, hostSufix string) string {
