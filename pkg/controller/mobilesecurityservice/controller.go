@@ -175,13 +175,6 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 		return create(r, instance, reqLogger, CONFIGMAP, err)
 	}
 
-	reqLogger.Info("Checking if the service already exists, if not create a new one")
-	service := &corev1.Service{}
-	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, service)
-	if err != nil {
-		return create(r, instance, reqLogger, SERVICE, err)
-	}
-
 	reqLogger.Info("Checking if the deployment already exists, if not create a new one")
 	deployment := &appsv1.Deployment{}
 	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, deployment)
@@ -189,11 +182,11 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 		return create(r, instance, reqLogger, DEEPLOYMENT, err)
 	}
 
-	reqLogger.Info("Ensuring the Mobile Security Service deployment size is the same as the spec")
-	size := instance.Spec.Size
-	if *deployment.Spec.Replicas != size {
-		deployment.Spec.Replicas = &size
-		return update(r, deployment, reqLogger)
+	reqLogger.Info("Checking if the service already exists, if not create a new one")
+	service := &corev1.Service{}
+	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, service)
+	if err != nil {
+		return create(r, instance, reqLogger, SERVICE, err)
 	}
 
 	reqLogger.Info("Checking if the ingress already exists, if not create a new one")
@@ -201,6 +194,13 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, ingress)
 	if err != nil {
 		return create(r, instance, reqLogger, INGRESS, err)
+	}
+
+	reqLogger.Info("Ensuring the Mobile Security Service deployment size is the same as the spec")
+	size := instance.Spec.Size
+	if *deployment.Spec.Replicas != size {
+		deployment.Spec.Replicas = &size
+		return update(r, deployment, reqLogger)
 	}
 
 	reqLogger.Info("Updating the MobileSecurityService status with the pod names")

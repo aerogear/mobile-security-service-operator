@@ -24,6 +24,17 @@ func GetPodNames(pods []corev1.Pod) []string {
 	return podNames
 }
 
+
+// getPodNames returns the pod names of the array of pods passed in
+func GetAllPodLabelNames(pods []corev1.Pod, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceBind) []string {
+	var podNames []string
+	for _, pod := range pods {
+		podNames = append(podNames, GetAppNameByPodLabel(pod,instance))
+	}
+	return podNames
+}
+
+
 //Get the App Name according to the label key specified in the CR
 func GetAppNameByPodLabel(pod corev1.Pod, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceBind) string {
 	return pod.GetLabels()[instance.Spec.AppNameLabel]
