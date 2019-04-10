@@ -33,3 +33,7 @@ func GetAppNameByPodLabel(pod corev1.Pod, instance *mobilesecurityservicev1alpha
 func GetAppIdByPodLabel(pod corev1.Pod, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceBind) string {
 	return pod.GetLabels()[instance.Spec.AppIdLabel]
 }
+
+func GetRestAPIForApps(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceBind) string {
+	return GetAppIngressURL(instance) + "/api/apps"
+}

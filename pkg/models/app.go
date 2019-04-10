@@ -17,3 +17,5 @@ func NewApp(m *mobilesecurityservicev1alpha1.MobileSecurityServiceBind, pod core
 	app.AppID = utils.GetAppIdByPodLabel(pod, m)
 	return app
 }
+
+//TODO: It should be removed when the PR: https://github.com/aerogear/mobile-security-service/pull/145 be merged
