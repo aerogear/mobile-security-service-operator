@@ -54,7 +54,7 @@ func getAppFromServiceByRestApi(instance *mobilesecurityservicev1alpha1.MobileSe
 	got := models.App{}
 
 	if len(app.AppID) < 1 {
-		reqLogger.Info( "Unable to get the AppID", "Pod.Naee", pod.Name, "Pod.Namespace", pod.Namespace, "Pod.Labels", pod.Labels)
+		reqLogger.Info( "Unable to get the AppID", "Pod.Name", pod.Name, "Pod.Namespace", pod.Namespace, "Pod.Labels", pod.Labels)
 		return got, nil
 	}
 

@@ -2,6 +2,7 @@ package mobilesecurityservice
 
 import (
 	"context"
+	"fmt"
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"github.com/go-logr/logr"
@@ -162,13 +163,21 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 
 	instance := &mobilesecurityservicev1alpha1.MobileSecurityService{}
 
+
 	//Fetch the MobileSecurityService instance
 	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
 	if err != nil {
 		return fetch(r, reqLogger, err)
 	}
 
-	reqLogger.Info("Checkiing if the ConfigMap already exists, if not create a new one")
+	//Check if the cluster host was added in the CR
+	if len(instance.Spec.ClusterHost) < 1 || instance.Spec.ClusterHost == "{{clusterHost}}" {
+		err := fmt.Errorf("Cluster Host IP was not found.")
+		reqLogger.Error( err,"Please check its configuration. See https://github.com/aerogear/mobile-security-service-operator#configuring .")
+		return reconcile.Result{}, err
+	}
+
+	reqLogger.Info("Checking if the ConfigMap already exists, if not create a new one")
 	configMap := &corev1.ConfigMap{}
 	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Spec.ConfigMapName, Namespace: instance.Namespace}, configMap)
 	if err != nil {

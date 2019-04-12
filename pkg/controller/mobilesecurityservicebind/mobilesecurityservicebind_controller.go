@@ -2,6 +2,7 @@ package mobilesecurityservicebind
 
 import (
 	"context"
+	"fmt"
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"github.com/go-logr/logr"
@@ -152,6 +153,13 @@ func (r *ReconcileMobileSecurityServiceBind) Reconcile(request reconcile.Request
 		return fetch(r, reqLogger, err)
 	}
 
+	//Check if the cluster host was added in the CR
+	if len(instance.Spec.ClusterHost) < 1 || instance.Spec.ClusterHost == "{{clusterHost}}" {
+		err := fmt.Errorf("Cluster Host IP was not found.")
+		reqLogger.Error( err,"Please check its configuration. See https://github.com/aerogear/mobile-security-service-operator#configuring .")
+		return reconcile.Result{}, err
+	}
+
 	//Check the key:labels and/or namespace which should be watched to get the bind apps
 	listAppOps := getAppWatchListOps(instance,reqLogger)
 
@@ -191,6 +199,17 @@ func (r *ReconcileMobileSecurityServiceBind) Reconcile(request reconcile.Request
 
 				if len(foundApp.ID) > 0 {
 					if foundApp.AppName != appName {
+						//Remove the config-sdk with the old name
+						outdatedConfigMapName := foundApp.AppName + "-sdk"
+						outdatedConfigMap := &corev1.ConfigMap{}
+						reqLogger.Info("Search for the outdated SDKConfigMap in:", "Pod.Namespace", pod.Namespace, "Pod.Name", pod.Name, "ConfigMap.Name", outdatedConfigMapName)
+						errOutdatedConfigMap := r.client.Get(context.TODO(), types.NamespacedName{Name: outdatedConfigMapName, Namespace: pod.Namespace}, outdatedConfigMap)
+						if errOutdatedConfigMap == nil {
+							reqLogger.Info("Deleting the outdated SDKConfigMap ...")
+							return delete(r, configmapsdk, reqLogger)
+						}
+
+						//Update the name by the REST API
 						reqLogger.Info("Updating the app name ...", "NewName:", appName, "OldName", foundApp.AppName)
 						return updateAppNameByRestAPI(instance, foundApp, pod, reqLogger)
 					}
@@ -226,8 +245,7 @@ func (r *ReconcileMobileSecurityServiceBind) Reconcile(request reconcile.Request
 	// The reconcile will be recalled when have any change on it.
 	reqLogger.Info("Updating the MobileSecurityServiceBind status with the pod names")
 	podList := &corev1.PodList{}
-	listBindAppOps := getAppWatchListOps(instance, reqLogger)
-	err = r.client.List(context.TODO(), &listBindAppOps, podList)
+	err = r.client.List(context.TODO(), &listAppOps, podList)
 	if err != nil {
 		reqLogger.Error(err, "Failed to list pods", "MobileSecurityServiceBind.Namespace", instance.Namespace, "MobileSecurityServiceBind.Name", instance.Name)
 		return reconcile.Result{}, err
