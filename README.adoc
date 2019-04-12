@@ -99,33 +99,60 @@ IMPORTANT: To create all you need be logged as admin. Use `oc login -u system:ad
 
 == Configurations and Options
 
-=== Environment Variables
+=== Environment Variables and ConfigMap
 
-The environment variables are used to configure the https://github.com/aerogear/mobile-security-service[Mobile Security Service] Application and Database. For a further understatement over its configuration see https://github.com/aerogear/mobile-security-service#setup-and-configurations[Setup and Configurations] section in https://github.com/aerogear/mobile-security-service[Mobile Security Service] README.
+The environment variables are used to configure the https://github.com/aerogear/mobile-security-service[Mobile Security Service] Application and Database. For a further understatement over its configuration see https://github.com/aerogear/mobile-security-service#setup-and-configurations[Setup and Configurations] section in https://github.com/aerogear/mobile-security-service[Mobile Security Service README].
 
-NOTE: All values used in the default configuration came from the config-map which is managed and created by the Operator.
+NOTE:
+* All values used in the default configuration came from the config-map which is managed and created by the Operator. This config map will be created in the Operator namespace and its name is defined by the attribute `configMapName` in the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService CR].
+* If the name of this ConfigMap be not specified then the name of the Mobile Security Service instance will be used instead of.
+* The link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml[MobileSecurityServiceDB] and link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService] should have specified the same name for this ConfigMap in order to allow the App and Database share its usage.
 
-=== ConfigMap Name to store Environment Variables values
+=== Defining the labels and/or namespaces to be watched
 
-The Mobile Security Service CRD will create the configMap to store these values. The name of the configMap is specified in ./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService].
+The link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_crd.yaml[MobileSecurityServiceBind] watches the applications in the cluster in order to create, delete and update the data in the https://github.com/aerogear/mobile-security-service[Mobile Security Service] by it REST API. The `key:value` labels and/or the `namespace` specified in the following attributes in its  link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[CR] defines what should be considered managed and watched by this operator.
 
-NOTE: If the name of this ConfigMap be not specified then the name of the Mobile Security Service instance will be used instead of.
+[source,yaml]
+----
+  # Watch filter setup for the Bind CR
+  # The watchKeyLabelSelector and watchValueLabelSelector defines the label key:value which will be watched by this type
+  # The watchNamespaceSelector defined an specific namespace for be watched by this type
+  # IMPORTANT: If no values be configured here the type will watch in the same namespace where the bind type was applied
+  # NOTES:
+  #     If just the key and label be filled then the bind will check in all namespaces the deployments with them
+  #     If just the watchNamespaceSelector be filled then the bind will consider all from this namespace only
+  #     Also, both can be filled and the filter will be aggregated, in this way the bind will watch the namespace and filter by the key:value selector as well
+  watchKeyLabelSelector: owner
+  watchValueLabelSelector: mdc
+  watchNamespaceSelector:
+----
 
-NOTE: The link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml[MobileSecurityServiceDB] and ./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService] should specified the same name for this ConfigMap in order to allow the App and Database share its usage.
+=== Defining the bind label and key
 
-=== Watch specifications for the MobileSecurityServiceBind (CR)
+The Bind/Operator will consider all pods which are with the `key:value` defined in the following attributes in the  link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[MobileSecurityServiceBind CR] as the applications which should be bind to the Service.
 
-The Bind watches the applications in the cluster in order to create, delete and update the data in the https://github.com/aerogear/mobile-security-service[Mobile Security Service] by it REST API. It is the CR responsible for "bind/unbind/re-bind" the applications to the Service and by it CR properties which follows you will be able to define what applications should be watched/checked by this operator. For a further understanding check the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml] file.
+[source,yaml]
+----
+  # The following attributes defined the key:value label used to inform that the app is bind to the service
+  appKeyLabelSelector: mobilesecurityservice
+  appValueLabelSelector: bind
+----
 
-=== Key labels which store the name and ID of the applications
+=== Defining the label to store the name and id of the applications
 
-In the The link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebiind_cr.yaml[MobileSecurityServiceBind] you can find the specifications `appNameLabel` and `appIdLabel` which defined the labels to store the values. The name and id of the application is used to synchronized this data with the https://github.com/aerogear/mobile-security-service[Mobile Security Service].
+The application `name` and `appId` are the values stored in the pod labels which their names are specified in the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[MobileSecurityServiceBind CR]. Following these attributes.
 
-NOTE: The default values are `app` and `appId`
+[source,yaml]
+----
+  # The appNameLabel spec defines the key label which will have the name of the app
+  appNameLabel: "app"
+  # The appIdLabel spec defines the key label which will have the id of the app
+  appIdLabel: "appId"
+----
 
 === Role for no-privilege users are able to create the Mobile Security Service App and Database
 
-By executing the following commands you will create roles in the cluster which will allow the <user> create the Mobile Security Service Application and Database in their namespaces. In this would not be required be the system:admin. However, the Mobile Security Service Operator is cluster scoped and will still only accessible for the system admin users. (E.g `oc login -u system:admin`)
+By executing the following commands you will create roles in the cluster which will allow the <user> create the Mobile Security Service Application and Database in their namespaces. In this would not be required be the system:admin. However, the Mobile Security Service Operator is cluster scoped and will still only accessible for the `system admin users.
 
 [source,shell]
 ----
@@ -149,6 +176,7 @@ $ oc create rolebinding developer-mobile-security-service --role=mobile-security
 ==== Resources managed by each CRD Controller
 
 * *link:./pkg/controller/mobilesecurityservice/controller.go[Mobile Security Service]*
++
 |===
 | *Resource*    | *Description*
 | link:./pkg/controller/mobilesecurityservice/configmaps.go[configmaps.go]             | Define the ConfigMap resources required for the Mobile Security Service Application and its Database. It will create the mobile-security-service-app` which map the values used in the Environment Variables of both.
@@ -158,6 +186,7 @@ $ oc create rolebinding developer-mobile-security-service --role=mobile-security
 |===
 
 * *link:./pkg/controller/mobilesecurityservicedb/controller.go[Mobile Security Service Database]*
++
 |===
 | *Resource*    | *Description*
 | link:./pkg/controller/mobilesecurityservicedb/deployments.go[deployments.go]           | Define the Deployment resource of Mobile Security Service Database. (E.g container and resources definitions)
@@ -166,101 +195,67 @@ $ oc create rolebinding developer-mobile-security-service --role=mobile-security
 |===
 
 * *link:./pkg/controller/mobilesecurityservicebind/controller.go[Mobile Security Service Bind]*
++
 |===
 | *Resource*    | *Description*
 | link:./pkg/controller/mobilesecurityservicebind/configmaps.go[configmaps.go]           | Define the ConfigMap resources managed by the Bind. It creates the ConfigMap with the config JSON for the SDK.
 |===
 
-==== Understanding the Bind operations
+=== Running the operator locally
 
-The *link:./pkg/controller/mobilesecurityservicebind/controller.go[Mobile Security Service Bind] will watch all pods in order to create, update and delete the applications in the service by its REST Service API. Also, it will create a configMap resource in the namespace of and for each application that is `bind` to the Service. Note that the bind do its operations when changes are watched/observed in the cluster according to the filters/labels specified in its ./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[CR].
-
-NOTE: The bind will delete the configMap and the application when they no longer be bind to the service and only if they still specified to be managed by it.
-
-===== What is watched/observed by the bind?
-
-The `key:value` labels and/or the `namespace` specified in the following attributes in its  ./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[CR] defines what should be considered managed and watched by this operator.
+The following command will install the operator in the cluster and run the changes performed locally without the need to publish a `dev tag. In this way, you can verify your code in the development environment.
 
 [source,yaml]
 ----
-  # Watch filter setup for the Bind CR
-  # The watchKeyLabelSelector and watchValueLabelSelector defines the label key:value which will be watched by this type
-  # The watchNamespaceSelector defined an specific namespace for be watched by this type
-  # IMPORTANT: If no values be configured here the type will watch in the same namespace where the bind type was applied
-  # NOTES:
-  #     If just the key and label be filled then the bind will check in all namespaces the deployments with them
-  #     If just the watchNamespaceSelector be filled then the bind will consider all from this namespace only
-  #     Also, both can be filled and the filter will be aggregated, in this way the bind will watch the namespace and filter by the key:value selector as well
-  watchKeyLabelSelector: owner
-  watchValueLabelSelector: mdc
-  watchNamespaceSelector:
+$ make run-local
 ----
 
-===== How the Bind/Operator knows what application should be created/updated or delete in the REST Service API?
+IMPORTANT: The local changes are applied when the command `operator-sdk up local --namespace=mobile-security-service-operator` is executed then it is not a hot deploy and to get the latest changes you need re-run the command.
 
-The Bind/Operator will consider that all pod which are with the `key:value` defined in the following attributes in its  ./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[CR] are running the applications which are bind to th Service.
+=== Publishing a new version
 
-[source,yaml]
-----
-  # The following attributes defined the key:value label used to inform that the app is bind to the service
-  appKeyLabelSelector: mobilesecurityservice
-  appValueLabelSelector: bind
-----
+The tags are published into the https://hub.docker.com/r/aerogear/mobile-security-service-operator[Docker Hub].
 
-===== How the app name and id are obtained by the Bind/Operator?
+==== Master tags
 
-The app name and id are the values of the respectively labels in the pods specified in the ./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[MobileSecurityServiceBind CR]. Following these attributes.
+To publish an new version of this operator based on the master branch following the steps.
 
-[source,yaml]
-----
-  # The appNameLabel spec defines the key label which will have the name of the app
-  appNameLabel: "app"
-  # The appIdLabel spec defines the key label which will have the id of the app
-  appIdLabel: "appId"
-----
-
-=== Build/Publish tags
-
-To publish an new version of this operator following the steps.
-
-NOTE: Check into the https://hub.docker.com/r/aerogear/mobile-security-service-operator[Docker Hub] the tags published already.
-
-==== Updating the operator tag version
-
-* Replace the tag of the image in the link:./deploy/operator.yaml[operator.yaml] file.
-
+* Update the operator tag version
++
+Replace the tag of the image in the link:./deploy/operator.yaml[operator.yaml] file.
++
 [source,yaml]
 ----
   # Replace this with the built image name
   image: aerogear/mobile-security-service-operator:0.1.0
 ----
-
++
 NOTE: In this example the tag `0.1.0` will be replaced for the new one.
-
++
 * Replace the tag in the link:./Makefile[Makefile] file.
-
++
 [source,shell]
 ----
 TAG=0.1.0
 ----
-
++
 NOTE: In this example the tag `0.1.0` will be replaced for the new one.
-
++
 IMPORTANT: Follow the https://semver.org/[Semantic Versioning] to define the new tags
-
-==== Building and publish a new version tag in Docker Hub
-
++
+* Build and publish the new version tag in Docker Hub
++
 Run the following commands
-
++
 [source,shell]
 ----
 $ make build
 $ make publish
 ----
 
-=== Creating dev tags
+==== Dev tags
 
-The dev tags will allow you test locally the changes performed in the project without affect the tag published into the https://hub.docker.com/r/aerogear/mobile-security-service-operator[Docker Hub].
+The dev tags will allow you test locally the changes performed in the project without affect the tag published into the https://hub.docker.com/r/aerogear/mobile-security-service-operator[Docker Hub] based on the master branch. The following commands will build the project and publish it with the tag which will be <version>-dev.
 
 [source,shell]
 ----
@@ -279,25 +274,6 @@ image: aerogear/mobile-security-service-operator:0.1.0-dev
 ----
 
 NOTE: The image/tag used from https://github.com/aerogear/mobile-security-service[Mobile Security Service] is defined in link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml] file.
-
-== Running the operator locally (outside of a cluster)
-
-To run locally use the following command to install the operator in a cluster and run it locally.
-
-[source,yaml]
-----
-$ make run-local
-----
-
-See that if the operator be installed in a cluster already then you can use the following commands to run it locally.
-
-[source,yaml]
-----
-$ export OPERATOR_NAME=mobile-security-service-operator
-$ operator-sdk up local --namespace=mobile-security-service-operator
-----
-
-IMPORTANT: The local changes are applied when the command `operator-sdk up local --namespace=mobile-security-service-operator` is executed.
 
 == Using make commands
 

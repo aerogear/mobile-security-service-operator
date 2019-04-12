@@ -16,7 +16,7 @@ LDFLAGS=-ldflags "-w -s -X main.Version=${TAG}"
 
 .PHONY: run-local
 run-local:
-	@echo Running operator locally:
+	@echo Installing the operator in a cluster and run it locally:
 	- export OPERATOR_NAME=mobile-security-service-operator
 	- make create-all
 	- operator-sdk up local --namespace=mobile-security-service-operator
