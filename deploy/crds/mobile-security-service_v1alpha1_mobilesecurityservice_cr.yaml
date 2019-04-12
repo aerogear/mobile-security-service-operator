@@ -27,7 +27,7 @@ spec:
   # NOTE:
   # - Replace "{{clusterHost}}" for your cluster HOST. E.g 192.168.64.9
   # - You can use "$ oc status | grep server" or "kubectl cluster-info" to get this cluster info
-  clusterHost: "{{clusterHost}}"
+  clusterHost: "192.168.64.18"
   # The hostSufix will be used to created the route/ingress
   protocol: "http"
   hostSufix: ".nip.io"

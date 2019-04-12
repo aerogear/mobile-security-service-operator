@@ -1,0 +1,26 @@
+apiVersion: mobile-security-service.aerogear.com/v1alpha1
+kind: MobileSecurityServiceMonitor
+metadata:
+  name: mobile-security-service-monitor
+  namespace: mobile-security-service-operator
+spec:
+  size: 1
+  # The following data will be used to do requests using the ingress/route created for the Mobile Security Service App
+  # NOTE:
+  # - Replace "{{clusterHost}}" for your cluster HOST. E.g 192.168.64.9
+  # - You can use "$ oc status | grep server" or "kubectl cluster-info" to get this cluster info
+  # IMPORTANT: The clusterHost and hostSufix need to be the same values configured in the mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
+  clusterHost: "192.168.64.18"
+  protocol: "http"
+  # The hostSufix which was used to created the route/ingress
+  hostSufix: ".nip.io"
+  # The following fields are selectors for the Monitor looking for by the binds and be able to unbind apps in the Service
+  # by the REST Service Api. If this values be empty then the Monitor will check all cluster. Also, the combination of both
+  # are valid as well.
+  # ----
+  # Add a namespace where the bind app are made in oder to allow monitor check the bind applications and to do the unbind
+  namespaceSelector:
+  # Add label selectors for the Monitor find the bind apps and be able to do the unbind
+    labelSelector:
+      matchLabels:
+        app: mobile-security-service
