@@ -2,24 +2,9 @@ apiVersion: mobile-security-service.aerogear.com/v1alpha1
 kind: MobileSecurityServiceBind
 metadata:
   name: mobile-security-service-bind
-  namespace: mobile-security-service-operator
 spec:
   # Add fields here
   size: 1
-  # Watch filter setup for the Bind CR
-  # The watchKeyLabelSelector and watchValueLabelSelector defines the label key:value which will be watched by this type
-  # The watchNamespaceSelector defined an specific namespace for be watched by this type
-  # IMPORTANT: If no values be configured here the type will watch in the same namespace where the bind type was applied
-  # NOTES:
-  #     If just the key and label be filled then the bind will check in all namespaces the deployments with them
-  #     If just the watchNamespaceSelector be filled then the bind will consider all from this namespace only
-  #     Also, both can be filled and the filter will be aggregated, in this way the bind will watch the namespace and filter by the key:value selector as well
-  watchKeyLabelSelector: owner
-  watchValueLabelSelector: mdc
-  watchNamespaceSelector:
-  # The following attributes defined the key:value label used to inform that the app is bind to the service
-  appKeyLabelSelector: mobilesecurityservice
-  appValueLabelSelector: bind
   # The following data will be used to do requests using the ingress/route created for the Mobile Security Service App
   # NOTE:
   # - Replace "{{clusterHost}}" for your cluster HOST. E.g 192.168.64.9
@@ -29,7 +14,7 @@ spec:
   protocol: "http"
   # The hostSufix which was used to created the route/ingress
   hostSufix: ".nip.io"
-  # The appNameLabel spec defines the key label which will have the name of the app
-  appNameLabel: "app"
-  # The appIdLabel spec defines the key label which will have the id of the app
-  appIdLabel: "appId"
+  # The appName spec defines the name of the app used to bind the service
+  appName: "appnewname"
+  # The appId spec defines the appId of the app used to bind the service
+  appId: "appid"

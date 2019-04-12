@@ -2,8 +2,6 @@ package models
 
 import (
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
-	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
-	corev1 "k8s.io/api/core/v1"
 )
 
 type SDKConfig struct{
@@ -15,12 +13,12 @@ type SDKConfig struct{
 	Services              []SDKConfigService `json:"services,omitempty"`
 }
 
-func NewSDKConfig(m *mobilesecurityservicev1alpha1.MobileSecurityServiceBind, pod corev1.Pod) *SDKConfig {
+func NewSDKConfig(m *mobilesecurityservicev1alpha1.MobileSecurityServiceBind) *SDKConfig {
 
 	cfg := new(SDKConfig)
 	cfg.Version = "1.0.0"
-	cfg.Name = utils.GetAppNameByPodLabel(pod, m)
-	cfg.Namespace = pod.Namespace
+	cfg.Name = m.Name
+	cfg.Namespace = m.Namespace
 	cfg.Host = m.Spec.ClusterHost
 	cfg.Services = getServices(m)
 	return cfg

@@ -6,19 +6,18 @@ import (
 	"github.com/aerogear/mobile-security-service-operator/pkg/models"
 	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"github.com/go-logr/logr"
-	corev1 "k8s.io/api/core/v1"
 	"net/http"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"strings"
 )
 
 //createAppByRestAPI create the app object in the service
-func createAppByRestAPI(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceBind, pod corev1.Pod, reqLogger logr.Logger) (reconcile.Result, error) {
+func createAppByRestAPI(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceBind, reqLogger logr.Logger) (reconcile.Result, error) {
 	// Create the object and parse for JSON
-	app := models.NewApp(instance, pod)
-	appJSON, err := json.Marshal(models.NewApp(instance, pod))
+	app := models.NewApp(instance)
+	appJSON, err := json.Marshal(models.NewApp(instance))
 	if err != nil {
-		reqLogger.Error(err, "Error to transform the app object in JSON", "Pod.Namespace", pod.Namespace, "Pod.Name", pod.Name, "AppJSON", appJSON, "App", app, "Error", err)
+		reqLogger.Error(err, "Error to transform the app object in JSON", "Instance.Namespace", instance.Namespace, "Instance.Name", instance.Name, "AppJSON", appJSON, "App", app, "Error", err)
 		return reconcile.Result{}, err
 	}
 
@@ -45,16 +44,16 @@ func createAppByRestAPI(instance *mobilesecurityservicev1alpha1.MobileSecuritySe
 }
 
 //getAppFromServiceByRestApi returns the app object from the service
-func getAppFromServiceByRestApi(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceBind, pod corev1.Pod, reqLogger logr.Logger) (models.App, error) {
+func getAppFromServiceByRestApi(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceBind, reqLogger logr.Logger) (models.App, error) {
 	// Create the object
-	app := models.NewApp(instance,pod)
+	app := models.NewApp(instance)
 
 	// Fill the record with the data from the JSON
 	// Transform the body request in the version struct
 	got := models.App{}
 
 	if len(app.AppID) < 1 {
-		reqLogger.Info( "Unable to get the AppID", "Pod.Name", pod.Name, "Pod.Namespace", pod.Namespace, "Pod.Labels", pod.Labels)
+		reqLogger.Info( "Unable to get the AppID", "Instance.Namespace", instance.Namespace, "Instance.Name", instance.Name)
 		return got, nil
 	}
 
@@ -120,10 +119,10 @@ func deleteAppFromServiceByRestAPI(instance *mobilesecurityservicev1alpha1.Mobil
 }
 
 //deleteAppFromServiceByRestAPI delete the app object in the service
-func updateAppNameByRestAPI(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceBind, app models.App, pod corev1.Pod, reqLogger logr.Logger) (reconcile.Result, error) {
+func updateAppNameByRestAPI(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceBind, app models.App, reqLogger logr.Logger) (reconcile.Result, error) {
 	//Create the DELETE request
 	url:= utils.GetRestAPIForApps(instance)+"/"+app.ID
-	appJSON, err := json.Marshal(models.NewApp(instance, pod))
+	appJSON, err := json.Marshal(models.NewApp(instance))
 
 	if err != nil {
 		reqLogger.Error(err, "Error to transform the app object in JSON", "AppJSON", appJSON, "App", app, "Error", err)

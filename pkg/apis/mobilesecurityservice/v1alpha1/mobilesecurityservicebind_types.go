@@ -14,16 +14,11 @@ type MobileSecurityServiceBindSpec struct {
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
 	Size int32  `json:"size"`
-	WatchKeyLabelSelector string `json:"watchKeyLabelSelector,omitempty"`
-	WatchValueLabelSelector string `json:"watchValueLabelSelector,omitempty"`
-	WatchNamespaceSelector string `json:"watchNamespaceSelector,omitempty"`
-	AppKeyLabelSelector string `json:"appKeyLabelSelector"`
-	AppValueLabelSelector string `json:"appValueLabelSelector"`
 	ClusterHost                   string `json:"clusterHost"`
 	HostSufix                     string `json:"hostSufix"`
 	Protocol                      string `json:"protocol"`
-	AppNameLabel                  string `json:"appNameLabel"`
-	AppIdLabel                    string `json:"appIdLabel"`
+	AppName                       string `json:"appName"`
+	AppId                         string `json:"appId"`
 }
 
 // MobileSecurityServiceBindStatus defines the observed state of MobileSecurityServiceBind
@@ -32,7 +27,8 @@ type MobileSecurityServiceBindStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
-	Nodes []string `json:"nodes"`
+	ConfigMap string `json:"configMap"`
+	Bind string `json:"bind"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

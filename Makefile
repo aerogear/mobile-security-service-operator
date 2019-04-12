@@ -14,6 +14,14 @@ BINARY_LINUX_64 = ./dist/linux_amd64/$(BINARY)
 
 LDFLAGS=-ldflags "-w -s -X main.Version=${TAG}"
 
+.PHONY: bind
+bind:
+	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml
+
+.PHONY: unbind
+unbind:
+	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml
+
 .PHONY: run-local
 run-local:
 	@echo Installing the operator in a cluster and run it locally:
@@ -26,14 +34,12 @@ create-all:
 	@echo Create Mobile Security Service Operator and Service in the namespace "mobile-security-service-operator":
 	make create-oper
 	make create-app
-	make create-bind
 
 .PHONY: delete-all
 delete-all:
 	@echo Delete Mobile Security Service Operator, Service and namespace "mobile-security-service-operator":
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
-	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_crd.yaml
