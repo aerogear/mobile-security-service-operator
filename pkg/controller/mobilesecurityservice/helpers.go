@@ -25,10 +25,6 @@ func getConfigMapName(m *mobilesecurityservicev1alpha1.MobileSecurityService) st
 	return m.Name
 }
 
-func getAppLabelsForSDKConfigMap(name string) map[string]string {
-	return map[string]string{"app": "mobilesecurityservice", "mobilesecurityservice_cr": name, "name": name+"-sdk-config"}
-}
-
 //To transform the object into a string with its json
 func getSdkConfigStringJsonFormat(sdk *models.SDKConfig) string{
 	jsonSdk, _ := json.Marshal(sdk)

@@ -86,6 +86,34 @@ $ make create-all
 
 IMPORTANT: To create all you need be logged as admin. Use `oc login -u system:admin`.
 
+=== Binding an app
+
+* Add the required info in the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[MobileSecurityServiceBind CR]
++
+Update the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[MobileSecurityServiceBind CR] which will be used to bind the app with the app name and id as shows the follows attributes.
++
+[source,shell]
+----
+  # The appName spec defines the name of the app used to bind the service
+  appName: "app"
+  # The appId spec defines the appId of the app used to bind the service
+  appId: "appid"
+----
++
+NOTE: If you would like to have more than one app bind to the service per namespace than change the metadata.name` of the bind link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[MobileSecurityServiceBind CR]
++
+* Bind the service
++
+Run the following command in the namespace where the bind should be applied and the SDK ConfigMap created
++
++
+[source,shell]
+----
+$ make bind
+----
+
+NOTE: You can use the command `make unbind` to unbind the app.
+
 === Removing
 
 Use the following command to delete the Operator, the Service and its roles from the cluster.
@@ -108,49 +136,7 @@ NOTE:
 * If the name of this ConfigMap be not specified then the name of the Mobile Security Service instance will be used instead of.
 * The link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml[MobileSecurityServiceDB] and link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService] should have specified the same name for this ConfigMap in order to allow the App and Database share its usage.
 
-=== Defining the labels and/or namespaces to be watched
-
-The link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_crd.yaml[MobileSecurityServiceBind] watches the applications in the cluster in order to create, delete and update the data in the https://github.com/aerogear/mobile-security-service[Mobile Security Service] by it REST API. The `key:value` labels and/or the `namespace` specified in the following attributes in its  link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[CR] defines what should be considered managed and watched by this operator.
-
-[source,yaml]
-----
-  # Watch filter setup for the Bind CR
-  # The watchKeyLabelSelector and watchValueLabelSelector defines the label key:value which will be watched by this type
-  # The watchNamespaceSelector defined an specific namespace for be watched by this type
-  # IMPORTANT: If no values be configured here the type will watch in the same namespace where the bind type was applied
-  # NOTES:
-  #     If just the key and label be filled then the bind will check in all namespaces the deployments with them
-  #     If just the watchNamespaceSelector be filled then the bind will consider all from this namespace only
-  #     Also, both can be filled and the filter will be aggregated, in this way the bind will watch the namespace and filter by the key:value selector as well
-  watchKeyLabelSelector: owner
-  watchValueLabelSelector: mdc
-  watchNamespaceSelector:
-----
-
-=== Defining the bind label and key
-
-The Bind/Operator will consider all pods which are with the `key:value` defined in the following attributes in the  link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[MobileSecurityServiceBind CR] as the applications which should be bind to the Service.
-
-[source,yaml]
-----
-  # The following attributes defined the key:value label used to inform that the app is bind to the service
-  appKeyLabelSelector: mobilesecurityservice
-  appValueLabelSelector: bind
-----
-
-=== Defining the label to store the name and id of the applications
-
-The application `name` and `appId` are the values stored in the pod labels which their names are specified in the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[MobileSecurityServiceBind CR]. Following these attributes.
-
-[source,yaml]
-----
-  # The appNameLabel spec defines the key label which will have the name of the app
-  appNameLabel: "app"
-  # The appIdLabel spec defines the key label which will have the id of the app
-  appIdLabel: "appId"
-----
-
-=== Role for no-privilege users are able to create the Mobile Security Service App and Database
+=== Role for no-privilege users are able to create the Mobile Security Service App, Database and or Bind
 
 By executing the following commands you will create roles in the cluster which will allow the <user> create the Mobile Security Service Application and Database in their namespaces. In this would not be required be the system:admin. However, the Mobile Security Service Operator is cluster scoped and will still only accessible for the `system admin users.
 
@@ -198,7 +184,7 @@ $ oc create rolebinding developer-mobile-security-service --role=mobile-security
 +
 |===
 | *Resource*    | *Description*
-| link:./pkg/controller/mobilesecurityservicebind/configmaps.go[configmaps.go]           | Define the ConfigMap resources managed by the Bind. It creates the ConfigMap with the config JSON for the SDK.
+| link:./pkg/controller/mobilesecurityservicebind/configmaps.go[configmaps.go]           | Define the ConfigMap resources managed by the Bind. It creates the ConfigMap with the config JSON for the SDK and the app by the REST API. Note that each application has our own Bind CR applied.
 |===
 
 === Running the operator locally
@@ -289,8 +275,8 @@ NOTE: The image/tag used from https://github.com/aerogear/mobile-security-servic
 | `make delete-app-only`        | Delete Mobile Security Service App only
 | `make create-db-only`         | Create Mobile Security Service Database without its application
 | `make delete-db-only`         | Delete Mobile Security Service Database only
-| `make create-bind`            | Create Mobile Security Service Bind
-| `make delete-bind`            | Delete Mobile Security Service Bind
+| `make bind`                   | Create Mobile Security Service Bind for an app in the current namespace
+| `make unbind`                 | Delete Mobile Security Service Bind for an app in the current namespace
 | `make build`                  | Build operator with its tag
 | `make publish`                | Publish operator in https://hub.docker.com/[Docker Hub] with its tag
 | `make build-dev`              | Build operator for development proposes

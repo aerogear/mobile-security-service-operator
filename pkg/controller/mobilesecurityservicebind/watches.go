@@ -18,10 +18,3 @@ func watchConfigMap(c controller.Controller) error {
 	return err
 }
 
-func watchPod(c controller.Controller) error {
-	err := c.Watch(&source.Kind{Type:&corev1.Pod{}}, &handler.EnqueueRequestForOwner{
-		IsController: true,
-		OwnerType:    &mobilesecurityservicev1alpha1.MobileSecurityServiceBind{},
-	})
-	return err
-}
