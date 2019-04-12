@@ -162,11 +162,11 @@ func (r *ReconcileMobileSecurityServiceDB) Reconcile(request reconcile.Request) 
 		return fetch(r, reqLogger, err)
 	}
 
-	reqLogger.Info("Checking if the DB PersistentVolumeClaim already exists, if not create a new one")
-	pv := &corev1.PersistentVolumeClaim{}
-	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, pv)
+	reqLogger.Info("Checking if the DB deployment already exists, if not create a new one")
+	deployment := &appsv1.Deployment{}
+	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, deployment)
 	if err != nil {
-		return create(r, instance, reqLogger, PVC, err)
+		return create(r, instance, reqLogger, DEEPLOYMENT, err)
 	}
 
 	reqLogger.Info("Checking if the DB Service already exists, if not create a new one")
@@ -176,11 +176,11 @@ func (r *ReconcileMobileSecurityServiceDB) Reconcile(request reconcile.Request) 
 		return create(r, instance, reqLogger, SERVICE, err)
 	}
 
-	reqLogger.Info("Checking if the DB deployment already exists, if not create a new one")
-	deployment := &appsv1.Deployment{}
-	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, deployment)
+	reqLogger.Info("Checking if the DB PersistentVolumeClaim already exists, if not create a new one")
+	pvc := &corev1.PersistentVolumeClaim{}
+	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, pvc)
 	if err != nil {
-		return create(r, instance, reqLogger, DEEPLOYMENT, err)
+		return create(r, instance, reqLogger, PVC, err)
 	}
 
 	//Ensure the deployment size is the same as the spec

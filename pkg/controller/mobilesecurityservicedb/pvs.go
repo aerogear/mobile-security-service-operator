@@ -27,7 +27,7 @@ func (r *ReconcileMobileSecurityServiceDB) buildPVCForDB(m *mobilesecurityservic
 			},
 			Resources: corev1.ResourceRequirements{
 				Requests: corev1.ResourceList{
-					corev1.ResourceName(corev1.ResourceStorage): resource.MustParse(m.Spec.DatabaseStorageRequest),
+					corev1.ResourceStorage: resource.MustParse(m.Spec.DatabaseStorageRequest),
 				},
 			},
 		},

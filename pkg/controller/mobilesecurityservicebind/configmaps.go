@@ -16,7 +16,7 @@ func (r *ReconcileMobileSecurityServiceBind) buildAppBindSDKConfigMap(m *mobiles
 			Kind:       "ConfigMap",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      utils.GetAppNameByPodLabel(pod, m) + "-sdk",
+			Name:      utils.GetAppIdByPodLabel(pod, m) + "-sdk",
 			Namespace: pod.Namespace,
 			Labels:    getAppLabelsForSDKConfigMap(m.Name),
 		},

@@ -95,7 +95,7 @@ Use the following command to delete the Operator, the Service and its roles from
 $ make delete-all
 ----
 
-IMPORTANT: To delete you need be logged as admin. (`oc login -u system:admin`)
+IMPORTANT: To create all you need be logged as admin. Use `oc login -u system:admin`.
 
 == Configurations and Options
 
@@ -110,6 +110,7 @@ NOTE: All values used in the default configuration came from the config-map whic
 The Mobile Security Service CRD will create the configMap to store these values. The name of the configMap is specified in ./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService].
 
 NOTE: If the name of this ConfigMap be not specified then the name of the Mobile Security Service instance will be used instead of.
+
 NOTE: The link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml[MobileSecurityServiceDB] and ./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService] should specified the same name for this ConfigMap in order to allow the App and Database share its usage.
 
 === Watch specifications for the MobileSecurityServiceBind (CR)
@@ -169,6 +170,54 @@ $ oc create rolebinding developer-mobile-security-service --role=mobile-security
 | *Resource*    | *Description*
 | link:./pkg/controller/mobilesecurityservicebind/configmaps.go[configmaps.go]           | Define the ConfigMap resources managed by the Bind. It creates the ConfigMap with the config JSON for the SDK.
 |===
+
+==== Understanding the Bind operations
+
+The *link:./pkg/controller/mobilesecurityservicebind/controller.go[Mobile Security Service Bind] will watch all pods in order to create, update and delete the applications in the service by its REST Service API. Also, it will create a configMap resource in the namespace of and for each application that is `bind` to the Service. Note that the bind do its operations when changes are watched/observed in the cluster according to the filters/labels specified in its ./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[CR].
+
+NOTE: The bind will delete the configMap and the application when they no longer be bind to the service and only if they still specified to be managed by it.
+
+===== What is watched/observed by the bind?
+
+The `key:value` labels and/or the `namespace` specified in the following attributes in its  ./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[CR] defines what should be considered managed and watched by this operator.
+
+[source,yaml]
+----
+  # Watch filter setup for the Bind CR
+  # The watchKeyLabelSelector and watchValueLabelSelector defines the label key:value which will be watched by this type
+  # The watchNamespaceSelector defined an specific namespace for be watched by this type
+  # IMPORTANT: If no values be configured here the type will watch in the same namespace where the bind type was applied
+  # NOTES:
+  #     If just the key and label be filled then the bind will check in all namespaces the deployments with them
+  #     If just the watchNamespaceSelector be filled then the bind will consider all from this namespace only
+  #     Also, both can be filled and the filter will be aggregated, in this way the bind will watch the namespace and filter by the key:value selector as well
+  watchKeyLabelSelector: owner
+  watchValueLabelSelector: mdc
+  watchNamespaceSelector:
+----
+
+===== How the Bind/Operator knows what application should be created/updated or delete in the REST Service API?
+
+The Bind/Operator will consider that all pod which are with the `key:value` defined in the following attributes in its  ./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[CR] are running the applications which are bind to th Service.
+
+[source,yaml]
+----
+  # The following attributes defined the key:value label used to inform that the app is bind to the service
+  appKeyLabelSelector: mobilesecurityservice
+  appValueLabelSelector: bind
+----
+
+===== How the app name and id are obtained by the Bind/Operator?
+
+The app name and id are the values of the respectively labels in the pods specified in the ./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[MobileSecurityServiceBind CR]. Following these attributes.
+
+[source,yaml]
+----
+  # The appNameLabel spec defines the key label which will have the name of the app
+  appNameLabel: "app"
+  # The appIdLabel spec defines the key label which will have the id of the app
+  appIdLabel: "appId"
+----
 
 === Build/Publish tags
 
@@ -231,6 +280,25 @@ image: aerogear/mobile-security-service-operator:0.1.0-dev
 
 NOTE: The image/tag used from https://github.com/aerogear/mobile-security-service[Mobile Security Service] is defined in link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml] file.
 
+== Running the operator locally (outside of a cluster)
+
+To run locally use the following command to install the operator in a cluster and run it locally.
+
+[source,yaml]
+----
+$ make run-local
+----
+
+See that if the operator be installed in a cluster already then you can use the following commands to run it locally.
+
+[source,yaml]
+----
+$ export OPERATOR_NAME=mobile-security-service-operator
+$ operator-sdk up local --namespace=mobile-security-service-operator
+----
+
+IMPORTANT: The local changes are applied when the command `operator-sdk up local --namespace=mobile-security-service-operator` is executed.
+
 == Using make commands
 
 |===
@@ -251,9 +319,11 @@ NOTE: The image/tag used from https://github.com/aerogear/mobile-security-servic
 | `make publish`                | Publish operator in https://hub.docker.com/[Docker Hub] with its tag
 | `make build-dev`              | Build operator for development proposes
 | `make publish-dev`            | Publish operator in https://hub.docker.com/[Docker Hub] for development proposes
+| `make run-local`              | Run the operator locally for development purposes
 | `make vet`                    | Examines source code and reports suspicious constructs using https://golang.org/cmd/vet/[vet]
 | `make fmt`                    | Formats code using https://golang.org/cmd/gofmt/[gofmt]
 |===
+
 
 NOTE: The link:./Makefile[Makefile] is implemented with tasks which you should use to work with.
 

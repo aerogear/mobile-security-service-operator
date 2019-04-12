@@ -2,6 +2,7 @@ package mobilesecurityservice
 
 import (
 	"context"
+	"fmt"
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"github.com/go-logr/logr"
@@ -162,24 +163,25 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 
 	instance := &mobilesecurityservicev1alpha1.MobileSecurityService{}
 
+
 	//Fetch the MobileSecurityService instance
 	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
 	if err != nil {
 		return fetch(r, reqLogger, err)
 	}
 
-	reqLogger.Info("Checkiing if the ConfigMap already exists, if not create a new one")
+	//Check if the cluster host was added in the CR
+	if len(instance.Spec.ClusterHost) < 1 || instance.Spec.ClusterHost == "{{clusterHost}}" {
+		err := fmt.Errorf("Cluster Host IP was not found.")
+		reqLogger.Error( err,"Please check its configuration. See https://github.com/aerogear/mobile-security-service-operator#configuring .")
+		return reconcile.Result{}, err
+	}
+
+	reqLogger.Info("Checking if the ConfigMap already exists, if not create a new one")
 	configMap := &corev1.ConfigMap{}
 	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Spec.ConfigMapName, Namespace: instance.Namespace}, configMap)
 	if err != nil {
 		return create(r, instance, reqLogger, CONFIGMAP, err)
-	}
-
-	reqLogger.Info("Checking if the service already exists, if not create a new one")
-	service := &corev1.Service{}
-	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, service)
-	if err != nil {
-		return create(r, instance, reqLogger, SERVICE, err)
 	}
 
 	reqLogger.Info("Checking if the deployment already exists, if not create a new one")
@@ -189,11 +191,11 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 		return create(r, instance, reqLogger, DEEPLOYMENT, err)
 	}
 
-	reqLogger.Info("Ensuring the Mobile Security Service deployment size is the same as the spec")
-	size := instance.Spec.Size
-	if *deployment.Spec.Replicas != size {
-		deployment.Spec.Replicas = &size
-		return update(r, deployment, reqLogger)
+	reqLogger.Info("Checking if the service already exists, if not create a new one")
+	service := &corev1.Service{}
+	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, service)
+	if err != nil {
+		return create(r, instance, reqLogger, SERVICE, err)
 	}
 
 	reqLogger.Info("Checking if the ingress already exists, if not create a new one")
@@ -201,6 +203,13 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, ingress)
 	if err != nil {
 		return create(r, instance, reqLogger, INGRESS, err)
+	}
+
+	reqLogger.Info("Ensuring the Mobile Security Service deployment size is the same as the spec")
+	size := instance.Spec.Size
+	if *deployment.Spec.Replicas != size {
+		deployment.Spec.Replicas = &size
+		return update(r, deployment, reqLogger)
 	}
 
 	reqLogger.Info("Updating the MobileSecurityService status with the pod names")

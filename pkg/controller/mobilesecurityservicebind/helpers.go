@@ -91,3 +91,25 @@ func isBind(pod corev1.Pod, instance *mobilesecurityservicev1alpha1.MobileSecuri
 	}
 	return isBind
 }
+
+//Return the List with Ops to tell what resources the Bind should watch
+func getAppBindWatchListOps(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceBind, reqLogger logr.Logger) client.ListOptions {
+	labelSelector := buildAppBindLabelSelector(instance)
+	return getListOptionsToFilterResources(instance, reqLogger, labelSelector)
+}
+
+//Return the label selector to identify all resources which are bind to the service
+func buildAppBindLabelSelector(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceBind) labels.Selector {
+	var labelSelector labels.Selector
+	if hasWatchLabelSelectors(instance) && hasBindLabelSelectors(instance) {
+		labelSelector = labels.SelectorFromSet(map[string]string{
+			instance.Spec.WatchKeyLabelSelector: instance.Spec.WatchValueLabelSelector,
+			instance.Spec.AppKeyLabelSelector:   instance.Spec.AppValueLabelSelector,
+		})
+	} else if hasWatchLabelSelectors(instance) && !hasBindLabelSelectors(instance) {
+		labelSelector = labels.SelectorFromSet(map[string]string{instance.Spec.WatchKeyLabelSelector: instance.Spec.WatchValueLabelSelector})
+	} else if !hasWatchLabelSelectors(instance) && hasBindLabelSelectors(instance) {
+		labelSelector = labels.SelectorFromSet(map[string]string{instance.Spec.AppKeyLabelSelector: instance.Spec.AppValueLabelSelector})
+	}
+	return labelSelector
+}

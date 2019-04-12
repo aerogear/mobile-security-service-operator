@@ -7,8 +7,10 @@ import (
 )
 
 type App struct{
-	AppName                  string     `json:"appName"`
+	ID                    string     `json:"id"`
 	AppID                 string     `json:"appId"`
+	AppName               string     `json:"appName,omitempty"`
+	DeletedAt             string     `json:"deletedAt,omitempty"`
 }
 
 func NewApp(m *mobilesecurityservicev1alpha1.MobileSecurityServiceBind, pod corev1.Pod) *App {
