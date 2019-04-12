@@ -1,13 +1,8 @@
 package mobilesecurityservice
 
 import (
-	"bytes"
-	"encoding/json"
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
-	"github.com/aerogear/mobile-security-service-operator/pkg/models"
 	corev1 "k8s.io/api/core/v1"
-	"strings"
-	"unsafe"
 )
 
 
@@ -23,16 +18,6 @@ func getConfigMapName(m *mobilesecurityservicev1alpha1.MobileSecurityService) st
 		return m.Spec.ConfigMapName
 	}
 	return m.Name
-}
-
-//To transform the object into a string with its json
-func getSdkConfigStringJsonFormat(sdk *models.SDKConfig) string{
-	jsonSdk, _ := json.Marshal(sdk)
-	res:= strings.NewReader(string(jsonSdk))
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(res)
-	b := buf.Bytes()
-	return *(*string)(unsafe.Pointer(&b))
 }
 
 // Helper to build the env vars which will be configured in the deployment of the Mobile Security Service Project

@@ -71,9 +71,14 @@ $ minishift start
 
 === Configuring
 
-Update the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml] and the file link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml] with your cluster/host IP.
+Update the cluster host IP in the following CRS.
+
+* link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService CR]
+* link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[MobileSecurityServiceBind CR]
 
 NOTE: The `clusterHost` will be used to generated the route/ingress source as in the ConfigMap created with the SDK JSON config.
+
+NOTE: It is planned get this value automatic in th future.
 
 === Installing
 
@@ -156,7 +161,7 @@ $ oc create rolebinding developer-mobile-security-service --role=mobile-security
 | *CustomResourceDefinition*    | *Description*
 | link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService]             | Packages, manages, installs and configures the https://github.com/aerogear/mobile-security-service[Mobile Security Service] on the cluster.
 | link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml[MobileSecurityServiceDB]             | Packages, manages, installs and configures the https://github.com/aerogear/mobile-security-service[Mobile Security Service] Database on the cluster.
-| link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[MobileSecurityServiceBind]             | Watches the pods for creates, deletes and updates the apps in the Service REST API. Performs the bind, unbind and rebind actions between the service and application.
+| link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[MobileSecurityServiceBind]             | CR which specified the app name and id. It is used to create and update the app in the Service REST API.
 |===
 
 ==== Resources managed by each CRD Controller

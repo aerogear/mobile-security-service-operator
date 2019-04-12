@@ -15,6 +15,6 @@ spec:
   # The hostSufix which was used to created the route/ingress
   hostSufix: ".nip.io"
   # The appName spec defines the name of the app used to bind the service
-  appName: "appnewname"
+  appName: "app"
   # The appId spec defines the appId of the app used to bind the service
   appId: "appid"
