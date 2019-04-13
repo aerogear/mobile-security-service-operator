@@ -4,21 +4,20 @@ import (
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/apimachinery/pkg/util/intstr"
-
-	appsv1 "k8s.io/api/apps/v1"
+	"k8s.io/api/extensions/v1beta1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
-//Returns the Deployment object for the Mobile Security Service Project
-func (r *ReconcileMobileSecurityService) buildAppDeployment(m *mobilesecurityservicev1alpha1.MobileSecurityService) *appsv1.Deployment {
+//buildAppDeployment returns the Deployment object using as image the MobileSecurityService App ( UI + REST API)
+func (r *ReconcileMobileSecurityService) buildAppDeployment(m *mobilesecurityservicev1alpha1.MobileSecurityService) *v1beta1.Deployment {
 	ls := getAppLabels(m.Name)
 	replicas := m.Spec.Size
 	envinronment := buildAppEnvVars(m)
-	dep := &appsv1.Deployment{
+	dep := &v1beta1.Deployment{
 		TypeMeta: metav1.TypeMeta{
-			APIVersion: "apps/v1",
+			APIVersion: "extensions/v1beta1",
 			Kind:       "Deployment",
 		},
 		ObjectMeta: metav1.ObjectMeta{
@@ -26,10 +25,10 @@ func (r *ReconcileMobileSecurityService) buildAppDeployment(m *mobilesecurityser
 			Namespace: m.Namespace,
 			Labels:    ls,
 		},
-		Spec: appsv1.DeploymentSpec{
+		Spec: v1beta1.DeploymentSpec{
 			Replicas: &replicas,
-			Strategy: appsv1.DeploymentStrategy{
-				Type: appsv1.RecreateDeploymentStrategyType,
+			Strategy: v1beta1.DeploymentStrategy{
+				Type: v1beta1.RecreateDeploymentStrategyType,
 			},
 			Selector: &metav1.LabelSelector{
 				MatchLabels: ls,

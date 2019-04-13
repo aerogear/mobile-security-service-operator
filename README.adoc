@@ -90,9 +90,9 @@ IMPORTANT: To create all you need be logged as admin. Use `oc login -u system:ad
 
 === Binding an app
 
-* Create a BIND CR for the application as the example link:./deploy/examples/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[MobileSecurityServiceBind CR]
+* Create a BIND CR for the application as the example link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[MobileSecurityServiceBind CR]
 +
-* Add into the link:./deploy/examples/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[MobileSecurityServiceBind CR] the app name and id of the app which will be bind to the Service as follows.
+* Add into the link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[MobileSecurityServiceBind CR] the app name and id of the app which will be bind to the Service as follows.
 +
 [source,shell]
 ----
@@ -114,9 +114,9 @@ $ make bind
 NOTE: If you would like to have more than one app bind to the Service per namespace than change the metadata.name` of the bind link:./deploy/examples/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[MobileSecurityServiceBind CR]
 
 === Unbinding an app
-* Create a UNBIND CR for the application as the example link:./deploy/examples/mobile-security-service_v1alpha1_mobilesecurityserviceunbind_cr.yaml[MobileSecurityServiceUnbind CR]
+* Create a UNBIND CR for the application as the example link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceunbind_cr.yaml[MobileSecurityServiceUnbind CR]
 +
-* Add into the link:./deploy/examples/mobile-security-service_v1alpha1_mobilesecurityserviceunbind_cr.yaml[MobileSecurityServiceUnbind CR] the app id of the app which will be unbind from the Service as follows.
+* Add into the link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceunbind_cr.yaml[MobileSecurityServiceUnbind CR] the app id of the app which will be unbind from the Service as follows.
 +
 [source,shell]
 ----
@@ -133,7 +133,7 @@ IMPORTANT: Do not forget to update the clusterHost in the UNBIND CR
 $ make bind
 ----
 +
-NOTE: If you would like to have more than one app unbind from the Service per namespace than change the metadata.name` of the ubind link:./deploy/examples/mobile-security-service_v1alpha1_mobilesecurityserviceunbind_cr.yaml[MobileSecurityServiceUnbind CR]
+NOTE: If you would like to have more than one app unbind from the Service per namespace than change the metadata.name` of the ubind link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceunbind_cr.yaml[MobileSecurityServiceUnbind CR]
 
 === Removing
 
@@ -153,6 +153,7 @@ IMPORTANT: To create all you need be logged as admin. Use `oc login -u system:ad
 The environment variables are used to configure the https://github.com/aerogear/mobile-security-service[Mobile Security Service] Application and Database. For a further understatement over its configuration see https://github.com/aerogear/mobile-security-service#setup-and-configurations[Setup and Configurations] section in https://github.com/aerogear/mobile-security-service[Mobile Security Service README].
 
 NOTE:
+
 * All values used in the default configuration came from the config-map which is managed and created by the Operator. This config map will be created in the Operator namespace and its name is defined by the attribute `configMapName` in the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService CR].
 * If the name of this ConfigMap be not specified then the name of the Mobile Security Service instance will be used instead of.
 * The link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml[MobileSecurityServiceDB] and link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService] should have specified the same name for this ConfigMap in order to allow the App and Database share its usage.
@@ -177,8 +178,8 @@ $ oc create rolebinding developer-mobile-security-service --role=mobile-security
 | *CustomResourceDefinition*    | *Description*
 | link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml[MobileSecurityService]             | Packages, manages, installs and configures the https://github.com/aerogear/mobile-security-service[Mobile Security Service] on the cluster.
 | link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml[MobileSecurityServiceDB]             | Packages, manages, installs and configures the https://github.com/aerogear/mobile-security-service[Mobile Security Service] Database on the cluster.
-| link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_crd.yaml[MobileSecurityServiceBind]             | Creates and update the app in the Service REST API.
-| link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceunbind_crd.yaml[MobileSecurityServiceUnbind]             | Delete the app in the Service REST API.
+| link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_crd.yaml[MobileSecurityServiceBind]             | Creates and update the app in the Service REST API and create the SDK Config Map.
+| link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceunbind_crd.yaml[MobileSecurityServiceUnbind]             | Delete the app from the Service REST API.
 |===
 
 ==== Resources managed by each CRD Controller
@@ -207,6 +208,49 @@ $ oc create rolebinding developer-mobile-security-service --role=mobile-security
 |===
 | *Resource*    | *Description*
 | link:./pkg/controller/mobilesecurityservicebind/configmaps.go[configmaps.go]           | Define the ConfigMap resources managed by the Bind. It creates the ConfigMap with the config JSON for the SDK and the app by the REST API. Note that each application has our own Bind CR applied.
+|===
+
+==== Status Definition per Types
+
+* link:./pkg/apis/mobilesecurityservice/v1alpha1/mobilesecurityservice_types.go[MobileSecurityService]
++
+|===
+| *Status*    | *Description*
+| `appStatus` | For this status is expected the value `OK` which means that all required Kubernetes/OCP objects are created.
+| `configMapName` | Name of the configMap created with the Environment Variables.
+| `deploymentName` | Name of the deployment object created for the App.
+| `deploymentStatus` | Deployment Status from ks8 API. ( https://kubernetes.io/docs/reference/federation/extensions/v1beta1/definitions/#_v1beta1_deploymentstatus[v1beta1.DeploymentStatus] )
+| `serviceName` | Name of the service object created for the App.
+| `serviceStatus` | Deployment Status from ks8 API. ( https://kubernetes.io/docs/reference/federation/v1/definitions/#_v1_servicestatus[v1.ServiceStatus] )
+| `ingressName` | Name of the ingress/route object created for the App.
+| `ingressStatus` | Ingress Status from ks8 API. ( https://kubernetes.io/docs/reference/federation/extensions/v1beta1/definitions/#_v1beta1_ingressstatus[v1beta1.IngressStatus] )
+|===
+
+* link:./pkg/apis/mobilesecurityservice/v1alpha1/mobilesecurityservicedb_types.go[MobileSecurityServiceDB]
++
+|===
+| *Status*    | *Description*
+| `databaseStatus` | For this status is expected the value `OK` which means that all required Kubernetes/OCP objects are created.
+| `deploymentName` | Name of the deployment object created for the Database.
+| `deploymentStatus` | Deployment Status from ks8 API. ( https://kubernetes.io/docs/reference/federation/extensions/v1beta1/definitions/#_v1beta1_deploymentstatus[v1beta1.DeploymentStatus] )
+| `serviceName` | Name of the service object created for the Database.
+| `serviceStatus` | Deployment Status from ks8 API. ( https://kubernetes.io/docs/reference/federation/v1/definitions/#_v1_servicestatus[v1.ServiceStatus] )
+| `PersistentVolumeClaimName` | Name of the PersistentVolumeClaimName object created for the Database.
+|===
+
+* link:./pkg/apis/mobilesecurityservice/v1alpha1/mobilesecurityservicebind_types.go[MobileSecurityServiceBind]
++
+|===
+| *Status*    | *Description*
+| `bindStatus` | For this status is expected the value `OK` which means that the app was created in the Rest Service API as its SDKConfigMap.
+| `SDKConfigMapName` | Name of the config map object created for the app with its SDK Config.
+|===
+
+* link:./pkg/apis/mobilesecurityservice/v1alpha1/mobilesecurityserviceunbind_types.go[MobileSecurityServiceUnbind]
++
+|===
+| *Status*    | *Description*
+| `unbindStatus` | For this status is expected the value `OK` which means that the app was deleted in the Rest Service API as its SDKConfigMap.
 |===
 
 === Running the operator locally
@@ -297,8 +341,8 @@ NOTE: The image/tag used from https://github.com/aerogear/mobile-security-servic
 | `make delete-app-only`        | Delete Mobile Security Service App only
 | `make create-db-only`         | Create Mobile Security Service Database without its application
 | `make delete-db-only`         | Delete Mobile Security Service Database only
-| `make bind`                   | Create the example Bind CR and delete the example Unbind CR for an app in the current namespace which will create a SDK configMap for the app and create and/or update the app in the Service
-| `make unbind`                 | Delete the example Bind CR and apply the example Unbind CR for an app in the current namespace which will delete/disable the app in the Service
+| `make bind`                   | Create the Bind CR and delete the Unbind CR examples. (Create/Update app in the Service and add SKD ConfigMap)
+| `make unbind`                 | Delete the Bind CR and create Unbind CR examples. (Delete app from the Service and SDKConfigMap)
 | `make build`                  | Build operator with its tag
 | `make publish`                | Publish operator in https://hub.docker.com/[Docker Hub] with its tag
 | `make build-dev`              | Build operator for development proposes

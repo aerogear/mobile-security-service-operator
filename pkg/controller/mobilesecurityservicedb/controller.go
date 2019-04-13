@@ -3,16 +3,9 @@ package mobilesecurityservicedb
 import (
 	"context"
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
-	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"github.com/go-logr/logr"
-	"k8s.io/apimachinery/pkg/labels"
-	"reflect"
-
-	appsv1 "k8s.io/api/apps/v1"
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
@@ -71,10 +64,6 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 		return err
 	}
 
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -89,7 +78,7 @@ type ReconcileMobileSecurityServiceDB struct {
 }
 
 //Update the object and reconcile it
-func update(r *ReconcileMobileSecurityServiceDB, obj runtime.Object, reqLogger logr.Logger) (reconcile.Result, error) {
+func (r *ReconcileMobileSecurityServiceDB) update( obj runtime.Object, reqLogger logr.Logger) (reconcile.Result, error) {
 	err := r.client.Update(context.TODO(), obj)
 	if err != nil {
 		reqLogger.Error(err, "Failed to update Spec")
@@ -99,8 +88,9 @@ func update(r *ReconcileMobileSecurityServiceDB, obj runtime.Object, reqLogger l
 	return reconcile.Result{Requeue: true}, nil
 }
 
-func create(r *ReconcileMobileSecurityServiceDB, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceDB, reqLogger logr.Logger, kind string, err error) (reconcile.Result, error) {
-	obj, errBuildObject := buildObject(reqLogger, instance, r, kind)
+//Create the object and reconcile it
+func (r *ReconcileMobileSecurityServiceDB) create(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceDB, reqLogger logr.Logger, kind string, err error) (reconcile.Result, error) {
+	obj, errBuildObject := r.buildFactory(reqLogger, instance, kind)
 	if errBuildObject != nil {
 		return reconcile.Result{}, errBuildObject
 	}
@@ -118,7 +108,8 @@ func create(r *ReconcileMobileSecurityServiceDB, instance *mobilesecurityservice
 	return reconcile.Result{}, err
 }
 
-func buildObject(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceDB, r *ReconcileMobileSecurityServiceDB, kind string) (runtime.Object, error) {
+//buildFactory will return the resource according to the kind defined
+func (r *ReconcileMobileSecurityServiceDB) buildFactory(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceDB, kind string) (runtime.Object, error) {
 	reqLogger.Info("Check "+kind, "into the namespace", instance.Namespace)
 	switch kind {
 	case PVC:
@@ -133,18 +124,7 @@ func buildObject(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.
 	}
 }
 
-// Request object not found, could have been deleted after reconcile request.
-// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
-func fetch(r *ReconcileMobileSecurityServiceDB, reqLogger logr.Logger, err error) (reconcile.Result, error) {
-	if errors.IsNotFound(err) {
-		// Return and don't create
-		reqLogger.Info("Mobile Security Service Database resource not found. Ignoring since object must be deleted")
-		return reconcile.Result{}, nil
-	}
-	// Error reading the object - create the request.
-	reqLogger.Error(err, "Failed to get Mobile Security Service Database")
-	return reconcile.Result{}, err
-}
+
 
 // Reconcile reads that state of the cluster for a MobileSecurityServiceDB object and makes changes based on the state read
 // and what is in the MobileSecurityServiceDB.Spec
@@ -155,61 +135,57 @@ func (r *ReconcileMobileSecurityServiceDB) Reconcile(request reconcile.Request) 
 	reqLogger := log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
 	reqLogger.Info("Reconciling Mobile Security Service Database")
 
-	// Fetch the MobileSecurityServiceDB instance
-	instance := &mobilesecurityservicev1alpha1.MobileSecurityServiceDB{}
-	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
+	//Fetch Mobile Security Service DB instance
+	instance, err := r.fetch(request, reqLogger)
 	if err != nil {
-		return fetch(r, reqLogger, err)
+		return reconcile.Result{}, err
 	}
 
-	reqLogger.Info("Checking if the DB deployment already exists, if not create a new one")
-	deployment := &appsv1.Deployment{}
-	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, deployment)
+	//Check if Deployment for the app exist, if not create one
+	deployment, err := r.fetchDBDeployment(reqLogger, instance)
 	if err != nil {
-		return create(r, instance, reqLogger, DEEPLOYMENT, err)
-	}
-
-	reqLogger.Info("Checking if the DB Service already exists, if not create a new one")
-	service := &corev1.Service{}
-	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, service)
-	if err != nil {
-		return create(r, instance, reqLogger, SERVICE, err)
-	}
-
-	reqLogger.Info("Checking if the DB PersistentVolumeClaim already exists, if not create a new one")
-	pvc := &corev1.PersistentVolumeClaim{}
-	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, pvc)
-	if err != nil {
-		return create(r, instance, reqLogger, PVC, err)
+		return r.create(instance, reqLogger, DEEPLOYMENT, err)
 	}
 
 	//Ensure the deployment size is the same as the spec
-	reqLogger.Info("Ensuring the MobileSecurityServiceDB deployment size is the same as the spec")
+	reqLogger.Info("Ensuring the Mobile Security Service Database deployment size is the same as the spec")
 	size := instance.Spec.Size
 	if *deployment.Spec.Replicas != size {
 		deployment.Spec.Replicas = &size
-		return update(r, deployment, reqLogger)
+		return r.update(deployment, reqLogger)
 	}
 
-	reqLogger.Info("Updating the MobileSecurityServiceDB status with the pod names")
-	podList := &corev1.PodList{}
-	labelSelector := labels.SelectorFromSet(getDBLabels(instance.Name))
-	listOps := &client.ListOptions{Namespace: instance.Namespace, LabelSelector: labelSelector}
-	err = r.client.List(context.TODO(), listOps, podList)
+	//Check if Service for the app exist, if not create one
+	if _, err := r.fetchDBService(reqLogger, instance); err != nil {
+		return r.create(instance, reqLogger, SERVICE, err)
+	}
+
+	//Check if PersistentVolumeClaim for the app exist, if not create one
+	if _, err := r.fetchDBPersistentVolumeClaim(reqLogger, instance); err != nil {
+		return r.create(instance, reqLogger, PVC, err)
+	}
+
+	//Update status for deployment
+	deploymentStatus, err := r.updateDeploymentStatus(reqLogger,instance)
 	if err != nil {
-		reqLogger.Error(err, "Failed to list DB pods", "MobileSecurityServiceDB.Namespace", instance.Namespace, "MobileSecurityServiceDB.Name", instance.Name)
 		return reconcile.Result{}, err
 	}
-	reqLogger.Info("Get DB pod names")
-	podNames := utils.GetPodNames(podList.Items)
-	reqLogger.Info("Update status.Nodes if needed regards MobileSecurityServiceDB")
-	if !reflect.DeepEqual(podNames, instance.Status.Nodes) {
-		instance.Status.Nodes = podNames
-		err := r.client.Status().Update(context.TODO(), instance)
-		if err != nil {
-			reqLogger.Error(err, "Failed to update MobileSecurityServiceDB status")
-			return reconcile.Result{}, err
-		}
+
+	//Update status for Service
+	serviceStatus, err := r.updateServiceStatus(reqLogger, instance)
+	if err != nil {
+		return reconcile.Result{}, err
+	}
+
+	//Update status for PVC
+	pvcStatus, err := r.updatePvcStatus(reqLogger, instance)
+	if err != nil {
+		return reconcile.Result{}, err
+	}
+
+	//Update status for DB
+	if err:= r.updateDBStatus(reqLogger, deploymentStatus, serviceStatus, pvcStatus, instance); err != nil {
+		return reconcile.Result{}, err
 	}
 
 	return reconcile.Result{}, nil

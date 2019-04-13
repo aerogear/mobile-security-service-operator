@@ -6,14 +6,14 @@ import (
 	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"github.com/go-logr/logr"
 	"net/http"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"strings"
 )
 
 //DeleteAppFromServiceByRestAPI delete the app object in the service
-func DeleteAppFromServiceByRestAPI(protocol, host, hostSufix, appId string, reqLogger logr.Logger ) error {
+func DeleteAppFromServiceByRestAPI(protocol, host, hostSufix, id string, reqLogger logr.Logger ) error {
+	reqLogger.Info( "Calling REST API to DELETE app", "protocol", protocol, "host", host, "hostSufix", hostSufix, "App.id", id )
 	//Create the DELETE request
-	url:= utils.GetRestAPIForApps(protocol, host, hostSufix)+"/"+appId
+	url:= utils.GetRestAPIForApps(protocol, host, hostSufix)+"/"+id
 	req, err := http.NewRequest(http.MethodDelete, url ,nil)
 	req.Header.Set("Content-Type", "application/json")
 	if err != nil {
@@ -31,18 +31,20 @@ func DeleteAppFromServiceByRestAPI(protocol, host, hostSufix, appId string, reqL
 		return err
 	}
 
-	reqLogger.Info("Deleted successfully app object in REST Service API",  "App.Id:", appId)
+	reqLogger.Info("Deleted successfully app object in REST Service API",  "App.Id:", id)
 	return nil
 }
 
 
 //CreateAppByRestAPI create the app object in the service
-func CreateAppByRestAPI(protocol, host, hostSufix string, app models.App, reqLogger logr.Logger) (reconcile.Result, error) {
+func CreateAppByRestAPI(protocol, host, hostSufix string, app models.App, reqLogger logr.Logger) error {
+	reqLogger.Info( "Calling REST API to POST app", "protocol", protocol, "host", host, "hostSufix", hostSufix, "App", app )
+
 	// Create the object and parse for JSON
 	appJSON, err := json.Marshal(app)
 	if err != nil {
 		reqLogger.Error(err, "Error to transform the app object in JSON", "App", app, "Error", err)
-		return reconcile.Result{}, err
+		return err
 	}
 
 	//Create the POST request
@@ -51,7 +53,7 @@ func CreateAppByRestAPI(protocol, host, hostSufix string, app models.App, reqLog
 	req.Header.Set("Content-Type", "application/json")
 	if err != nil {
 		reqLogger.Error(err, "Error when try to create the request", "HTTPMethod", http.MethodPost, "Request", req, "url", url, "error", err)
-		return reconcile.Result{}, err
+		return err
 	}
 
 	//Do the request
@@ -59,16 +61,18 @@ func CreateAppByRestAPI(protocol, host, hostSufix string, app models.App, reqLog
 	response, err := client.Do(req)
 	if err != nil {
 		reqLogger.Error(err, "Error when try to do the request", "HTTPMethod", http.MethodPost, "Request", req, "Response", response, "url", url, "error", err)
-		return reconcile.Result{}, err
+		return err
 	}
 	defer response.Body.Close()
 
 	reqLogger.Info("Created successfully app object in REST Service API",  "App:", app)
-	return reconcile.Result{Requeue: true}, nil
+	return nil
 }
 
 //GetAppFromServiceByRestApi returns the app object from the service
 func GetAppFromServiceByRestApi(protocol, host, hostSufix, appId string, reqLogger logr.Logger) (models.App, error) {
+	reqLogger.Info( "Calling REST API to GET app", "protocol", protocol, "host", host, "hostSufix", hostSufix, "App.appId", appId )
+
 	// Fill the record with the data from the JSON
 	// Transform the body request in the version struct
 	got := models.App{}
@@ -121,21 +125,23 @@ func GetAppFromServiceByRestApi(protocol, host, hostSufix, appId string, reqLogg
 }
 
 //deleteAppFromServiceByRestAPI delete the app object in the service
-func UpdateAppNameByRestAPI(protocol, host, hostSufix string, app models.App, reqLogger logr.Logger) (reconcile.Result, error) {
+func UpdateAppNameByRestAPI(protocol, host, hostSufix string, app models.App, reqLogger logr.Logger) error {
+	reqLogger.Info( "Calling REST API to PATCH app", "protocol", protocol, "host", host, "hostSufix", hostSufix, "App", app )
+
 	//Create the DELETE request
 	url:= utils.GetRestAPIForApps(protocol, host, hostSufix)+"/"+app.ID
 	appJSON, err := json.Marshal(app)
 
 	if err != nil {
 		reqLogger.Error(err, "Error to transform the app object in JSON", "AppJSON", appJSON, "App", app, "Error", err)
-		return reconcile.Result{}, err
+		return err
 	}
 
 	req, err := http.NewRequest(http.MethodPatch, url ,strings.NewReader(string(appJSON)))
 	req.Header.Set("Content-Type", "application/json")
 	if err != nil {
 		reqLogger.Error(err, "Error when try to create the request", "HTTPMethod", http.MethodPatch, "Request", req, "url", url, "error", err)
-		return reconcile.Result{}, err
+		return err
 	}
 
 	//Do the request
@@ -143,10 +149,10 @@ func UpdateAppNameByRestAPI(protocol, host, hostSufix string, app models.App, re
 	response, err := client.Do(req)
 	if err != nil || 204 != response.StatusCode {
 		reqLogger.Error(err, "Error when try to do the request", "HTTPMethod", http.MethodPatch, "Request", req, "url", url, "error", err)
-		return reconcile.Result{}, err
+		return err
 	}
 	defer response.Body.Close()
 
 	reqLogger.Info("Deleted successfully app object in REST Service API",  "App:", app)
-	return reconcile.Result{Requeue: true}, nil
+	return nil
 }

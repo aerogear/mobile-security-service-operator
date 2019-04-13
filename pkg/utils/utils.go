@@ -1,6 +1,8 @@
 package utils
 
-import corev1 "k8s.io/api/core/v1"
+import (
+	corev1 "k8s.io/api/core/v1"
+)
 
 const APP_URL =  "mobile-security-service-app"
 

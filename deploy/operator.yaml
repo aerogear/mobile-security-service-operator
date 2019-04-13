@@ -17,7 +17,7 @@ spec:
       containers:
         - name: mobile-security-service-operator
           # Replace this with the built image name
-          image: aerogear/mobile-security-service-operator:0.1.0-dev
+          image: aerogear/mobile-security-service-operator:0.1.0
           command:
           - mobile-security-service-operator
           imagePullPolicy: Always
