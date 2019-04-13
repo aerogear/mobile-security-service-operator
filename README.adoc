@@ -71,14 +71,11 @@ $ minishift start
 
 === Configuring
 
-Update the cluster host IP in the following CRS.
+Update the cluster host IP in the following CR.
 
 * link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService CR]
-* link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[MobileSecurityServiceBind CR]
 
 NOTE: The `clusterHost` will be used to generated the route/ingress source as in the ConfigMap created with the SDK JSON config.
-
-NOTE: It is planned get this value automatic in th future.
 
 === Installing
 
@@ -93,9 +90,9 @@ IMPORTANT: To create all you need be logged as admin. Use `oc login -u system:ad
 
 === Binding an app
 
-* Add the required info in the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[MobileSecurityServiceBind CR]
+* Create a BIND CR for the application as the example link:./deploy/examples/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[MobileSecurityServiceBind CR]
 +
-Update the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[MobileSecurityServiceBind CR] which will be used to bind the app with the app name and id as shows the follows attributes.
+* Add into the link:./deploy/examples/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[MobileSecurityServiceBind CR] the app name and id of the app which will be bind to the Service as follows.
 +
 [source,shell]
 ----
@@ -105,19 +102,38 @@ Update the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityser
   appId: "appid"
 ----
 +
-NOTE: If you would like to have more than one app bind to the service per namespace than change the metadata.name` of the bind link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[MobileSecurityServiceBind CR]
+IMPORTANT: Do not forget to update the clusterHost in the BIND CR
 +
-* Bind the service
-+
-Run the following command in the namespace where the bind should be applied and the SDK ConfigMap created
-+
+* Run the following command to bind the app to the service
 +
 [source,shell]
 ----
 $ make bind
 ----
++
+NOTE: If you would like to have more than one app bind to the Service per namespace than change the metadata.name` of the bind link:./deploy/examples/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[MobileSecurityServiceBind CR]
 
-NOTE: You can use the command `make unbind` to unbind the app.
+=== Unbinding an app
+* Create a UNBIND CR for the application as the example link:./deploy/examples/mobile-security-service_v1alpha1_mobilesecurityserviceunbind_cr.yaml[MobileSecurityServiceUnbind CR]
++
+* Add into the link:./deploy/examples/mobile-security-service_v1alpha1_mobilesecurityserviceunbind_cr.yaml[MobileSecurityServiceUnbind CR] the app id of the app which will be unbind from the Service as follows.
++
+[source,shell]
+----
+  # The appId spec defines the appId of the app used to bind the service
+  appId: "appid"
+----
++
+IMPORTANT: Do not forget to update the clusterHost in the UNBIND CR
++
+* Run the following command to unbind the app from the service
++
+[source,shell]
+----
+$ make bind
+----
++
+NOTE: If you would like to have more than one app unbind from the Service per namespace than change the metadata.name` of the ubind link:./deploy/examples/mobile-security-service_v1alpha1_mobilesecurityserviceunbind_cr.yaml[MobileSecurityServiceUnbind CR]
 
 === Removing
 
@@ -141,7 +157,7 @@ NOTE:
 * If the name of this ConfigMap be not specified then the name of the Mobile Security Service instance will be used instead of.
 * The link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml[MobileSecurityServiceDB] and link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService] should have specified the same name for this ConfigMap in order to allow the App and Database share its usage.
 
-=== Role for no-privilege users are able to create the Mobile Security Service App, Database and or Bind
+=== Role for no-privilege users are able to create the Mobile Security Service App, Database and/or Bind and Unbind their apps
 
 By executing the following commands you will create roles in the cluster which will allow the <user> create the Mobile Security Service Application and Database in their namespaces. In this would not be required be the system:admin. However, the Mobile Security Service Operator is cluster scoped and will still only accessible for the `system admin users.
 
@@ -159,9 +175,10 @@ $ oc create rolebinding developer-mobile-security-service --role=mobile-security
 
 |===
 | *CustomResourceDefinition*    | *Description*
-| link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService]             | Packages, manages, installs and configures the https://github.com/aerogear/mobile-security-service[Mobile Security Service] on the cluster.
-| link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml[MobileSecurityServiceDB]             | Packages, manages, installs and configures the https://github.com/aerogear/mobile-security-service[Mobile Security Service] Database on the cluster.
-| link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[MobileSecurityServiceBind]             | CR which specified the app name and id. It is used to create and update the app in the Service REST API.
+| link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml[MobileSecurityService]             | Packages, manages, installs and configures the https://github.com/aerogear/mobile-security-service[Mobile Security Service] on the cluster.
+| link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml[MobileSecurityServiceDB]             | Packages, manages, installs and configures the https://github.com/aerogear/mobile-security-service[Mobile Security Service] Database on the cluster.
+| link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_crd.yaml[MobileSecurityServiceBind]             | Creates and update the app in the Service REST API.
+| link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceunbind_crd.yaml[MobileSecurityServiceUnbind]             | Delete the app in the Service REST API.
 |===
 
 ==== Resources managed by each CRD Controller
@@ -280,8 +297,8 @@ NOTE: The image/tag used from https://github.com/aerogear/mobile-security-servic
 | `make delete-app-only`        | Delete Mobile Security Service App only
 | `make create-db-only`         | Create Mobile Security Service Database without its application
 | `make delete-db-only`         | Delete Mobile Security Service Database only
-| `make bind`                   | Create Mobile Security Service Bind for an app in the current namespace
-| `make unbind`                 | Delete Mobile Security Service Bind for an app in the current namespace
+| `make bind`                   | Create the example Bind CR and delete the example Unbind CR for an app in the current namespace which will create a SDK configMap for the app and create and/or update the app in the Service
+| `make unbind`                 | Delete the example Bind CR and apply the example Unbind CR for an app in the current namespace which will delete/disable the app in the Service
 | `make build`                  | Build operator with its tag
 | `make publish`                | Publish operator in https://hub.docker.com/[Docker Hub] with its tag
 | `make build-dev`              | Build operator for development proposes

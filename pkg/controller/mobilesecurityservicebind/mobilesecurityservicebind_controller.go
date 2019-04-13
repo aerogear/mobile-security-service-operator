@@ -152,7 +152,7 @@ func (r *ReconcileMobileSecurityServiceBind) Reconcile(request reconcile.Request
 	//Check if the cluster host was added in the CR
 	if len(instance.Spec.ClusterHost) < 1 || instance.Spec.ClusterHost == "{{clusterHost}}" {
 		err := fmt.Errorf("Cluster Host IP was not found.")
-		reqLogger.Error(err, "Please check its configuration. See https://github.com/aerogear/mobile-security-service-operator#configuring .")
+		reqLogger.Error(err, "Please check its configuration. See https://github.com/aerogear/mobile-security-service-operator#binding-an-app .")
 		return reconcile.Result{}, nil
 	}
 
