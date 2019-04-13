@@ -17,7 +17,8 @@ func NewSDKConfig(m *mobilesecurityservicev1alpha1.MobileSecurityServiceBind) *S
 
 	cfg := new(SDKConfig)
 	cfg.Version = "1.0.0"
-	cfg.Name = m.Name
+	cfg.Name = m.Spec.AppName
+	cfg.ClientID = m.Spec.AppId
 	cfg.Namespace = m.Namespace
 	cfg.Host = m.Spec.ClusterHost
 	cfg.Services = getServices(m)

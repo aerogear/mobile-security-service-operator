@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
+	"github.com/aerogear/mobile-security-service-operator/pkg/models"
+	"github.com/aerogear/mobile-security-service-operator/pkg/service"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -161,16 +163,18 @@ func (r *ReconcileMobileSecurityServiceBind) Reconcile(request reconcile.Request
 		return create(r, instance,  CONFIGMAP, reqLogger, err)
 	}
 
-	app, _ := getAppFromServiceByRestApi(instance, reqLogger)
+	app, _ := service.GetAppFromServiceByRestApi(instance.Spec.Protocol, instance.Spec.ClusterHost, instance.Spec.HostSufix, instance.Spec.AppId, reqLogger)
 	if len(app.ID) > 0 {
 		if app.AppName != instance.Spec.AppName {
 			//Update the name by the REST API
 			reqLogger.Info("Calling the Rest api to update the app name ...", "App.newName:", instance.Spec.AppName, "App.oldName", app.AppName, "App.appID:", instance.Spec.AppId , "App.iD", app.ID)
-			return updateAppNameByRestAPI(instance, app, reqLogger)
+			app.AppName = instance.Spec.AppName
+			return service.UpdateAppNameByRestAPI(instance.Spec.Protocol, instance.Spec.ClusterHost, instance.Spec.HostSufix, app, reqLogger)
 		}
 	} else {
+		newApp := models.NewApp(instance.Spec.AppName, instance.Spec.AppId)
 		reqLogger.Info("Calling the Rest API for create new app...")
-		return createAppByRestAPI(instance, reqLogger)
+		return service.CreateAppByRestAPI(instance.Spec.Protocol, instance.Spec.ClusterHost, instance.Spec.HostSufix, newApp, reqLogger)
 	}
 
 	reqLogger.Info("Updating the SDKConfigMap status ...")
@@ -190,8 +194,8 @@ func (r *ReconcileMobileSecurityServiceBind) Reconcile(request reconcile.Request
 	}
 
 	reqLogger.Info("Updating the Bind App status ...")
-	bindApp, err := getAppFromServiceByRestApi(instance, reqLogger)
-	if err != nil || len(bindApp.ID) < 0 {
+	bindApp, err := service.GetAppFromServiceByRestApi(instance.Spec.Protocol, instance.Spec.ClusterHost, instance.Spec.HostSufix, instance.Spec.AppId, reqLogger)
+	if err != nil || len(bindApp.ID) < 1 {
 		reqLogger.Error(err, "Failed to update Bind App status")
 		return reconcile.Result{}, err
 	}
