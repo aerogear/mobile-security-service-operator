@@ -10,44 +10,6 @@ import (
 	"strings"
 )
 
-//GetAllAppsFromServiceByRestApi returns the app object from the service
-func GetAllAppsFromServiceByRestApi(protocol, host, hostSufix string, reqLogger logr.Logger) ([]models.App, error) {
-	got := []models.App{}
-
-	//Create the GET request
-	url:= utils.GetRestAPIForApps(protocol, host, hostSufix)
-	req, err := http.NewRequest(http.MethodGet,  url, nil)
-	req.Header.Set("Content-Type", "application/json")
-	if err != nil {
-		reqLogger.Error(err, "Error when try to create the request", "HTTPMethod", http.MethodGet, "Request", req, "url", url, "error", err)
-		return got, err
-	}
-
-	//Do the request
-	client := &http.Client{}
-	response, err := client.Do(req)
-	defer response.Body.Close()
-
-	if err != nil {
-		reqLogger.Error(err, "Error when try to do the request", "HTTPMethod", http.MethodGet, "Request", req, "url", url, "error", err)
-		return got, err
-	}
-
-	if 204 == response.StatusCode {
-		reqLogger.Info("REST Service has no apps", "HTTPMethod", http.MethodGet, "url", url)
-		return got, nil
-	}
-
-	err = json.NewDecoder(response.Body).Decode(&got)
-
-	if err != nil {
-		reqLogger.Error(err, "Error when try to do decoder the body response", "HTTPMethod", http.MethodGet, "Request", req, "Response", response, "url", url, "error", err)
-		return got, err
-	}
-
-	return got, nil
-}
-
 //DeleteAppFromServiceByRestAPI delete the app object in the service
 func DeleteAppFromServiceByRestAPI(protocol, host, hostSufix, appId string, reqLogger logr.Logger ) error {
 	//Create the DELETE request
@@ -64,7 +26,7 @@ func DeleteAppFromServiceByRestAPI(protocol, host, hostSufix, appId string, reqL
 	response, err := client.Do(req)
 	defer response.Body.Close()
 
-	if err != nil || 204 != response.StatusCode {
+	if err != nil {
 		reqLogger.Error(err, "Error when try to do the request", "HTTPMethod", http.MethodDelete, "Request", req, "url", url, "error", err)
 		return err
 	}
@@ -119,6 +81,8 @@ func GetAppFromServiceByRestApi(protocol, host, hostSufix, appId string, reqLogg
 	//Create the GET request
 	url:= utils.GetRestAPIForApps(protocol, host, hostSufix)+"?appId="+appId
 	req, err := http.NewRequest(http.MethodGet,  url, nil)
+	reqLogger.Info("URL to get", "HTTPMethod", http.MethodGet, "url", url)
+
 	req.Header.Set("Content-Type", "application/json")
 	if err != nil {
 		reqLogger.Error(err, "Error when try to create the request", "HTTPMethod", http.MethodGet, "Request", req, "url", url, "error", err)
@@ -152,7 +116,7 @@ func GetAppFromServiceByRestApi(protocol, host, hostSufix, appId string, reqLogg
 		return got, nil
 	}
 
-	reqLogger.Info("App found in the Rest Service", "App", got)
+	reqLogger.Info("App found in the Rest Service", "App", obj[0])
 	return obj[0], nil
 }
 
