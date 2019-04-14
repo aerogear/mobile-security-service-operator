@@ -351,7 +351,7 @@ NOTE: The link:./Makefile[Makefile] is implemented with tasks which you should u
 
 == Supportability
 
-This operator was developed using the k8s APIs and should work well in Kubernetes and OpenShift clusters.
+This operator was developed using the k8s APIs and should work well in Kubernetes and OpenShift clusters. However, it has been tested on OpenShift clusters only so far.
 
 == Contributing
 
