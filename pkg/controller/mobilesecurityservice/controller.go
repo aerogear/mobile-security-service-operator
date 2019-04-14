@@ -2,19 +2,10 @@ package mobilesecurityservice
 
 import (
 	"context"
-	"fmt"
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
-	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"github.com/go-logr/logr"
-	"k8s.io/api/extensions/v1beta1"
-	"reflect"
-
-	appsv1 "k8s.io/api/apps/v1"
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
@@ -85,7 +76,7 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 
 var _ reconcile.Reconciler = &ReconcileMobileSecurityService{}
 
-// ReconcileMobileSecurityService reconciles a MobileSecurityService object
+//ReconcileMobileSecurityService reconciles a MobileSecurityService object
 type ReconcileMobileSecurityService struct {
 	// This client, initialized using mgr.Client() above, is a split client
 	// that reads objects from the cache and writes to the apiserver
@@ -93,8 +84,8 @@ type ReconcileMobileSecurityService struct {
 	scheme *runtime.Scheme
 }
 
-//Update the object and reconcile it
-func update(r *ReconcileMobileSecurityService, obj runtime.Object, reqLogger logr.Logger) (reconcile.Result, error) {
+//Update the factory object and requeue
+func (r *ReconcileMobileSecurityService) update(obj runtime.Object, reqLogger logr.Logger) (reconcile.Result, error) {
 	err := r.client.Update(context.TODO(), obj)
 	if err != nil {
 		reqLogger.Error(err, "Failed to update Spec")
@@ -104,8 +95,9 @@ func update(r *ReconcileMobileSecurityService, obj runtime.Object, reqLogger log
 	return reconcile.Result{Requeue: true}, nil
 }
 
-func create(r *ReconcileMobileSecurityService, instance *mobilesecurityservicev1alpha1.MobileSecurityService, reqLogger logr.Logger, kind string, err error) (reconcile.Result, error) {
-	obj, errBuildObject := buildObject(reqLogger, instance, r, kind)
+//Create the factory object and requeue
+func (r *ReconcileMobileSecurityService) create( instance *mobilesecurityservicev1alpha1.MobileSecurityService, reqLogger logr.Logger, kind string, err error) (reconcile.Result, error) {
+	obj, errBuildObject := r.buildFactory(reqLogger, instance, kind)
 	if errBuildObject != nil {
 		return reconcile.Result{}, errBuildObject
 	}
@@ -124,7 +116,8 @@ func create(r *ReconcileMobileSecurityService, instance *mobilesecurityservicev1
 
 }
 
-func buildObject(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityService, r *ReconcileMobileSecurityService, kind string) (runtime.Object, error) {
+//buildFactory will return the resource according to the kind defined
+func (r *ReconcileMobileSecurityService) buildFactory(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityService, kind string) (runtime.Object, error) {
 	reqLogger.Info("Check "+kind, "into the namespace", instance.Namespace)
 	switch kind {
 	case CONFIGMAP:
@@ -141,16 +134,6 @@ func buildObject(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.
 	}
 }
 
-func fetch(r *ReconcileMobileSecurityService, reqLogger logr.Logger, err error) (reconcile.Result, error) {
-	if errors.IsNotFound(err) {
-		// Return and don't create
-		reqLogger.Info("Mobile Security Service App resource not found. Ignoring since object must be deleted")
-		return reconcile.Result{}, nil
-	}
-	// Error reading the object - create the request.
-	reqLogger.Error(err, "Failed to get Mobile Security Service App")
-	return reconcile.Result{}, err
-}
 
 // Reconcile reads that state of the cluster for a MobileSecurityService object and makes changes based on the state read
 // and what is in the MobileSecurityService.Spec
@@ -161,76 +144,67 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 	reqLogger := log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
 	reqLogger.Info("Reconciling Mobile Security Service App")
 
-	instance := &mobilesecurityservicev1alpha1.MobileSecurityService{}
-
-
-	//Fetch the MobileSecurityService instance
-	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
+	//Fetch Mobile Security Service instance
+	instance, err := r.fetch(request, reqLogger)
 	if err != nil {
-		return fetch(r, reqLogger, err)
-	}
-
-	//Check if the cluster host was added in the CR
-	if len(instance.Spec.ClusterHost) < 1 || instance.Spec.ClusterHost == "{{clusterHost}}" {
-		err := fmt.Errorf("Cluster Host IP was not found.")
-		reqLogger.Error( err,"Please check its configuration. See https://github.com/aerogear/mobile-security-service-operator#configuring .")
 		return reconcile.Result{}, err
 	}
 
-	reqLogger.Info("Checking if the ConfigMap already exists, if not create a new one")
-	configMap := &corev1.ConfigMap{}
-	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Spec.ConfigMapName, Namespace: instance.Namespace}, configMap)
-	if err != nil {
-		return create(r, instance, reqLogger, CONFIGMAP, err)
+	//Check if ConfigMap for the app exist, if not create one.
+	if _, err := r.fetchAppConfigMap(reqLogger, instance); err != nil {
+		return r.create(instance, reqLogger, CONFIGMAP, err)
 	}
 
-	reqLogger.Info("Checking if the deployment already exists, if not create a new one")
-	deployment := &appsv1.Deployment{}
-	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, deployment)
+	//Check if Deployment for the app exist, if not create one
+	deployment, err := r.fetchAppDeployment(reqLogger, instance)
 	if err != nil {
-		return create(r, instance, reqLogger, DEEPLOYMENT, err)
-	}
-
-	reqLogger.Info("Checking if the service already exists, if not create a new one")
-	service := &corev1.Service{}
-	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, service)
-	if err != nil {
-		return create(r, instance, reqLogger, SERVICE, err)
-	}
-
-	reqLogger.Info("Checking if the ingress already exists, if not create a new one")
-	ingress := &v1beta1.Ingress{}
-	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, ingress)
-	if err != nil {
-		return create(r, instance, reqLogger, INGRESS, err)
+		return r.create(instance, reqLogger, DEEPLOYMENT, err)
 	}
 
 	reqLogger.Info("Ensuring the Mobile Security Service deployment size is the same as the spec")
 	size := instance.Spec.Size
 	if *deployment.Spec.Replicas != size {
 		deployment.Spec.Replicas = &size
-		return update(r, deployment, reqLogger)
+		return r.update(deployment, reqLogger)
 	}
 
-	reqLogger.Info("Updating the MobileSecurityService status with the pod names")
-	podList := &corev1.PodList{}
-	labelSelector := labels.SelectorFromSet(getAppLabels(instance.Name))
-	listOps := &client.ListOptions{Namespace: instance.Namespace, LabelSelector: labelSelector}
-	err = r.client.List(context.TODO(), listOps, podList)
+	//Check if Service for the app exist, if not create one
+	if _, err := r.fetchAppService(reqLogger, instance); err != nil {
+		return r.create(instance, reqLogger, SERVICE, err)
+	}
+
+	//Check if Ingress for the app exist, if not create one
+	if _, err := r.fetchAppIngress(reqLogger, instance); err != nil {
+		return r.create(instance, reqLogger, INGRESS, err)
+	}
+
+	//Update status for ConfigMap
+	configMapStatus, err := r.updateConfigMapStatus(reqLogger, instance)
 	if err != nil {
-		reqLogger.Error(err, "Failed to list pods", "MobileSecurityService.Namespace", instance.Namespace, "MobileSecurityService.Name", instance.Name)
 		return reconcile.Result{}, err
 	}
-	reqLogger.Info("Get pod names")
-	podNames := utils.GetPodNames(podList.Items)
-	reqLogger.Info("Update status.Nodes if needed")
-	if !reflect.DeepEqual(podNames, instance.Status.Nodes) {
-		instance.Status.Nodes = podNames
-		err := r.client.Status().Update(context.TODO(), instance)
-		if err != nil {
-			reqLogger.Error(err, "Failed to update MobileSecurityService status")
-			return reconcile.Result{}, err
-		}
+
+	//Update status for deployment
+	deploymentStatus, err := r.updateDeploymentStatus(reqLogger,instance)
+	if err != nil {
+		return reconcile.Result{}, err
+	}
+
+	//Update status for Service
+	serviceStatus, err := r.updateServiceStatus(reqLogger, instance)
+	if err != nil {
+		return reconcile.Result{}, err
+	}
+
+	//Update status for ingress
+	ingressStatus, err := r.updateIngressStatus(reqLogger, instance)
+	if err != nil {
+		return reconcile.Result{}, err
+	}
+
+	//Update status for App
+	if err:= r.updateAppStatus(reqLogger, configMapStatus, deploymentStatus, serviceStatus, ingressStatus, instance); err != nil {
+		return reconcile.Result{}, err
 	}
 
 	return reconcile.Result{}, nil

@@ -16,13 +16,13 @@ LDFLAGS=-ldflags "-w -s -X main.Version=${TAG}"
 
 .PHONY: bind
 bind:
-	- kubectl delete -f deploy/examples/mobile-security-service_v1alpha1_mobilesecurityserviceunbind_cr.yaml
-	- kubectl create -f deploy/examples/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml
+	- kubectl delete -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceunbind_cr.yaml
+	- kubectl create -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml
 
 .PHONY: unbind
 unbind:
-	- kubectl delete -f deploy/examples/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml
-	- kubectl apply -f deploy/examples/mobile-security-service_v1alpha1_mobilesecurityserviceunbind_cr.yaml
+	- kubectl delete -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml
+	- kubectl apply -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceunbind_cr.yaml
 
 .PHONY: run-local
 run-local:

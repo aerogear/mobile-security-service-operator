@@ -10,7 +10,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-// build the ingress/route object
+//buildAppIngress returns the ingress/route resource
 func (r *ReconcileMobileSecurityService) buildAppIngress(m *mobilesecurityservicev1alpha1.MobileSecurityService) *v1beta1.Ingress {
 	ls := getAppLabels(m.Name)
 	ing := &v1beta1.Ingress{

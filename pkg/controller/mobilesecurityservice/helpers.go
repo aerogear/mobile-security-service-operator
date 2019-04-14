@@ -5,14 +5,12 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-
-// Returns an string map with the labels which wil be associated to the kubernetes/openshift objects
-// which will be created and managed by this operator
+//getAppLabels returns an string map with the labels which wil be associated to the kubernetes/ocp resource which will be created and managed by this operator
 func getAppLabels(name string) map[string]string {
 	return map[string]string{"app": "mobilesecurityservice", "mobilesecurityservice_cr": name}
 }
 
-// Returns an string name with the name of the configMap
+//getConfigMapName returns an string name with the name of the configMap
 func getConfigMapName(m *mobilesecurityservicev1alpha1.MobileSecurityService) string{
 	if len(m.Spec.ConfigMapName) > 0 {
 		return m.Spec.ConfigMapName
@@ -20,7 +18,7 @@ func getConfigMapName(m *mobilesecurityservicev1alpha1.MobileSecurityService) st
 	return m.Name
 }
 
-// Helper to build the env vars which will be configured in the deployment of the Mobile Security Service Project
+//buildAppEnvVars is a helper to build the env vars which will be configured in the deployment of the Mobile Security Service Project
 func buildAppEnvVars(m *mobilesecurityservicev1alpha1.MobileSecurityService) *[]corev1.EnvVar {
 	res := []corev1.EnvVar{}
 	for key := range getAppEnvVarsMap(m) {
@@ -40,7 +38,7 @@ func buildAppEnvVars(m *mobilesecurityservicev1alpha1.MobileSecurityService) *[]
 	return &res
 }
 
-// Helper to get a map[string]string with the key and values required/used to setup the Mobile Security Service Project
+//getAppEnvVarsMap is a helper to get a map[string]string with the key and values required/used to setup the Mobile Security Service Project
 func getAppEnvVarsMap(m *mobilesecurityservicev1alpha1.MobileSecurityService) map[string]string {
 	return map[string]string{
 		"PGHOST":                           m.Spec.DatabaseHost,

@@ -11,7 +11,7 @@ import (
 )
 
 //Watch for changes to secondary resources and create the owner MobileSecurityService
-//Watch ConfigMap objects created in the project/namespace
+//Watch ConfigMap resources created in the project/namespace
 func watchConfigMap(c controller.Controller) error {
 	err := c.Watch(&source.Kind{Type: &corev1.ConfigMap{}}, &handler.EnqueueRequestForOwner{
 		IsController: true,
@@ -21,7 +21,7 @@ func watchConfigMap(c controller.Controller) error {
 }
 
 //Watch for changes to secondary resources and create the owner MobileSecurityService
-//Watch Service objects created in the project/namespace
+//Watch Service resources created in the project/namespace
 func watchService(c controller.Controller) error {
 	err := c.Watch(&source.Kind{Type: &corev1.Service{}}, &handler.EnqueueRequestForOwner{
 		IsController: true,
@@ -31,7 +31,7 @@ func watchService(c controller.Controller) error {
 }
 
 //Watch for changes to secondary resources and create the owner MobileSecurityService
-//Watch Deployment objects created in the project/namespace
+//Watch Deployment resources created in the project/namespace
 func watchDeployment(c controller.Controller) error {
 	err := c.Watch(&source.Kind{Type: &appsv1.Deployment{}}, &handler.EnqueueRequestForOwner{
 		IsController: true,
@@ -41,7 +41,7 @@ func watchDeployment(c controller.Controller) error {
 }
 
 //Watch for changes to secondary resources and requeue the owner MobileSecurityService
-//Watch Ingress objects created in the project/namespace
+//Watch Ingress resources created in the project/namespace
 func watchIngress(c controller.Controller) error {
 	err := c.Watch(&source.Kind{Type: &v1beta1.Ingress{}}, &handler.EnqueueRequestForOwner{
 		IsController: true,

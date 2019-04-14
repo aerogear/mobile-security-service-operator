@@ -32,3 +32,8 @@ func getConfigMapSDKForMobileSecurityService(m *mobilesecurityservicev1alpha1.Mo
 func getConfigMapName(m *mobilesecurityservicev1alpha1.MobileSecurityServiceBind) string {
 	return m.Spec.AppName + SDK
 }
+
+//hasApp return true when APP has ID which is just created by the REST Service API
+func hasApp(app models.App) bool {
+	return len(app.ID) > 0
+}

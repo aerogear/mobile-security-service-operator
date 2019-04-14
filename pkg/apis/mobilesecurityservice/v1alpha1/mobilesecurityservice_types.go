@@ -1,6 +1,8 @@
 package v1alpha1
 
 import (
+	"k8s.io/api/core/v1"
+	"k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -40,7 +42,14 @@ type MobileSecurityServiceStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
-	Nodes []string `json:"nodes"`
+	ConfigMapName string `json:"configMapName"`
+	DeploymentName string `json:"deploymentName"`
+	DeploymentStatus v1beta1.DeploymentStatus `json:"deploymentStatus"`
+	ServiceName string `json:"serviceName"`
+	ServiceStatus v1.ServiceStatus `json:"serviceStatus"`
+	IngressName string `json:"ingressName"`
+	IngressStatus v1beta1.IngressStatus `json:"ingressStatus"`
+	AppStatus string `json:"appStatus"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
