@@ -1,6 +1,7 @@
 package mobilesecurityserviceunbind
 
 import (
+	"context"
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/service"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -62,10 +63,17 @@ func (r *ReconcileMobileSecurityServiceUnbind) Reconcile(request reconcile.Reque
 	reqLogger := log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
 	reqLogger.Info("Reconciling MobileSecurityServiceUnbind")
 
-	//Fetch Mobile Security Service UnBind instance
-	instance, err := r.fetch(request, reqLogger)
+	instance := &mobilesecurityservicev1alpha1.MobileSecurityServiceUnbind{}
+
+	//Fetch the MobileSecurityService instance
+	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
 	if err != nil {
-		return reconcile.Result{}, err
+		return fetch(r, reqLogger, err)
+	}
+
+	//Check specs
+	if !hasSpecs(instance, reqLogger) {
+		return reconcile.Result{Requeue: true}, nil
 	}
 
 	//Check if App is UnBind in the REST Service, if not then unbind it

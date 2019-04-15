@@ -106,10 +106,17 @@ func (r *ReconcileMobileSecurityServiceBind) Reconcile(request reconcile.Request
 	reqLogger := log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
 	reqLogger.Info("Reconciling MobileSecurityServiceBind")
 
-	//Fetch Mobile Security Service Bind instance
-	instance, err := r.fetch(request, reqLogger)
+	instance := &mobilesecurityservicev1alpha1.MobileSecurityServiceBind{}
+
+	//Fetch the MobileSecurityService instance
+	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
 	if err != nil {
-		return reconcile.Result{}, err
+		return fetch(r, reqLogger, err)
+	}
+
+	//Check specs
+	if !hasSpecs(instance, reqLogger) {
+		return reconcile.Result{Requeue: true}, nil
 	}
 
 	//Check if ConfigMap for the app exist, if not create one.

@@ -135,6 +135,7 @@ func (r *ReconcileMobileSecurityService) buildFactory(reqLogger logr.Logger, ins
 }
 
 
+
 // Reconcile reads that state of the cluster for a MobileSecurityService object and makes changes based on the state read
 // and what is in the MobileSecurityService.Spec
 // Note:
@@ -144,10 +145,12 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 	reqLogger := log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
 	reqLogger.Info("Reconciling Mobile Security Service App")
 
-	//Fetch Mobile Security Service instance
-	instance, err := r.fetch(request, reqLogger)
+	instance := &mobilesecurityservicev1alpha1.MobileSecurityService{}
+
+	//Fetch the MobileSecurityService instance
+	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
 	if err != nil {
-		return reconcile.Result{}, err
+		return fetch(r, reqLogger, err)
 	}
 
 	//Check if ConfigMap for the app exist, if not create one.
