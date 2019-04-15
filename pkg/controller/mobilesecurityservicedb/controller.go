@@ -135,10 +135,12 @@ func (r *ReconcileMobileSecurityServiceDB) Reconcile(request reconcile.Request) 
 	reqLogger := log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
 	reqLogger.Info("Reconciling Mobile Security Service Database")
 
-	//Fetch Mobile Security Service DB instance
-	instance, err := r.fetch(request, reqLogger)
+	instance := &mobilesecurityservicev1alpha1.MobileSecurityServiceDB{}
+
+	//Fetch the MobileSecurityService instance
+	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
 	if err != nil {
-		return reconcile.Result{}, err
+		return fetch(r, reqLogger, err)
 	}
 
 	//Check if Deployment for the app exist, if not create one

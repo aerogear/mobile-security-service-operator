@@ -13,17 +13,15 @@ import (
 
 // Request object not found, could have been deleted after reconcile request.
 // Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
-func (r *ReconcileMobileSecurityServiceDB) fetch(request reconcile.Request, reqLogger logr.Logger) (*mobilesecurityservicev1alpha1.MobileSecurityServiceDB, error) {
-	instance := &mobilesecurityservicev1alpha1.MobileSecurityServiceDB{}
-	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
+func fetch(r *ReconcileMobileSecurityServiceDB, reqLogger logr.Logger, err error) (reconcile.Result, error) {
 	if errors.IsNotFound(err) {
 		// Return and don't create
-		reqLogger.Info( "Return Mobile Security Service DB instance")
-		return instance, nil
+		reqLogger.Info("Mobile Security Service DB resource not found. Ignoring since object must be deleted")
+		return reconcile.Result{}, nil
 	}
 	// Error reading the object - create the request.
 	reqLogger.Error(err, "Failed to get Mobile Security Service DB")
-	return instance, err
+	return reconcile.Result{}, err
 }
 
 //fetchDBService returns the service resource created for this instance

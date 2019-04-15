@@ -14,17 +14,15 @@ import (
 
 // Request object not found, could have been deleted after reconcile request.
 // Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
-func (r *ReconcileMobileSecurityServiceBind) fetch(request reconcile.Request, reqLogger logr.Logger) (*mobilesecurityservicev1alpha1.MobileSecurityServiceBind, error) {
-	instance := &mobilesecurityservicev1alpha1.MobileSecurityServiceBind{}
-	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
+func fetch(r *ReconcileMobileSecurityServiceBind, reqLogger logr.Logger, err error) (reconcile.Result, error) {
 	if errors.IsNotFound(err) {
 		// Return and don't create
-		reqLogger.Info( "Return Mobile Security Service Bind instance")
-		return instance, nil
+		reqLogger.Info("Mobile Security Service Bind resource not found. Ignoring since object must be deleted")
+		return reconcile.Result{}, nil
 	}
 	// Error reading the object - create the request.
 	reqLogger.Error(err, "Failed to get Mobile Security Service Bind")
-	return instance, err
+	return reconcile.Result{}, err
 }
 
 //fetchSDKConfigMap returns the config map resource created for this instance
