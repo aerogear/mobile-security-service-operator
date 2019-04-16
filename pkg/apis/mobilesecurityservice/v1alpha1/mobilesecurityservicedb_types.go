@@ -22,6 +22,9 @@ type MobileSecurityServiceDBSpec struct {
 	DatabaseName           string `json:"databaseName"`
 	DatabasePassword       string `json:"databasePassword"`
 	DatabaseUser           string `json:"databaseUser"`
+	DatabaseNameParam      string `json:"databaseNameParam"`
+	DatabasePasswordParam  string `json:"databasePasswordParam"`
+	DatabaseUserParam      string `json:"databaseUserParam"`
 	DatabasePort           int32  `json:"databasePort"`
 	DatabaseMemoryLimit    string `json:"databaseMemoryLimit"`
 	DatabaseMemoryRequest  string `json:"databaseMemoryRequest"`

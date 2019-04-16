@@ -14,7 +14,7 @@ func getDBLabels(name string) map[string]string {
 func (r *ReconcileMobileSecurityServiceDB) getDatabaseNameEnvVar(m *mobilesecurityservicev1alpha1.MobileSecurityServiceDB) corev1.EnvVar {
 	if r.hasAppConfigMap(m) {
 		return corev1.EnvVar{
-			Name: "POSTGRES_DB",
+			Name: m.Spec.DatabaseNameParam,
 			ValueFrom: &corev1.EnvVarSource{
 				ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 					LocalObjectReference: corev1.LocalObjectReference{
@@ -27,7 +27,7 @@ func (r *ReconcileMobileSecurityServiceDB) getDatabaseNameEnvVar(m *mobilesecuri
 	}
 
 	return corev1.EnvVar{
-		Name:  "POSTGRES_DB",
+		Name:  m.Spec.DatabaseNameParam,
 		Value: m.Spec.DatabaseName,
 	}
 }
@@ -45,7 +45,7 @@ func (r *ReconcileMobileSecurityServiceDB) hasAppConfigMap(m *mobilesecurityserv
 func (r *ReconcileMobileSecurityServiceDB) getDatabaseUserEnvVar(m *mobilesecurityservicev1alpha1.MobileSecurityServiceDB) corev1.EnvVar {
 	if r.hasAppConfigMap(m) {
 		return corev1.EnvVar{
-			Name: "POSTGRES_USER",
+			Name: m.Spec.DatabaseUserParam,
 			ValueFrom: &corev1.EnvVarSource{
 				ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 					LocalObjectReference: corev1.LocalObjectReference{
@@ -58,7 +58,7 @@ func (r *ReconcileMobileSecurityServiceDB) getDatabaseUserEnvVar(m *mobilesecuri
 	}
 
 	return corev1.EnvVar{
-		Name:  "POSTGRES_USER",
+		Name:  m.Spec.DatabaseUserParam,
 		Value: m.Spec.DatabaseUser,
 	}
 }
@@ -66,7 +66,7 @@ func (r *ReconcileMobileSecurityServiceDB) getDatabaseUserEnvVar(m *mobilesecuri
 func (r *ReconcileMobileSecurityServiceDB) getDatabasePasswordEnvVar(m *mobilesecurityservicev1alpha1.MobileSecurityServiceDB) corev1.EnvVar {
 	if r.hasAppConfigMap(m) {
 		return corev1.EnvVar{
-			Name: "POSTGRES_PASSWORD",
+			Name: m.Spec.DatabasePasswordParam,
 			ValueFrom: &corev1.EnvVarSource{
 				ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 					LocalObjectReference: corev1.LocalObjectReference{
@@ -79,7 +79,7 @@ func (r *ReconcileMobileSecurityServiceDB) getDatabasePasswordEnvVar(m *mobilese
 	}
 
 	return corev1.EnvVar{
-		Name:  "POSTGRES_PASSWORD",
+		Name:  m.Spec.DatabasePasswordParam,
 		Value: m.Spec.DatabasePassword,
 	}
 }
