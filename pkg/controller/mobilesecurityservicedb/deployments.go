@@ -60,28 +60,11 @@ func (r *ReconcileMobileSecurityServiceDB) buildDBDeployment(m *mobilesecurityse
 								MountPath: "/var/lib/pgsql/data",
 							},
 						},
-						ReadinessProbe: &corev1.Probe{
-							Handler: corev1.Handler{
-								Exec: &corev1.ExecAction{
-									Command: []string{
-										"pg_isready",
-										"-h",
-										"localhost",
-										"-U",
-										m.Spec.DatabaseUser,
-									},
-								},
-							},
-							InitialDelaySeconds: 5,
-							TimeoutSeconds:      1,
-						},
 						LivenessProbe: &corev1.Probe{
 							Handler: corev1.Handler{
 								Exec: &corev1.ExecAction{
 									Command: []string{
 										"pg_isready",
-										"-h",
-										"localhost",
 										"-U",
 										m.Spec.DatabaseUser,
 									},

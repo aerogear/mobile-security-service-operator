@@ -5,13 +5,18 @@ metadata:
   namespace: mobile-security-service-operator
 spec:
   size: 1
-  image: "postgres:9.6"
+  # The imaged used in this project is from Red Hat. See more in https://docs.okd.io/latest/using_images/db_images/postgresql.html
+  image: "centos/postgresql-96-centos7"
   containerName: "database"
   # Following the default values for the Env Variables which will be created by the operator
   # for the Mobile Security Service Database deployment
   databaseName: "mobile_security_service"
   databasePassword: "postgres"
   databaseUser: "postgresql"
+  # Following are the args which will be used as the key label for the environment variable of the database image.
+  databaseNameParam: "POSTGRESQL_DATABASE"
+  databasePasswordParam: "POSTGRESQL_PASSWORD"
+  databaseUserParam: "POSTGRESQL_USER"
   databasePort: 5432
   databaseMemoryLimit: "512Mi"
   databaseMemoryRequest: "512Mi"
