@@ -162,6 +162,10 @@ $ oc create rolebinding developer-mobile-security-service-operator --role=mobile
 $ oc create rolebinding developer-mobile-security-service --role=mobile-security-service --user=<user>
 ----
 
+=== Database image and parameters
+
+The database image and its parameters as their default values are configurable and specified by the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml[MobileSecurityServiceDB CR].
+
 == Development
 
 === Architecture
@@ -299,6 +303,8 @@ $ make build
 $ make publish
 ----
 
+NOTE: You need be logged in the docker and have access to publish images on it. Use `$ docker login`.
+
 ==== Dev tags
 
 The dev tags will allow you test locally the changes performed in the project without affect the tag published into the https://hub.docker.com/r/aerogear/mobile-security-service-operator[Docker Hub] based on the master branch. The following commands will build the project and publish it with the tag which will be <version>-dev.
@@ -308,6 +314,8 @@ The dev tags will allow you test locally the changes performed in the project wi
 $ make build-dev
 $ make publish-dev
 ----
+
+NOTE: You need be logged in the docker and have access to publish images on it. Use `$ docker login`.
 
 === Using the dev tags
 
