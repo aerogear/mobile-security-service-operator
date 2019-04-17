@@ -1,10 +1,10 @@
 package v1alpha1
 
 import (
-	"k8s.io/api/core/v1"
+	routev1 "github.com/openshift/api/route/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	routev1 "github.com/openshift/api/route/v1"
 )
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
@@ -29,17 +29,17 @@ type MobileSecurityServiceSpec struct {
 	AccessControlAllowCredentials string `json:"accessControlAllowCredentials"`
 
 	//CR mandatory configuration values
-	Size                          int32  `json:"size"`
-	Image                         string `json:"image"`
-	ContainerName                 string `json:"containerName"`
-	ClusterProtocol               string `json:"clusterProtocol"`
-	MemoryLimit                   string `json:"memoryLimit"`
-	MemoryRequest                 string `json:"memoryRequest"`
+	Size            int32  `json:"size"`
+	Image           string `json:"image"`
+	ContainerName   string `json:"containerName"`
+	ClusterProtocol string `json:"clusterProtocol"`
+	MemoryLimit     string `json:"memoryLimit"`
+	MemoryRequest   string `json:"memoryRequest"`
+	OAuthPort       int32  `json:"oAuthPort"`
 
 	//CR optional configuration values
-	ConfigMapName                 string `json:"configMapName,omitempty"`
-	RouteName                     string `json:"routeName,omitempty"`
-
+	ConfigMapName string `json:"configMapName,omitempty"`
+	RouteName     string `json:"routeName,omitempty"`
 }
 
 // MobileSecurityServiceStatus defines the observed state of MobileSecurityService
@@ -48,14 +48,14 @@ type MobileSecurityServiceStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
-	ConfigMapName string `json:"configMapName"`
-	DeploymentName string `json:"deploymentName"`
+	ConfigMapName    string                   `json:"configMapName"`
+	DeploymentName   string                   `json:"deploymentName"`
 	DeploymentStatus v1beta1.DeploymentStatus `json:"deploymentStatus"`
-	ServiceName string `json:"serviceName"`
-	ServiceStatus v1.ServiceStatus `json:"serviceStatus"`
-	RouteName string `json:"routeName"`
-	RouteStatus routev1.RouteStatus `json:"routeStatus"`
-	AppStatus string `json:"appStatus"`
+	ServiceName      string                   `json:"serviceName"`
+	ServiceStatus    v1.ServiceStatus         `json:"serviceStatus"`
+	RouteName        string                   `json:"routeName"`
+	RouteStatus      routev1.RouteStatus      `json:"routeStatus"`
+	AppStatus        string                   `json:"appStatus"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

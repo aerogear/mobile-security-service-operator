@@ -6,6 +6,7 @@ ifdef::env-github[]
 :caution-caption: :fire:
 :warning-caption: :warning:
 :table-caption!:
+:namespace: mobile-security-service-operator
 endif::[]
 
 :toc:
@@ -26,7 +27,7 @@ toc::[]
 
 == Overview
 
-A https://commons.openshift.org/sig/OpenshiftOperators.html[Operator] based on the https://github.com/operator-framework/operator-sdk[Operator SDK] to run the https://github.com/aerogear/mobile-security-service[Mobile Security Service] on a OpenShift/Kubernetes cluster.
+An https://commons.openshift.org/sig/OpenshiftOperators.html[Operator] based on the https://github.com/operator-framework/operator-sdk[Operator SDK] to run the https://github.com/aerogear/mobile-security-service[Mobile Security Service] protected by https://github.com/openshift/oauth-proxy[OAuth] on a OpenShift cluster.
 
 image::https://user-images.githubusercontent.com/7708031/55628052-9ad02d00-57a7-11e9-8a53-f1d5c845358a.png[Create Server,align="center"]
 
@@ -125,22 +126,26 @@ Use the following command to delete the Operator, the Service and its Database a
 $ make delete-all
 ----
 
-IMPORTANT: To create all you need be logged as admin. Use `oc login -u system:admin`.
+== Configuration and Options
 
-== Configurations and Options
+=== Oauth Configration
+
+An Oauth Proxy container and the required configuration will be setup by default by the operator to provide authentication to the Mobile Security Service.
+
+NOTE: The route name which is specified in link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService CR] is also referenced in the link:./deploy/service_account.yaml[Service Account]. The Route Name specified in the Service Account needs to match the route name provided by the CR, otherwise authentication and routing will not work correctly.
 
 === Environment Variables and ConfigMap
 
-The environment variables are used to configure the https://github.com/aerogear/mobile-security-service[Mobile Security Service] Application and Database. For a further understatement over its configuration see https://github.com/aerogear/mobile-security-service#setup-and-configurations[Setup and Configurations] section in https://github.com/aerogear/mobile-security-service[Mobile Security Service README].
+Environment Variables are used to configure the https://github.com/aerogear/mobile-security-service[Mobile Security Service] Application and Database. For further information on configuration see the https://github.com/aerogear/mobile-security-service#setup-and-configurations[Setup and Configuration] section.
 
 NOTE:
 
-* All values used in the default configuration came from the config-map which is managed and created by the Operator. This config map will be created in the Operator namespace and its name is defined by the attribute `configMapName` in the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService CR].
-* If the name of this ConfigMap be not specified then the name of the Mobile Security Service instance will be used instead of.
+* All values used in the default configuration are sourced from the config-map which is managed and created by the Operator. This config map will be created in the Operator namespace and its name is defined by the attribute `configMapName` in the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService CR].
+* If the name of this ConfigMap is not specified then the name of the Mobile Security Service instance will be used instead.
 
-=== Role for no-privilege users are able to create the Mobile Security Service App, Database and/or Bind and Unbind their apps
+=== Configure roles for no-priveledge users
 
-By executing the following commands you will create roles in the cluster which will allow the <user> create the Mobile Security Service Application and Database in their namespaces. In this would not be required be the system:admin. However, the Mobile Security Service Operator is cluster scoped and will still only accessible for the `system admin users.
+By executing the following commands you will create the requred roles which allow the <user> to create the Mobile Security Service Application and Database in their namespaces so it is not required to be logged in to the system:admin user. However, the Mobile Security Service Operator is cluster scoped and will still only accessible to the system:admin user.
 
 [source,shell]
 ----
@@ -157,15 +162,15 @@ NOTE: To run the project locally export the ENV VAR. E.g `export APP_NAMESPACES=
 
 === Database image and parameters
 
-The database image and its parameters as their default values are configurable and specified by the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml[MobileSecurityServiceDB CR].
+The database image and its parameters and their default values are configurable and specified by the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml[MobileSecurityServiceDB CR].
 
 == Development
 
 === Architecture
 
-This operator is `cluster-scoped`. To know more over it see the topic https://github.com/operator-framework/operator-sdk/blob/master/doc/user-guide.md#operator-scope[Operator Scope] in the Operator Framework documentation. Also, check its roles in link:./deploy/[Deploy] directory.
+This operator is `cluster-scoped`. For further information see the https://github.com/operator-framework/operator-sdk/blob/master/doc/user-guide.md#operator-scope[Operator Scope] section in the Operator Framework documentation. Also, check its roles in link:./deploy/[Deploy] directory.
 
-NOTE: The operator, application and database will be installed in the namespace `mobile-security-service-operator` which will be created by this project.
+NOTE: The operator, application and database will be installed in the namespace `{namespace}` which will be created by this project.
 
 ==== CRD Definitions
 
@@ -249,7 +254,7 @@ The following command will install the operator in the cluster and run the chang
 $ make run-local
 ----
 
-IMPORTANT: The local changes are applied when the command `operator-sdk up local --namespace=mobile-security-service-operator` is executed then it is not a hot deploy and to get the latest changes you need re-run the command.
+IMPORTANT: The local changes are applied when the command `operator-sdk up local --namespace={namespace}` is executed then it is not a hot deploy and to get the latest changes you need re-run the command.
 
 
 === Debugging
@@ -353,10 +358,10 @@ NOTE: The image/tag used from https://github.com/aerogear/mobile-security-servic
 
 |===
 | *Command*                        | *Description*
-| `make create-all`                | Create mobile-security-service-operator namespace, operator, service and roles.
-| `make delete-all`                | Delete mobile-security-service-operator namespace, operator, service and roles.
-| `make create-oper`               | Create mobile-security-service namespace, operator and roles.
-| `make delete-oper`               | Delete mobile-security-service namespace, operator and roles.
+| `make create-all`                | Create {namespace} namespace, operator, service and roles.
+| `make delete-all`                | Delete {namespace} namespace, operator, service and roles.
+| `make create-oper`               | Create {namespace}  namespace, operator and roles.
+| `make delete-oper`               | Delete {namespace}  namespace, operator and roles.
 | `make create-service-and-db`     | Create Mobile Security Service App and its database in the project.
 | `make create-service-only`       | Create Mobile Security Service App without its database.
 | `make delete-service-and-db`     | Delete Mobile Security Service App and its database.
