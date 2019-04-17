@@ -13,6 +13,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 	"sigs.k8s.io/controller-runtime/pkg/source"
+	"time"
 )
 
 var log = logf.Log.WithName("controller_mobilesecurityservicedb")
@@ -146,6 +147,9 @@ func (r *ReconcileMobileSecurityServiceDB) Reconcile(request reconcile.Request) 
 	//Check if Deployment for the app exist, if not create one
 	deployment, err := r.fetchDBDeployment(reqLogger, instance)
 	if err != nil {
+		// To give time for the mobile security service CRD controller create the configMap which will be used for both.
+		// If the configMap be not found it will created with the default values specified in its CR for the env variables
+		time.Sleep(5 * time.Second)
 		return r.create(instance, reqLogger, DEEPLOYMENT, err)
 	}
 

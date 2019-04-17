@@ -35,7 +35,7 @@ func (r *ReconcileMobileSecurityServiceDB) getDatabaseNameEnvVar(m *mobilesecuri
 //Check if has App Config Map created
 func (r *ReconcileMobileSecurityServiceDB) hasAppConfigMap(m *mobilesecurityservicev1alpha1.MobileSecurityServiceDB) bool {
 	configMap := &corev1.ConfigMap{}
-	err := r.client.Get(context.TODO(), types.NamespacedName{Name: "mobile-security-service-app", Namespace: m.Namespace}, configMap)
+	err := r.client.Get(context.TODO(), types.NamespacedName{Name: m.Spec.ConfigMapName, Namespace: m.Namespace}, configMap)
 	if err != nil {
 		return false
 	}

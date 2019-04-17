@@ -8,11 +8,6 @@ spec:
   # The imaged used in this project is from Red Hat. See more in https://docs.okd.io/latest/using_images/db_images/postgresql.html
   image: "centos/postgresql-96-centos7"
   containerName: "database"
-  # Following the default values for the Env Variables which will be created by the operator
-  # for the Mobile Security Service Database deployment
-  databaseName: "mobile_security_service"
-  databasePassword: "postgres"
-  databaseUser: "postgresql"
   # Following are the args which will be used as the key label for the environment variable of the database image.
   databaseNameParam: "POSTGRESQL_DATABASE"
   databasePasswordParam: "POSTGRESQL_PASSWORD"
@@ -21,6 +16,12 @@ spec:
   databaseMemoryLimit: "512Mi"
   databaseMemoryRequest: "512Mi"
   databaseStorageRequest: "1Gi"
+  # Following the default values for the Env Variables which will be created by the operator
+  # for the Mobile Security Service Database deployment.
+  # This values will be used if the ConfigMap created and used by the Mobile Security Service be not found
+  databaseName: "mobile_security_service"
+  databasePassword: "postgres"
+  databaseUser: "postgresql"
   # The configMapName define the configMap which should be used in order to
   # get the values of the Env Variables created by the Mobile Security Service Database deployment,
   # However, if this ConfigMap be not found the default values defined above will be used instead of
