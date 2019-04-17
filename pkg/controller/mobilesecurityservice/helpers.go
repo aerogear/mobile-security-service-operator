@@ -1,6 +1,8 @@
 package mobilesecurityservice
 
 import (
+	"fmt"
+
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"github.com/go-logr/logr"
@@ -43,6 +45,25 @@ func getAppEnvVarsMap(m *mobilesecurityservicev1alpha1.MobileSecurityService) ma
 		"PGDATABASE":                       m.Spec.DatabaseName,
 		"PGPASSWORD":                       m.Spec.DatabasePassword,
 		"PGUSER":                           m.Spec.DatabaseUser,
+	}
+}
+
+// getOAuthArgsMap is a helper to get the []string with values required/used to set OAuth for the Mobile Security Service Project
+func getOAuthArgsMap(m *mobilesecurityservicev1alpha1.MobileSecurityService) []string {
+	return []string{
+		"--http-address=0.0.0.0:4180",
+		"--https-address=",
+		"--provider=openshift",
+		"--openshift-service-account=mobile-security-service-operator",
+		"--upstream=http://localhost:3000",
+		fmt.Sprintf("--openshift-sar=[{\"namespace\":\"%s\",\"resource\":\"services\",\"name\":\"%s\",\"verb\":\"get\"}]", m.Namespace, m.Name),
+		"--cookie-secure=true",
+		"--cookie-secret=SECRET",
+		"--cookie-httponly=false",
+		"--bypass-auth-for=/api/init",
+		"--bypass-auth-for=/api/healthz",
+		"--bypass-auth-for=/api/ping",
+		"--pass-user-headers=true",
 	}
 }
 
