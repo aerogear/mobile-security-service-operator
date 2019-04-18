@@ -149,7 +149,7 @@ func (r *ReconcileMobileSecurityServiceDB) Reconcile(request reconcile.Request) 
 	if err != nil {
 		// To give time for the mobile security service CRD controller create the configMap which will be used for both.
 		// If the configMap be not found it will created with the default values specified in its CR for the env variables
-		time.Sleep(5 * time.Second)
+		time.Sleep(10 * time.Second)
 		return r.create(instance, reqLogger, DEEPLOYMENT, err)
 	}
 
