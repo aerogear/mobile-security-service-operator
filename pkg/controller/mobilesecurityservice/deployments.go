@@ -60,11 +60,11 @@ func (r *ReconcileMobileSecurityService) buildAppDeployment(m *mobilesecurityser
 									Scheme: corev1.URISchemeHTTP,
 								},
 							},
-							InitialDelaySeconds: 10,
-							FailureThreshold:    3,
-							TimeoutSeconds:      10,
-							PeriodSeconds:       10,
-							SuccessThreshold:    1,
+							FailureThreshold: 3,
+							InitialDelaySeconds: 5,
+							PeriodSeconds: 10,
+							TimeoutSeconds:      1,
+							SuccessThreshold: 1,
 						},
 						LivenessProbe: &corev1.Probe{
 							Handler: corev1.Handler{
@@ -77,11 +77,11 @@ func (r *ReconcileMobileSecurityService) buildAppDeployment(m *mobilesecurityser
 									Scheme: corev1.URISchemeHTTP,
 								},
 							},
-							InitialDelaySeconds: 10,
-							FailureThreshold:    3,
+							FailureThreshold: 3,
+							InitialDelaySeconds: 120,
+							PeriodSeconds: 10,
 							TimeoutSeconds:      10,
-							PeriodSeconds:       10,
-							SuccessThreshold:    1,
+							SuccessThreshold: 1,
 						},
 						Resources: corev1.ResourceRequirements{
 							Limits: corev1.ResourceList{
