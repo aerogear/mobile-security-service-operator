@@ -1,4 +1,4 @@
-package mobilesecurityservicebind
+package mobilesecurityserviceapp
 
 import (
 	"encoding/json"
@@ -12,7 +12,7 @@ const SDK  = "-sdk"
 // Returns an string map with the labels which wil be associated to the kubernetes/openshift objects
 // which will be created and managed by this operator
 func getAppLabels(name string) map[string]string {
-	return map[string]string{"app": "mobilesecurityservice", "mobilesecurityservicebind_cr": name}
+	return map[string]string{"app": "mobilesecurityservice", "mobilesecurityserviceapp_cr": name}
 }
 
 //To transform the object into a string with its json
@@ -22,7 +22,7 @@ func getSdkConfigStringJsonFormat(sdk *models.SDKConfig) string{
 }
 
 // return properties for the response SDK
-func getConfigMapSDKForMobileSecurityService(m *mobilesecurityservicev1alpha1.MobileSecurityServiceBind) map[string]string {
+func getConfigMapSDKForMobileSecurityService(m *mobilesecurityservicev1alpha1.MobileSecurityServiceApp) map[string]string {
 	sdk := models.NewSDKConfig(m)
 	return map[string]string{
 		"SDKConfig": getSdkConfigStringJsonFormat(sdk),
@@ -30,7 +30,7 @@ func getConfigMapSDKForMobileSecurityService(m *mobilesecurityservicev1alpha1.Mo
 }
 
 // return properties for the response SDK
-func getConfigMapName(m *mobilesecurityservicev1alpha1.MobileSecurityServiceBind) string {
+func getConfigMapName(m *mobilesecurityservicev1alpha1.MobileSecurityServiceApp) string {
 	return m.Spec.AppName + SDK
 }
 
@@ -40,15 +40,15 @@ func hasApp(app models.App) bool {
 }
 
 //Check if the mandatory specs are filled
-func hasSpecs(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceBind, reqLogger logr.Logger) bool {
+func hasSpecs(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, reqLogger logr.Logger) bool {
 	//Check if the cluster host was added in the CR
 	if len(instance.Spec.ClusterHost) < 1 || instance.Spec.ClusterHost == "{{clusterHost}}" {
-		reqLogger.Info( "Cluster Host IP was not found. Check the Bind CR configuration or ignore if the object was deleted")
+		reqLogger.Info( "Cluster Host IP was not found. Check the App CR configuration or ignore if the object was deleted")
 		return false
 	}
 
 	if len(instance.Spec.AppId) < 1 {
-		reqLogger.Info("AppID was not found. Check the Bind CR configuration or ignore if the object was deleted")
+		reqLogger.Info("AppID was not found. Check the App CR configuration or ignore if the object was deleted")
 		return false
 	}
 	return true

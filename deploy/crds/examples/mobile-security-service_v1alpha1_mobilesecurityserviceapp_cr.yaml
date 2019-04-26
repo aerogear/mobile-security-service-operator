@@ -1,7 +1,7 @@
 apiVersion: mobile-security-service.aerogear.com/v1alpha1
-kind: MobileSecurityServiceBind
+kind: MobileSecurityServiceApp
 metadata:
-  name: mobile-security-service-bind
+  name: mobile-security-service-app
 spec:
   # The following data will be used to do requests using the ingress/route created for the Mobile Security Service App
   # NOTE:

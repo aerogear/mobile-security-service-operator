@@ -19,7 +19,7 @@ type SDKConfigService struct{
 	ConfigService         ConfigService `json:"config,omitempty"`
 }
 
-func NewSDKConfigServices(m *mobilesecurityservicev1alpha1.MobileSecurityServiceBind) *SDKConfigService {
+func NewSDKConfigServices(m *mobilesecurityservicev1alpha1.MobileSecurityServiceApp) *SDKConfigService {
 	service := new(SDKConfigService)
 	service.ID = ID
 	service.Name = Name

@@ -14,9 +14,6 @@ import (
 func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
 	return map[string]common.OpenAPIDefinition{
 		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityService":             schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityService(ref),
-		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceBind":         schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceBind(ref),
-		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceBindSpec":     schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceBindSpec(ref),
-		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceBindStatus":   schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceBindStatus(ref),
 		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceDB":           schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceDB(ref),
 		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceDBSpec":       schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceDBSpec(ref),
 		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceDBStatus":     schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceDBStatus(ref),
@@ -68,127 +65,6 @@ func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityService(ref co
 		},
 		Dependencies: []string{
 			"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceSpec", "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
-	}
-}
-
-func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceBind(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Description: "MobileSecurityServiceBind is the Schema for the mobilesecurityservicebinds API",
-				Properties: map[string]spec.Schema{
-					"kind": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"apiVersion": {
-						SchemaProps: spec.SchemaProps{
-							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"metadata": {
-						SchemaProps: spec.SchemaProps{
-							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
-						},
-					},
-					"spec": {
-						SchemaProps: spec.SchemaProps{
-							Ref: ref("github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceBindSpec"),
-						},
-					},
-					"status": {
-						SchemaProps: spec.SchemaProps{
-							Ref: ref("github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceBindStatus"),
-						},
-					},
-				},
-			},
-		},
-		Dependencies: []string{
-			"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceBindSpec", "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceBindStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
-	}
-}
-
-func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceBindSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Description: "MobileSecurityServiceBindSpec defines the desired state of MobileSecurityServiceBind",
-				Properties: map[string]spec.Schema{
-					"size": {
-						SchemaProps: spec.SchemaProps{
-							Description: "INSERT ADDITIONAL SPEC FIELDS - desired state of cluster Important: Run \"operator-sdk generate k8s\" to regenerate code after modifying this file Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html",
-							Type:        []string{"integer"},
-							Format:      "int32",
-						},
-					},
-					"clusterHost": {
-						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
-						},
-					},
-					"hostSufix": {
-						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
-						},
-					},
-					"protocol": {
-						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
-						},
-					},
-					"appName": {
-						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
-						},
-					},
-					"appId": {
-						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
-						},
-					},
-				},
-				Required: []string{"size", "clusterHost", "hostSufix", "protocol", "appName", "appId"},
-			},
-		},
-		Dependencies: []string{},
-	}
-}
-
-func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceBindStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Description: "MobileSecurityServiceBindStatus defines the observed state of MobileSecurityServiceBind",
-				Properties: map[string]spec.Schema{
-					"configMap": {
-						SchemaProps: spec.SchemaProps{
-							Description: "INSERT ADDITIONAL STATUS FIELD - define observed state of cluster Important: Run \"operator-sdk generate k8s\" to regenerate code after modifying this file Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"bind": {
-						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
-						},
-					},
-				},
-				Required: []string{"configMap", "bind"},
-			},
-		},
-		Dependencies: []string{},
 	}
 }
 

@@ -13,7 +13,7 @@ type SDKConfig struct{
 	Services              []SDKConfigService `json:"services,omitempty"`
 }
 
-func NewSDKConfig(m *mobilesecurityservicev1alpha1.MobileSecurityServiceBind) *SDKConfig {
+func NewSDKConfig(m *mobilesecurityservicev1alpha1.MobileSecurityServiceApp) *SDKConfig {
 
 	cfg := new(SDKConfig)
 	cfg.Version = "1.0.0"
@@ -26,7 +26,7 @@ func NewSDKConfig(m *mobilesecurityservicev1alpha1.MobileSecurityServiceBind) *S
 }
 
 //return the Service data for the SDK ConfigMap
-func getServices(m *mobilesecurityservicev1alpha1.MobileSecurityServiceBind) []SDKConfigService{
+func getServices(m *mobilesecurityservicev1alpha1.MobileSecurityServiceApp) []SDKConfigService{
 	service := *NewSDKConfigServices(m)
 	res := []SDKConfigService{}
 	res = append(res, service)
