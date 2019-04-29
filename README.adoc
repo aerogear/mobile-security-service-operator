@@ -303,8 +303,8 @@ Run the following commands
 +
 [source,shell]
 ----
-$ make build
-$ make publish
+$ make build-release
+$ make push-release
 ----
 
 NOTE: You need be logged in the docker and have access to publish images on it. Use `$ docker login`.
@@ -316,7 +316,7 @@ The dev tags will allow you test locally the changes performed in the project wi
 [source,shell]
 ----
 $ make build-dev
-$ make publish-dev
+$ make push-dev
 ----
 
 NOTE: You need be logged in the docker and have access to publish images on it. Use `$ docker login`.
@@ -349,10 +349,12 @@ NOTE: The image/tag used from https://github.com/aerogear/mobile-security-servic
 | `make delete-db-only`         | Delete Mobile Security Service Database only
 | `make create-app`             | Create the Bind CR and delete the Unbind CR examples. (Create/Update app in the Service and add SKD ConfigMap)
 | `make unbind`                 | Delete the Bind CR and create Unbind CR examples. (Delete app from the Service and SDKConfigMap)
-| `make build`                  | Build operator with its tag
-| `make publish`                | Publish operator in https://hub.docker.com/[Docker Hub] with its tag
 | `make build-dev`              | Build operator for development proposes
-| `make publish-dev`            | Publish operator in https://hub.docker.com/[Docker Hub] for development proposes
+| `make push-dev`               | Publish operator in https://hub.docker.com/[Docker Hub] for development proposes
+| `make build-master`           | Build operator with the tag `master`
+| `make push-master`            | Publish operator in https://hub.docker.com/[Docker Hub] with the tag `master`
+| `make build-release`          | Build operator tagged with the operator version
+| `make push-release`           | Publish operator in https://hub.docker.com/[Docker Hub] with the operator version
 | `make run-local`              | Run the operator locally for development purposes
 | `make vet`                    | Examines source code and reports suspicious constructs using https://golang.org/cmd/vet/[vet]
 | `make fmt`                    | Formats code using https://golang.org/cmd/gofmt/[gofmt]

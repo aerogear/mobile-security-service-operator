@@ -121,7 +121,6 @@ create-service:
 	kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
 	kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
 
-
 .PHONY: create-service-only
 create-service-only:
 	@echo Creating Mobile Security Service App only:
@@ -156,12 +155,12 @@ build-dev:
 .PHONY: build-master
 build-master:
 	@echo Building operator with the tag $(DOCKER_MASTER_TAG):
-	docker build -t $(DOCKER_MASTER_TAG) --build-arg BINARY=$(BINARY_LINUX_64) .
+	operator-sdk build $(DOCKER_MASTER_TAG)
 
 .PHONY: build-release
 build-release:
-	@echo Building operator with the tags $(DOCKER_LATEST_TAG) $(DOCKER_RELEASE_TAG):
-	docker build -t $(DOCKER_LATEST_TAG) -t $(DOCKER_RELEASE_TAG) --build-arg BINARY=$(BINARY_LINUX_64) .
+	@echo Building operator with the tag $(DOCKER_RELEASE_TAG):
+	operator-sdk build $(DOCKER_RELEASE_TAG)
 	
 .PHONY: push-dev
 publish-dev:
