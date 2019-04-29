@@ -1,4 +1,4 @@
-package mobilesecurityservicebind
+package mobilesecurityserviceapp
 
 import (
 	"context"
@@ -10,18 +10,18 @@ import (
 )
 
 //updateSDKConfigMapStatus returns error when status regards the ConfigMap resource could not be updated
-func (r *ReconcileMobileSecurityServiceBind) updateSDKConfigMapStatus(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceBind) (*corev1.ConfigMap, error) {
-	reqLogger.Info("Updating SDKConfigMap Status for the MobileSecurityServiceBind")
+func (r *ReconcileMobileSecurityServiceApp) updateSDKConfigMapStatus(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp) (*corev1.ConfigMap, error) {
+	reqLogger.Info("Updating SDKConfigMap Status for the MobileSecurityServiceApp")
 	SDKConfigMapStatus, err := r.fetchSDKConfigMap(reqLogger, instance)
 	if err != nil {
-		reqLogger.Error(err, "Failed to get SDKConfigMap for Status", "MobileSecurityServiceBind.Namespace", instance.Namespace, "MobileSecurityServiceBind.Name", instance.Name)
+		reqLogger.Error(err, "Failed to get SDKConfigMap for Status", "MobileSecurityServiceApp.Namespace", instance.Namespace, "MobileSecurityServiceApp.Name", instance.Name)
 		return SDKConfigMapStatus, err
 	}
 	if !reflect.DeepEqual(SDKConfigMapStatus.Name, instance.Status.SDKConfigMapName) {
 		instance.Status.SDKConfigMapName = SDKConfigMapStatus.Name
 		err := r.client.Status().Update(context.TODO(), instance)
 		if err != nil {
-			reqLogger.Error(err, "Failed to update SDKConfigMap Status for the MobileSecurityServiceBind")
+			reqLogger.Error(err, "Failed to update SDKConfigMap Status for the MobileSecurityServiceApp")
 			return SDKConfigMapStatus, err
 		}
 	}
@@ -29,16 +29,16 @@ func (r *ReconcileMobileSecurityServiceBind) updateSDKConfigMapStatus(reqLogger 
 }
 
 //updateAppStatus returns error when status regards the all required resources could not be updated
-func (r *ReconcileMobileSecurityServiceBind) updateBindStatus(reqLogger logr.Logger, SDKConfigMapStatus *corev1.ConfigMap, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceBind) error {
-	reqLogger.Info("Updating Bind App Status for the MobileSecurityServiceBind")
+func (r *ReconcileMobileSecurityServiceApp) updateBindStatus(reqLogger logr.Logger, SDKConfigMapStatus *corev1.ConfigMap, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp) error {
+	reqLogger.Info("Updating Bind App Status for the MobileSecurityServiceApp")
 	app, err := fetchBindAppRestServiceByAppID(instance, reqLogger)
 	if err != nil {
-		reqLogger.Error(err, "Failed to get App for Status", "MobileSecurityServiceBind.Namespace", instance.Namespace, "MobileSecurityServiceBind.Name", instance.Name)
+		reqLogger.Error(err, "Failed to get App for Status", "MobileSecurityServiceApp.Namespace", instance.Namespace, "MobileSecurityServiceApp.Name", instance.Name)
 		return err
 	}
 	if len(SDKConfigMapStatus.UID) < 1 && !hasApp(app) {
 		err := fmt.Errorf("Failed to get OK Status for MobileSecurityService Bind.")
-		reqLogger.Error(err, "One of the resources are not created", "MobileSecurityServiceBind.Namespace", instance.Namespace, "MobileSecurityServiceBind.Name", instance.Name)
+		reqLogger.Error(err, "One of the resources are not created", "MobileSecurityServiceApp.Namespace", instance.Namespace, "MobileSecurityServiceApp.Name", instance.Name)
 		return err
 	}
 	status:= "OK"

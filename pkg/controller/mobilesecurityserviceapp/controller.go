@@ -1,4 +1,4 @@
-package mobilesecurityservicebind
+package mobilesecurityserviceapp
 
 import (
 	"context"
@@ -17,11 +17,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
-var log = logf.Log.WithName("controller_mobilesecurityservicebind")
+var log = logf.Log.WithName("controller_mobilesecurityserviceapp")
 
 const CONFIGMAP = "ConfigMap"
 
-// Add creates a new MobileSecurityServiceBind Controller and adds it to the Manager. The Manager will set fields on the Controller
+// Add creates a new MobileSecurityServiceApp Controller and adds it to the Manager. The Manager will set fields on the Controller
 // and Start it when the Manager is Started.
 func Add(mgr manager.Manager) error {
 	return add(mgr, newReconciler(mgr))
@@ -29,19 +29,19 @@ func Add(mgr manager.Manager) error {
 
 // newReconciler returns a new reconcile.Reconciler
 func newReconciler(mgr manager.Manager) reconcile.Reconciler {
-	return &ReconcileMobileSecurityServiceBind{client: mgr.GetClient(), scheme: mgr.GetScheme()}
+	return &ReconcileMobileSecurityServiceApp{client: mgr.GetClient(), scheme: mgr.GetScheme()}
 }
 
 // add adds a new Controller to mgr with r as the reconcile.Reconciler
 func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	// Create a new controller
-	c, err := controller.New("mobilesecurityservicebind-controller", mgr, controller.Options{Reconciler: r})
+	c, err := controller.New("mobilesecurityserviceapp-controller", mgr, controller.Options{Reconciler: r})
 	if err != nil {
 		return err
 	}
 
-	// Watch for changes to primary resource MobileSecurityServiceBind
-	err = c.Watch(&source.Kind{Type: &mobilesecurityservicev1alpha1.MobileSecurityServiceBind{}}, &handler.EnqueueRequestForObject{})
+	// Watch for changes to primary resource MobileSecurityServiceApp
+	err = c.Watch(&source.Kind{Type: &mobilesecurityservicev1alpha1.MobileSecurityServiceApp{}}, &handler.EnqueueRequestForObject{})
 	if err != nil {
 		return err
 	}
@@ -55,10 +55,10 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	return nil
 }
 
-var _ reconcile.Reconciler = &ReconcileMobileSecurityServiceBind{}
+var _ reconcile.Reconciler = &ReconcileMobileSecurityServiceApp{}
 
-//ReconcileMobileSecurityServiceBind reconciles a MobileSecurityServiceBind object
-type ReconcileMobileSecurityServiceBind struct {
+//ReconcileMobileSecurityServiceApp reconciles a MobileSecurityServiceApp object
+type ReconcileMobileSecurityServiceApp struct {
 	// This client, initialized using mgr.Client() above, is a split client
 	// that reads objects from the cache and writes to the apiserver
 	client client.Client
@@ -66,7 +66,7 @@ type ReconcileMobileSecurityServiceBind struct {
 }
 
 //Build the object, cluster resource, and add the object in the queue to reconcile
-func (r *ReconcileMobileSecurityServiceBind) create(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceBind, kind string, reqLogger logr.Logger, err error) (reconcile.Result, error) {
+func (r *ReconcileMobileSecurityServiceApp) create(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, kind string, reqLogger logr.Logger, err error) (reconcile.Result, error) {
 	obj, errBuildObject := r.buildFactory(reqLogger, instance, kind)
 	if errBuildObject != nil {
 		return reconcile.Result{}, errBuildObject
@@ -86,27 +86,27 @@ func (r *ReconcileMobileSecurityServiceBind) create(instance *mobilesecurityserv
 }
 
 //buildFactory will return the resource according to the kind defined
-func (r *ReconcileMobileSecurityServiceBind) buildFactory(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceBind, kind string) (runtime.Object, error) {
-	reqLogger.Info("Building Object ", "kind", kind, "MobileSecurityServiceBind.Namespace", instance.Namespace, "MobileSecurityServiceBind.Name", instance.Name)
+func (r *ReconcileMobileSecurityServiceApp) buildFactory(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, kind string) (runtime.Object, error) {
+	reqLogger.Info("Building Object ", "kind", kind, "MobileSecurityServiceApp.Namespace", instance.Namespace, "MobileSecurityServiceApp.Name", instance.Name)
 	switch kind {
 	case CONFIGMAP:
-		return r.buildAppBindSDKConfigMap(instance), nil
+		return r.buildAppSDKConfigMap(instance), nil
 	default:
-		msg := "Failed to recognize type of object" + kind + " into the MobileSecurityServiceBind.Namespace " + instance.Namespace
+		msg := "Failed to recognize type of object" + kind + " into the MobileSecurityServiceApp.Namespace " + instance.Namespace
 		panic(msg)
 	}
 }
 
-// Reconcile reads that state of the cluster for a MobileSecurityServiceBind object and makes changes based on the state read
-// and what is in the MobileSecurityServiceBind.Spec
+// Reconcile reads that state of the cluster for a MobileSecurityServiceApp object and makes changes based on the state read
+// and what is in the MobileSecurityServiceApp.Spec
 // Note:
 // The Controller will create the Request to be processed again if the returned error is non-nil or
 // Result.Requeue is true, otherwise upon completion it will remove the work from the queue.
-func (r *ReconcileMobileSecurityServiceBind) Reconcile(request reconcile.Request) (reconcile.Result, error) {
+func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request) (reconcile.Result, error) {
 	reqLogger := log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
-	reqLogger.Info("Reconciling MobileSecurityServiceBind")
+	reqLogger.Info("Reconciling MobileSecurityServiceApp")
 
-	instance := &mobilesecurityservicev1alpha1.MobileSecurityServiceBind{}
+	instance := &mobilesecurityservicev1alpha1.MobileSecurityServiceApp{}
 
 	//Fetch the MobileSecurityService instance
 	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
@@ -158,6 +158,3 @@ func (r *ReconcileMobileSecurityServiceBind) Reconcile(request reconcile.Request
 
 	return reconcile.Result{}, nil
 }
-
-
-

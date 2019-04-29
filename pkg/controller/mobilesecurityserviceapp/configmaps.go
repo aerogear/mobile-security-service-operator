@@ -1,4 +1,4 @@
-package mobilesecurityservicebind
+package mobilesecurityserviceapp
 
 import (
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
@@ -8,7 +8,7 @@ import (
 )
 
 // Returns the ConfigMap with the properties used to setup/config the Mobile Security Service Project
-func (r *ReconcileMobileSecurityServiceBind) buildAppBindSDKConfigMap(m *mobilesecurityservicev1alpha1.MobileSecurityServiceBind) *corev1.ConfigMap {
+func (r *ReconcileMobileSecurityServiceApp) buildAppSDKConfigMap(m *mobilesecurityservicev1alpha1.MobileSecurityServiceApp) *corev1.ConfigMap {
 	configMap := &corev1.ConfigMap{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "v1",

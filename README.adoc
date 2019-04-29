@@ -86,11 +86,11 @@ $ make create-all
 
 IMPORTANT: To create all you need be logged as admin. Use `oc login -u system:admin`.
 
-=== Binding an app
+=== Create/Binding an app
 
-* Create a link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[MobileSecurityServiceBind CR] as this example.
+* Create a link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml[MobileSecurityServiceApp CR] as this example.
 +
-* The app name and appId need to be specified into the link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[MobileSecurityServiceBind CR] as follows.
+* The app name and appId need to be specified into the link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml[MobileSecurityServiceApp CR] as follows.
 +
 [source,shell]
 ----
@@ -100,13 +100,13 @@ IMPORTANT: To create all you need be logged as admin. Use `oc login -u system:ad
   appId: "appid"
 ----
 +
-IMPORTANT: Do not forget to update the clusterHost into the link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityservicebind_cr.yaml[MobileSecurityServiceBind CR]
+IMPORTANT: Do not forget to update the clusterHost into the link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml[MobileSecurityServiceApp CR]
 +
 * Run the following command to bind the app to the Mobile Security Service
 +
 [source,shell]
 ----
-$ make bind
+$ make create-app
 ----
 
 === Unbinding an app
@@ -180,7 +180,7 @@ NOTE: The operator, application and database will be installed in the namespace 
 | *CustomResourceDefinition*    | *Description*
 | link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml[MobileSecurityService]             | Packages, manages, installs and configures the https://github.com/aerogear/mobile-security-service[Mobile Security Service] on the cluster.
 | link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml[MobileSecurityServiceDB]             | Packages, manages, installs and configures the https://github.com/aerogear/mobile-security-service[Mobile Security Service] Database on the cluster.
-| link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebind_crd.yaml[MobileSecurityServiceBind]             | Creates and update the app in the Service REST API and create the SDK Config Map.
+| link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml[MobileSecurityServiceApp]             | Creates and update the app in the Service REST API and create the SDK Config Map.
 | link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceunbind_crd.yaml[MobileSecurityServiceUnbind]             | Delete the app from the Service REST API.
 |===
 
@@ -205,11 +205,11 @@ NOTE: The operator, application and database will be installed in the namespace 
 | link:./pkg/controller/mobilesecurityservice/services.go[services.go]                   | Define the Service resource of Mobile Security Service Database.
 |===
 
-* *link:./pkg/controller/mobilesecurityservicebind/controller.go[Mobile Security Service Bind]*
+* *link:./pkg/controller/mobilesecurityserviceapp/controller.go[Mobile Security Service App]*
 +
 |===
 | *Resource*    | *Description*
-| link:./pkg/controller/mobilesecurityservicebind/configmaps.go[configmaps.go]           | Define the ConfigMap resources managed by the Bind. It creates the ConfigMap with the config JSON for the SDK and the app by the REST API. Note that each application has our own Bind CR applied.
+| link:./pkg/controller/mobilesecurityserviceapp/configmaps.go[configmaps.go]           | Define the ConfigMap resources managed by the Bind. It creates the ConfigMap with the config JSON for the SDK and the app by the REST API. Note that each application has our own Bind CR applied.
 |===
 
 ==== Status Definition per Types
@@ -240,7 +240,7 @@ NOTE: The operator, application and database will be installed in the namespace 
 | `PersistentVolumeClaimName` | Name of the PersistentVolumeClaimName object created for the Database.
 |===
 
-* link:./pkg/apis/mobilesecurityservice/v1alpha1/mobilesecurityservicebind_types.go[MobileSecurityServiceBind]
+* link:./pkg/apis/mobilesecurityservice/v1alpha1/mobilesecurityserviceapp_types.go[MobileSecurityServiceApp]
 +
 |===
 | *Status*    | *Description*
@@ -341,13 +341,13 @@ NOTE: The image/tag used from https://github.com/aerogear/mobile-security-servic
 | `make delete-all`             | Delete mobile-security-service-operator namespace, operator, service and roles
 | `make create-oper`            | Create mobile-security-service namespace, operator and roles
 | `make delete-oper`            | Delete mobile-security-service namespace, operator and roles
-| `make create-app`             | Create Mobile Security Service App and its database in the project
-| `make create-app-only`        | Create Mobile Security Service App without its database
+| `make create-service`         | Create Mobile Security Service App and its database in the project
+| `make create-service-only`    | Create Mobile Security Service App without its database
 | `make delete-app`             | Delete Mobile Security Service App and its database
 | `make delete-app-only`        | Delete Mobile Security Service App only
 | `make create-db-only`         | Create Mobile Security Service Database without its application
 | `make delete-db-only`         | Delete Mobile Security Service Database only
-| `make bind`                   | Create the Bind CR and delete the Unbind CR examples. (Create/Update app in the Service and add SKD ConfigMap)
+| `make create-app`             | Create the Bind CR and delete the Unbind CR examples. (Create/Update app in the Service and add SKD ConfigMap)
 | `make unbind`                 | Delete the Bind CR and create Unbind CR examples. (Delete app from the Service and SDKConfigMap)
 | `make build`                  | Build operator with its tag
 | `make publish`                | Publish operator in https://hub.docker.com/[Docker Hub] with its tag
