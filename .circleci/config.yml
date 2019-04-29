@@ -18,6 +18,40 @@ jobs:
       - run: make test
       - run: make build_linux
 
+  docker_push_master:
+    working_directory: /go/src/github.com/aerogear/mobile-security-service-operator
+    docker:
+      - image: circleci/golang:1.10
+    steps:
+      - checkout
+      - run: 
+        name: Install dep
+        command: curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+      - run: make setup
+      - setup_remote_docker
+      - run: make build-linux 
+      - run: make build-master
+      - run: make push-master
+
+  docker_release:
+    working_directory: /go/src/github.com/aerogear/mobile-security-service-operator
+    docker:
+      - image: circleci/golang:1.10
+    steps:
+      - checkout
+      - run: 
+        name: Install dep
+        command: curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+      - run: make setup
+      - run: 
+        name: Install goreleaser
+        command: curl -sL https://raw.githubusercontent.com/goreleaser/get/master/get | bash
+      - setup_remote_docker
+      - run: make build-release
+      - run: make push-release
+      - store_artifacts:
+          path: dist
+
 workflows:
   version: 2
   build:
@@ -26,3 +60,18 @@ workflows:
           filters:
             tags:
               only: /.*/
+      - docker_push_master:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - master
+      - docker_release:
+          requires:
+            - build
+          filters:
+            tags:
+              only: /\d{1,2}\.\d{1,2}\.\d{1,2}/
+            branches:
+              ignore: /.*/

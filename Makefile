@@ -12,6 +12,9 @@ TAG= 0.1.0
 DEV= dev
 DOCKER-ORG=aerogear
 DOCKER-REPO=mobile-security-service-operator
+DOCKER_LATEST_TAG=docker.io/$(DOCKER-ORG)/$(DOCKER-REPO):latest
+DOCKER_MASTER_TAG=docker.io/$(DOCKER-ORG)/$(DOCKER-REPO):master
+DOCKER_RELEASE_TAG=docker.io/$(DOCKER-ORG)/$(DOCKER-REPO):$(TAG)
 
 # This follows the output format for goreleaser
 BINARY_LINUX_64 = ./dist/linux_amd64/$(BINARY)
@@ -30,6 +33,13 @@ test:
 	else \
 	  GOCACHE=off go test -cover $(TEST_PKGS); \
 	fi
+
+.PHONY: test-integration-cover
+test-integration-cover:
+	echo "mode: count" > coverage-all.out
+	GOCACHE=off $(foreach pkg,$(PACKAGES),\
+		go test -failfast -tags=integration -coverprofile=coverage.out -covermode=count $(addprefix $(PKG)/,$(pkg)) || exit 1;\
+		tail -n +2 coverage.out >> coverage-all.out;)
 
 .PHONY: build_linux
 build_linux:
@@ -138,27 +148,35 @@ delete-db-only:
 	@echo Deleting Mobile Security Service Database only:
 	kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
 
-.PHONY: build
-build:
-	@echo Building operator with the tag $(TAG):
-	operator-sdk build $(DOCKER-ORG)/$(DOCKER-REPO):$(TAG)
-
-.PHONY: publish
-publish:
-	@echo Publishing operator in $(DOCKER-ORG)/$(DOCKER-REPO) with the tag $(TAG):
-	docker push $(DOCKER-ORG)/$(DOCKER-REPO):$(TAG)
-
-
 .PHONY: build-dev
 build-dev:
 	@echo Buinding operator with the tag $(TAG)-$(DEV):
 	operator-sdk build $(DOCKER-ORG)/$(DOCKER-REPO):$(TAG)-$(DEV)
 
+.PHONY: build-master
+build-master:
+	@echo Building operator with the tag $(DOCKER_MASTER_TAG):
+	docker build -t $(DOCKER_MASTER_TAG) --build-arg BINARY=$(BINARY_LINUX_64) .
 
-.PHONY: publish-dev
+.PHONY: build-release
+build-release:
+	@echo Building operator with the tags $(DOCKER_LATEST_TAG) $(DOCKER_RELEASE_TAG):
+	docker build -t $(DOCKER_LATEST_TAG) -t $(DOCKER_RELEASE_TAG) --build-arg BINARY=$(BINARY_LINUX_64) .
+	
+.PHONY: push-dev
 publish-dev:
 	@echo Publishing operator in $(DOCKER-ORG)/$(DOCKER-REPO) with the tag $(TAG)-$(DEV):
 	docker push $(DOCKER-ORG)/$(DOCKER-REPO):$(TAG)-$(DEV)
+
+.PHONY: push-master
+push-master:
+	@echo Publishing operator in $(DOCKER-ORG)/$(DOCKER-REPO) with the tag master:
+	docker push $(DOCKER_MASTER_TAG)
+
+.PHONY: push-release
+push-release:
+	@echo Publishing operator in $(DOCKER-ORG)/$(DOCKER-REPO) with the tag $(TAG):
+	docker push $(DOCKER_RELEASE_TAG)
 
 .PHONY: vet
 vet:
