@@ -18,7 +18,7 @@ func (r *ReconcileMobileSecurityServiceDB) getDatabaseNameEnvVar(m *mobilesecuri
 			ValueFrom: &corev1.EnvVarSource{
 				ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 					LocalObjectReference: corev1.LocalObjectReference{
-						Name: m.Spec.ConfigMapName,
+						Name: getConfigMapName(m),
 					},
 					Key: "PGDATABASE",
 				},
@@ -35,7 +35,7 @@ func (r *ReconcileMobileSecurityServiceDB) getDatabaseNameEnvVar(m *mobilesecuri
 //Check if has App Config Map created
 func (r *ReconcileMobileSecurityServiceDB) hasAppConfigMap(m *mobilesecurityservicev1alpha1.MobileSecurityServiceDB) bool {
 	configMap := &corev1.ConfigMap{}
-	err := r.client.Get(context.TODO(), types.NamespacedName{Name: m.Spec.ConfigMapName, Namespace: m.Namespace}, configMap)
+	err := r.client.Get(context.TODO(), types.NamespacedName{Name: getConfigMapName(m), Namespace: m.Namespace}, configMap)
 	if err != nil {
 		return false
 	}
@@ -49,7 +49,7 @@ func (r *ReconcileMobileSecurityServiceDB) getDatabaseUserEnvVar(m *mobilesecuri
 			ValueFrom: &corev1.EnvVarSource{
 				ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 					LocalObjectReference: corev1.LocalObjectReference{
-						Name: m.Spec.ConfigMapName,
+						Name: getConfigMapName(m),
 					},
 					Key: "PGUSER",
 				},
@@ -70,7 +70,7 @@ func (r *ReconcileMobileSecurityServiceDB) getDatabasePasswordEnvVar(m *mobilese
 			ValueFrom: &corev1.EnvVarSource{
 				ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 					LocalObjectReference: corev1.LocalObjectReference{
-						Name: m.Spec.ConfigMapName,
+						Name: getConfigMapName(m),
 					},
 					Key: "PGPASSWORD",
 				},
@@ -82,4 +82,12 @@ func (r *ReconcileMobileSecurityServiceDB) getDatabasePasswordEnvVar(m *mobilese
 		Name:  m.Spec.DatabasePasswordParam,
 		Value: m.Spec.DatabasePassword,
 	}
+}
+
+//getConfigMapName returns an string name with the name of the configMap
+func getConfigMapName(m *mobilesecurityservicev1alpha1.MobileSecurityServiceDB) string{
+	if len(m.Spec.ConfigMapName) > 0 {
+		return m.Spec.ConfigMapName
+	}
+	return m.Name
 }

@@ -64,14 +64,32 @@ func (r *ReconcileMobileSecurityServiceDB) buildDBDeployment(m *mobilesecurityse
 							Handler: corev1.Handler{
 								Exec: &corev1.ExecAction{
 									Command: []string{
-										"pg_isready",
-										"-U",
-										m.Spec.DatabaseUser,
+										"/usr/libexec/check-container",
+										"'--live'",
 									},
 								},
 							},
+							FailureThreshold: 3,
 							InitialDelaySeconds: 120,
+							PeriodSeconds: 10,
 							TimeoutSeconds:      10,
+							SuccessThreshold: 1,
+
+						},
+						ReadinessProbe: &corev1.Probe{
+							Handler: corev1.Handler{
+								Exec: &corev1.ExecAction{
+									Command: []string{
+										"/usr/libexec/check-container",
+									},
+								},
+							},
+							FailureThreshold: 3,
+							InitialDelaySeconds: 5,
+							PeriodSeconds: 10,
+							TimeoutSeconds:      1,
+							SuccessThreshold: 1,
+
 						},
 						Resources: corev1.ResourceRequirements{
 							Limits: corev1.ResourceList{

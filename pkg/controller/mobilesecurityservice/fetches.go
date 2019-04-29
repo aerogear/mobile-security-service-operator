@@ -52,7 +52,7 @@ func (r *ReconcileMobileSecurityService) fetchAppDeployment(reqLogger logr.Logge
 func (r *ReconcileMobileSecurityService) fetchAppConfigMap(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityService) (*corev1.ConfigMap, error) {
 	reqLogger.Info("Checking if the ConfigMap already exists")
 	configMap := &corev1.ConfigMap{}
-	err := r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Spec.ConfigMapName, Namespace: instance.Namespace}, configMap)
+	err := r.client.Get(context.TODO(), types.NamespacedName{Name: getConfigMapName(instance), Namespace: instance.Namespace}, configMap)
 	return configMap, err
 }
 
