@@ -320,62 +320,41 @@ debug the project using the following Visual Code launch config.
 
 === Publishing a new version
 
-The tags are published into the https://hub.docker.com/r/aerogear/mobile-security-service-operator[Docker Hub].
+To publish a new version of the operator:
 
-==== Master tags
+- bump the version TAG in the link:./Makefile[Makefile].
+- bump the version in the link:./version/version.go[version.go] file.
+- update the version number in the link:./deploy/operator.yaml[operator.yaml].
+- update the link:./CHANGELOG.md[CHANGELOG.md]
+- add a git tag to the commit you wish to build the release from
+- push the tag to github (this will trigger an automated release by the CI)
 
-To publish an new version of this operator based on the master branch following the steps.
+Note: https://semver.org/[Semantic Versioning] should be followed.
 
-* Update the operator tag version
-+
-Replace the tag of the image in the link:./deploy/operator.yaml[operator.yaml] file.
-+
-[source,yaml]
-----
-  # Replace this with the built image name
-  image: aerogear/mobile-security-service-operator:0.1.0
-----
-+
-NOTE: In this example the tag `0.1.0` will be replaced for the new one.
-+
-* Replace the tag in the link:./Makefile[Makefile] file.
-+
-[source,shell]
-----
-TAG=0.1.0
-----
-+
-NOTE: In this example the tag `0.1.0` will be replaced for the new one.
-+
-IMPORTANT: Follow the https://semver.org/[Semantic Versioning] to define the new tags
-+
-* Build and publish the new version tag in Docker Hub
-+
-Run the following commands
-+
-[source,shell]
-----
-$ make build
-$ make publish
-----
+Images for the mobile-security-service-operator are published to https://quay.io/repository/aerogear/mobile-security-service-operator[Quay.io].
 
-NOTE: You need be logged in the docker and have access to publish images on it. Use `$ docker login`.
+==== Automated image publishing
 
-==== Dev tags
+- For every change merged to master a new image with the `master` tag is published
+- For every change merged that has a git tag a new image with the `<operator-version>` and `latest` tags are published
 
-The dev tags will allow you test locally the changes performed in the project without affect the tag published into the https://hub.docker.com/r/aerogear/mobile-security-service-operator[Docker Hub] based on the master branch. The following commands will build the project and publish it with the tag which will be <version>-dev.
+If the image does not get built and pushed automatically the job may be re-run manually via the https://circleci.com/gh/aerogear/mobile-security-service-operator[CI dashboard]. 
+
+==== Dev images
+
+The following commands will build the project and publish it to `quay.io/aerogear/mobile-security-service-operator` with the tag <version>-dev.
 
 [source,shell]
 ----
 $ make build-dev
-$ make publish-dev
+$ make push-dev
 ----
 
-NOTE: You need be logged in the docker and have access to publish images on it. Use `$ docker login`.
+NOTE: You will require `quay.io` credentials and access to publish images to the `quay.io/aerogear` organisation.
 
 === Using the dev tags
 
-Update the image tag in the file link:./deploy/operator.yaml[operator.yaml] with the development tag as follows.
+To use the dev image update the image in the file link:./deploy/operator.yaml[operator.yaml] with the development tag as follows.
 
 [source,yaml]
 ----
@@ -401,10 +380,8 @@ NOTE: The image/tag used from https://github.com/aerogear/mobile-security-servic
 | `make delete-db-only`         | Delete Mobile Security Service Database only
 | `make create-app`             | Create the Bind CR and delete the Unbind CR examples. (Create/Update app in the Service and add SKD ConfigMap)
 | `make unbind`                 | Delete the Bind CR and create Unbind CR examples. (Delete app from the Service and SDKConfigMap)
-| `make build`                  | Build operator with its tag
-| `make publish`                | Publish operator in https://hub.docker.com/[Docker Hub] with its tag
 | `make build-dev`              | Build operator for development proposes
-| `make publish-dev`            | Publish operator in https://hub.docker.com/[Docker Hub] for development proposes
+| `make push-dev`               | Publish operator in https://hub.docker.com/[Docker Hub] for development proposes
 | `make run-local`              | Run the operator locally for development purposes
 | `make debug-setup`            | Setup environment for debug proposes
 | `make vet`                    | Examines source code and reports suspicious constructs using https://golang.org/cmd/vet/[vet]

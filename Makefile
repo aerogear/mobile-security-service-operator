@@ -10,8 +10,13 @@ BIN_DIR := $(GOPATH)/bin
 BINARY ?= mobile-security-service-operator
 TAG= 0.1.0
 DEV= dev
-DOCKER-ORG=aerogear
-DOCKER-REPO=mobile-security-service-operator
+IMAGE_REGISTRY=quay.io
+REGISTRY_ORG=aerogear
+REGISTRY_REPO=mobile-security-service-operator
+IMAGE_DEV_TAG=$(IMAGE_REGISTRY)/$(REGISTRY_ORG)/$(REGISTRY_REPO):$(TAG)-$(DEV)
+IMAGE_LATEST_TAG=$(IMAGE_REGISTRY)/$(REGISTRY_ORG)/$(REGISTRY_REPO):latest
+IMAGE_MASTER_TAG=$(IMAGE_REGISTRY)/$(REGISTRY_ORG)/$(REGISTRY_REPO):master
+IMAGE_RELEASE_TAG=$(IMAGE_REGISTRY)/$(REGISTRY_ORG)/$(REGISTRY_REPO):$(CIRCLE_TAG)
 
 # This follows the output format for goreleaser
 BINARY_LINUX_64 = ./dist/linux_amd64/$(BINARY)
@@ -30,6 +35,13 @@ test:
 	else \
 	  GOCACHE=off go test -cover $(TEST_PKGS); \
 	fi
+
+.PHONY: test-integration-cover
+test-integration-cover:
+	echo "mode: count" > coverage-all.out
+	GOCACHE=off $(foreach pkg,$(PACKAGES),\
+		go test -failfast -tags=integration -coverprofile=coverage.out -covermode=count $(addprefix $(PKG)/,$(pkg)) || exit 1;\
+		tail -n +2 coverage.out >> coverage-all.out;)
 
 .PHONY: build_linux
 build_linux:
@@ -111,7 +123,6 @@ create-service:
 	kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
 	kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
 
-
 .PHONY: create-service-only
 create-service-only:
 	@echo Creating Mobile Security Service App only:
@@ -138,26 +149,49 @@ delete-db-only:
 	@echo Deleting Mobile Security Service Database only:
 	kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
 
-.PHONY: build
-build:
-	@echo Building operator with the tag $(TAG):
-	operator-sdk build $(DOCKER-ORG)/$(DOCKER-REPO):$(TAG)
-
-.PHONY: publish
-publish:
-	@echo Publishing operator in $(DOCKER-ORG)/$(DOCKER-REPO) with the tag $(TAG):
-	docker push $(DOCKER-ORG)/$(DOCKER-REPO):$(TAG)
-
-
 .PHONY: build-dev
 build-dev:
-	@echo Buinding operator with the tag $(TAG)-$(DEV):
-	operator-sdk build $(DOCKER-ORG)/$(DOCKER-REPO):$(TAG)-$(DEV)
+	@echo Building operator with the tag $(IMAGE_DEV_TAG):
+	operator-sdk build $(IMAGE_DEV_TAG)
 
-.PHONY: publish-dev
-publish-dev:
-	@echo Publishing operator in $(DOCKER-ORG)/$(DOCKER-REPO) with the tag $(TAG)-$(DEV):
-	docker push $(DOCKER-ORG)/$(DOCKER-REPO):$(TAG)-$(DEV)
+.PHONY: build-master
+build-master:
+	@echo Building operator with the tag $(IMAGE_MASTER_TAG):
+	operator-sdk build $(IMAGE_MASTER_TAG)
+
+.PHONY: build-release
+build-release:
+	@echo Building operator with the tag $(IMAGE_RELEASE_TAG):
+	operator-sdk build $(IMAGE_RELEASE_TAG)
+
+.PHONY: build-latest
+build-latest:
+	@echo Building operator with the tag $(IMAGE_LATEST_TAG):
+	operator-sdk build $(IMAGE_LATEST_TAG)
+	
+.PHONY: push-dev
+push-dev:
+	@echo Pushing operator with tag $(IMAGE_DEV_TAG) to $(IMAGE_REGISTRY)
+	@docker login quay.io
+	docker push $(IMAGE_DEV_TAG)
+
+.PHONY: push-master
+push-master:
+	@echo Pushing operator with tag $(IMAGE_MASTER_TAG) to $(IMAGE_REGISTRY)
+	@docker login --username $(QUAY_USERNAME) --password $(QUAY_PASSWORD) quay.io
+	docker push $(IMAGE_MASTER_TAG)
+
+.PHONY: push-release
+push-release:
+	@echo Pushing operator with tag $(IMAGE_RELEASE_TAG) to $(IMAGE_REGISTRY)
+	@docker login --username $(QUAY_USERNAME) --password $(QUAY_PASSWORD) quay.io
+	docker push $(IMAGE_RELEASE_TAG)
+
+.PHONY: push-latest
+push-latest:
+	@echo Pushing operator with tag $(IMAGE_LATEST_TAG) to $(IMAGE_REGISTRY)
+	@docker login --username $(QUAY_USERNAME) --password $(QUAY_PASSWORD) quay.io
+	docker push $(IMAGE_LATEST_TAG)
 
 .PHONY: debug-setup
 debug-setup:
