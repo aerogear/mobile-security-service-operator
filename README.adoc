@@ -47,7 +47,7 @@ By the following commands you will create a local directory and clone this proje
 
 [source,shell]
 ----
-$ git clone git@github.com:aerogear/mobile-security-service.git $GOPATH/src/github.com/aerogear/mobile-security-service-operator
+$ git clone git@github.com:aerogear/mobile-security-service-operator.git $GOPATH/src/github.com/aerogear/mobile-security-service-operator
 ----
 
 === Minishift installation and setup
