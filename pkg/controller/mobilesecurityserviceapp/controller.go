@@ -108,7 +108,7 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 
 	instance := &mobilesecurityservicev1alpha1.MobileSecurityServiceApp{}
 
-	//Fetch the MobileSecurityService instance
+	//Fetch the MobileSecurityServiceApp instance
 	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
 	if err != nil {
 		return fetch(r, reqLogger, err)

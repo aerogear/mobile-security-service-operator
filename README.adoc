@@ -170,7 +170,7 @@ The database image and its parameters as their default values are configurable a
 
 === Architecture
 
-This operator is `cluster-scoped`. To know more over it see the topic https://github.com/operator-framework/operator-sdk/blob/master/doc/user-guide.md#operator-scope[Operator Scope] in the Operator Framework documentation. Also, check its roles in link:./deploy/[Deploy] directory.
+This operator is `namespace-scoped`. To know more over it see the topic https://github.com/operator-framework/operator-sdk/blob/master/doc/user-guide.md#operator-scope[Operator Scope] in the Operator Framework documentation. Also, check its roles in link:./deploy/[Deploy] directory.
 
 NOTE: The operator, application and database will be installed in the namespace `mobile-security-service-operator` which will be created by this project.
 

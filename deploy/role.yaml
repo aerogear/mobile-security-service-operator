@@ -1,11 +1,33 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  creationTimestamp: null
-  name: mobile-security-service
+  name: mobile-security-service-operator
+  namespace: mobile-security-service-operator
 rules:
 - apiGroups:
+  - "*"
+  resources:
+  - "*"
+  verbs:
+  - "*"
+- apiGroups:
+  - apps
+  resources:
+  - pods
+  - deployments
+  - daemonsets
+  - replicasets
+  - statefulsets
+  - serviceaccounts
+  - configmaps
+  - rolebindings
+  - routes
+  - oauthclients
+  verbs:
+  - "*"
+- apiGroups:
   - mobile-security-service.aerogear.com
+  - "*"
   resources:
   - pods
   - services
@@ -17,22 +39,13 @@ rules:
   - mobilesecurityserviceunbinds
   - mobilesecurityserviceapps
   verbs:
-  - '*'
+  - "*"
 - apiGroups:
-  - ""
+  - oauth.openshift.io
   resources:
-  - namespaces
+  - oauthclients
   verbs:
-  - get
-- apiGroups:
-  - apps
-  resources:
-  - deployments
-  - daemonsets
-  - replicasets
-  - statefulsets
-  verbs:
-  - '*'
+  - "*"
 - apiGroups:
   - monitoring.coreos.com
   resources:
@@ -43,11 +56,23 @@ rules:
 - apiGroups:
   - apps
   resourceNames:
+  - mobile-security-service-operator
   - mobile-security-service-app
   - mobile-security-service-db
-  - mobile-security-service-app
   - mobile-security-service-unbind
   resources:
   - deployments/finalizers
   verbs:
+  - update
+- apiGroups:
+  - mobile-security-service.aerogear.com
+  resources:
   - '*'
+  verbs:
+  - '*'
+- apiGroups:
+  - route.openshift.io
+  resources:
+  - routes
+  verbs:
+  - "*"
