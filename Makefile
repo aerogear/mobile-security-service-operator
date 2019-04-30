@@ -154,11 +154,23 @@ build-dev:
 	@echo Buinding operator with the tag $(TAG)-$(DEV):
 	operator-sdk build $(DOCKER-ORG)/$(DOCKER-REPO):$(TAG)-$(DEV)
 
-
 .PHONY: publish-dev
 publish-dev:
 	@echo Publishing operator in $(DOCKER-ORG)/$(DOCKER-REPO) with the tag $(TAG)-$(DEV):
 	docker push $(DOCKER-ORG)/$(DOCKER-REPO):$(TAG)-$(DEV)
+
+.PHONY: debug-setup
+debug-setup:
+	@echo Exporting WATCH_NAMESPACE=default:
+	- export WATCH_NAMESPACE=default
+	@echo Create Namespace:
+	- kubectl create namespace mobile-security-service-operator
+	@echo Installing the CRD:
+	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
+	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
+	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml
+	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceunbind_crd.yaml
+	- kubectl create -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml
 
 .PHONY: vet
 vet:

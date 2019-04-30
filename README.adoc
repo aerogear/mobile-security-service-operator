@@ -86,7 +86,7 @@ $ make create-all
 
 IMPORTANT: To create all you need be logged as admin. Use `oc login -u system:admin`.
 
-=== Create/Binding an app
+=== Creating/Binding an app
 
 * Create a link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml[MobileSecurityServiceApp CR] as this example.
 +
@@ -266,6 +266,58 @@ $ make run-local
 
 IMPORTANT: The local changes are applied when the command `operator-sdk up local --namespace=mobile-security-service-operator` is executed then it is not a hot deploy and to get the latest changes you need re-run the command.
 
+
+=== Debugging
+
+Follow the below steps to debug the project in some IDEs.
+
+NOTE: The code needs to be compiled/built first.
+
+==== IntelliJ IDEA / GoLand
+
+[source,shell]
+----
+$ make debug-setup
+$ cd cmd/manager/
+$ dlv debug --headless --listen=:2345 --api-version=2
+----
+
+Then, debug the project from the IDE by using the default setup of `Go Remote` option.
+
+==== Visual Code
+
+[source,shell]
+----
+$ make debug-setup
+$ dlv --listen=:2345 --headless=true --api-version=2 exec ./build/_output/bin/mobile-security-service-operator-local  --
+----
+
+debug the project using the following Visual Code launch config.
+
+[source,yaml]
+----
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "test",
+            "type": "go",
+            "request": "launch",
+            "mode": "remote",
+            "remotePath": "${workspaceFolder}/cmd/manager/main.go",
+            "port": 2345,
+            "host": "127.0.0.1",
+            "program": "${workspaceFolder}",
+            "env": {},
+            "args": []
+        }
+    ]
+}
+----
+
 === Publishing a new version
 
 The tags are published into the https://hub.docker.com/r/aerogear/mobile-security-service-operator[Docker Hub].
@@ -354,6 +406,7 @@ NOTE: The image/tag used from https://github.com/aerogear/mobile-security-servic
 | `make build-dev`              | Build operator for development proposes
 | `make publish-dev`            | Publish operator in https://hub.docker.com/[Docker Hub] for development proposes
 | `make run-local`              | Run the operator locally for development purposes
+| `make debug-setup`            | Setup environment for debug proposes
 | `make vet`                    | Examines source code and reports suspicious constructs using https://golang.org/cmd/vet/[vet]
 | `make fmt`                    | Formats code using https://golang.org/cmd/gofmt/[gofmt]
 |===
