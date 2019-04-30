@@ -71,9 +71,9 @@ $ minishift start
 
 === Configuring
 
-Update the cluster host IP into the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService CR]
+Update the cluster hostname into the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService CR]
 
-NOTE: The `clusterHost` will be used to generated the route/ingress source as in the ConfigMap created with the SDK JSON config.
+NOTE: The `clusterHostname` will be used to generated the route/ingress source as in the ConfigMap created with the SDK JSON config.
 
 === Installing
 
@@ -100,7 +100,7 @@ IMPORTANT: To create all you need be logged as admin. Use `oc login -u system:ad
   appId: "appid"
 ----
 +
-IMPORTANT: Do not forget to update the clusterHost into the link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml[MobileSecurityServiceApp CR]
+IMPORTANT: Do not forget to update the clusterHostname into the link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml[MobileSecurityServiceApp CR]
 +
 * Run the following command to bind the app to the Mobile Security Service
 +
@@ -120,7 +120,7 @@ $ make create-app
   appId: "appid"
 ----
 +
-IMPORTANT: Do not forget to update the clusterHost into the link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceunbind_cr.yaml[MobileSecurityServiceUnbind CR]
+IMPORTANT: Do not forget to update the clusterHostname into the link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceunbind_cr.yaml[MobileSecurityServiceUnbind CR]
 +
 * Run the following command to unbind the app from the service
 +

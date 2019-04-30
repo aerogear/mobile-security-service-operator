@@ -130,7 +130,7 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 		if hasApp(app) && app.AppName != instance.Spec.AppName {
 			app.AppName = instance.Spec.AppName
 			//Check if App was update with success
-			if err := service.UpdateAppNameByRestAPI(instance.Spec.Protocol, instance.Spec.ClusterHost, instance.Spec.HostSufix, app, reqLogger); err != nil {
+			if err := service.UpdateAppNameByRestAPI(instance.Spec.Protocol, instance.Spec.ClusterHostname, instance.Spec.HostSufix, app, reqLogger); err != nil {
 				return reconcile.Result{}, err
 			}
 			return reconcile.Result{Requeue: true}, nil
@@ -138,7 +138,7 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 		// Bind App in the Service by the REST API
 		if !hasApp(app) {
 			newApp := models.NewApp(instance.Spec.AppName, instance.Spec.AppId)
-			if err := service.CreateAppByRestAPI(instance.Spec.Protocol, instance.Spec.ClusterHost, instance.Spec.HostSufix, newApp, reqLogger); err != nil {
+			if err := service.CreateAppByRestAPI(instance.Spec.Protocol, instance.Spec.ClusterHostname, instance.Spec.HostSufix, newApp, reqLogger); err != nil {
 				return reconcile.Result{}, err
 			}
 			return reconcile.Result{Requeue: true}, nil

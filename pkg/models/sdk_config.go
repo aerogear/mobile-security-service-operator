@@ -20,7 +20,7 @@ func NewSDKConfig(m *mobilesecurityservicev1alpha1.MobileSecurityServiceApp) *SD
 	cfg.Name = m.Spec.AppName
 	cfg.ClientID = m.Spec.AppId
 	cfg.Namespace = m.Namespace
-	cfg.Host = m.Spec.ClusterHost
+	cfg.Host = m.Spec.ClusterHostname
 	cfg.Services = getServices(m)
 	return cfg
 }

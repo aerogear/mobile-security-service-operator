@@ -79,7 +79,7 @@ func (r *ReconcileMobileSecurityServiceUnbind) Reconcile(request reconcile.Reque
 	//Check if App is UnBind in the REST Service, if not then unbind it
 	if app, err := fetchBindAppRestServiceByAppID(instance, reqLogger); err == nil {
 		if hasApp(app) {
-			if err := service.DeleteAppFromServiceByRestAPI(instance.Spec.Protocol, instance.Spec.ClusterHost, instance.Spec.HostSufix,  app.ID, reqLogger); err != nil {
+			if err := service.DeleteAppFromServiceByRestAPI(instance.Spec.Protocol, instance.Spec.ClusterHostname, instance.Spec.HostSufix,  app.ID, reqLogger); err != nil {
 				reqLogger.Error(err, "Failed to delete unbind app with id", "App.id",  app.ID)
 				return reconcile.Result{}, err
 			}

@@ -25,9 +25,9 @@ spec:
   # The following data will be used to create the ingress/route in the namespace where the Mobile Security Service App
   # will be deployed.
   # NOTE:
-  # - Replace "{{clusterHost}}" for your cluster HOST. E.g 192.168.64.9
+  # - Replace "{{clusterHostname}}" for your cluster HOST. E.g 192.168.64.9
   # - You can use "$ oc status | grep server" or "kubectl cluster-info" to get this cluster info
-  clusterHost: "{{clusterHost}}"
+  clusterHostname: "{{clusterHostname}}"
   # The hostSufix will be used to created the route/ingress
   protocol: "http"
   hostSufix: ".nip.io"

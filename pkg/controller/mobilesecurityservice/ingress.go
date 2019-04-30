@@ -30,7 +30,7 @@ func (r *ReconcileMobileSecurityService) buildAppIngress(m *mobilesecurityservic
 			},
 			Rules: []v1beta1.IngressRule{
 				{
-					Host: utils.GetAppIngress(m.Spec.ClusterHost, m.Spec.HostSufix),
+					Host: utils.GetAppIngress(m.Spec.ClusterHostname, m.Spec.HostSufix),
 					IngressRuleValue: v1beta1.IngressRuleValue{
 						HTTP: &v1beta1.HTTPIngressRuleValue{
 							Paths: []v1beta1.HTTPIngressPath{

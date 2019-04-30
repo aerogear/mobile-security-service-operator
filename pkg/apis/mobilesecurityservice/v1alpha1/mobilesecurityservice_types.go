@@ -29,7 +29,7 @@ type MobileSecurityServiceSpec struct {
 	LogFormat                     string `json:"logFormat,omitempty"`
 	AccessControlAllowOrigin      string `json:"accessControlAllowOrigin"`
 	AccessControlAllowCredentials string `json:"accessControlAllowCredentials"`
-	ClusterHost                   string `json:"clusterHost"`
+	ClusterHostname               string `json:"clusterHostname"`
 	HostSufix                     string `json:"hostSufix"`
 	Protocol                      string `json:"protocol"`
 	ConfigMapName                 string `json:"configMapName,omitempty"`
