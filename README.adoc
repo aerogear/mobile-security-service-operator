@@ -69,12 +69,6 @@ $ minishift config set insecure-registry 172.30.0.0/16
 $ minishift start
 ----
 
-=== Configuring
-
-Update the cluster host IP into the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService CR]
-
-NOTE: The `clusterHost` will be used to generated the route/ingress source as in the ConfigMap created with the SDK JSON config.
-
 === Installing
 
 Use the following command to create the Operator, Service and its Database as apply the roles on the cluster.
@@ -100,8 +94,6 @@ IMPORTANT: To create all you need be logged as admin. Use `oc login -u system:ad
   appId: "appid"
 ----
 +
-IMPORTANT: Do not forget to update the clusterHost into the link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml[MobileSecurityServiceApp CR]
-+
 * Run the following command to bind the app to the Mobile Security Service
 +
 [source,shell]
@@ -119,8 +111,6 @@ $ make create-app
   # The appId spec defines the appId of the app used to bind the service
   appId: "appid"
 ----
-+
-IMPORTANT: Do not forget to update the clusterHost into the link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceunbind_cr.yaml[MobileSecurityServiceUnbind CR]
 +
 * Run the following command to unbind the app from the service
 +
@@ -150,7 +140,6 @@ NOTE:
 
 * All values used in the default configuration came from the config-map which is managed and created by the Operator. This config map will be created in the Operator namespace and its name is defined by the attribute `configMapName` in the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService CR].
 * If the name of this ConfigMap be not specified then the name of the Mobile Security Service instance will be used instead of.
-* The link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml[MobileSecurityServiceDB] and link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService] should have specified the same name for this ConfigMap in order to allow the App and Database share its usage.
 
 === Role for no-privilege users are able to create the Mobile Security Service App, Database and/or Bind and Unbind their apps
 
@@ -192,7 +181,7 @@ NOTE: The operator, application and database will be installed in the namespace 
 | *Resource*    | *Description*
 | link:./pkg/controller/mobilesecurityservice/configmaps.go[configmaps.go]             | Define the ConfigMap resources required for the Mobile Security Service Application and its Database. It will create the mobile-security-service-app` which map the values used in the Environment Variables of both.
 | link:./pkg/controller/mobilesecurityservice/deployments.go[deployments.go]           | Define the Deployment resource of Mobile Security Service Application. (E.g container and resources definitions)
-| link:./pkg/controller/mobilesecurityservice/ingress.go[ingress.go]                   | Define the route/ingress resource required to allow access to the Mobile Security Service Application.
+| link:./pkg/controller/mobilesecurityservice/route.go[route.go]                       | Define the route resource required to expose the Mobile Security Service (REST Service and UI).
 | link:./pkg/controller/mobilesecurityservice/services.go[services.go]                 | Define the Service resource of Mobile Security Service Application.
 |===
 
@@ -224,8 +213,8 @@ NOTE: The operator, application and database will be installed in the namespace 
 | `deploymentStatus` | Deployment Status from ks8 API. ( https://kubernetes.io/docs/reference/federation/extensions/v1beta1/definitions/#_v1beta1_deploymentstatus[v1beta1.DeploymentStatus] )
 | `serviceName` | Name of the service object created for the App.
 | `serviceStatus` | Deployment Status from ks8 API. ( https://kubernetes.io/docs/reference/federation/v1/definitions/#_v1_servicestatus[v1.ServiceStatus] )
-| `ingressName` | Name of the ingress/route object created for the App.
-| `ingressStatus` | Ingress Status from ks8 API. ( https://kubernetes.io/docs/reference/federation/extensions/v1beta1/definitions/#_v1beta1_ingressstatus[v1beta1.IngressStatus] )
+| `routeName` | Name of the route object created for the App.
+| `routeStatus` | Route Status from OCP API. ( https://docs.openshift.com/container-platform/3.7/rest_api/apis-route.openshift.io/v1.Route.html#object-schema[v1.Route] )
 |===
 
 * link:./pkg/apis/mobilesecurityservice/v1alpha1/mobilesecurityservicedb_types.go[MobileSecurityServiceDB]
@@ -393,7 +382,7 @@ NOTE: The link:./Makefile[Makefile] is implemented with tasks which you should u
 
 == Supportability
 
-This operator was developed using the k8s APIs and should work well in Kubernetes and OpenShift clusters. However, it has been tested on OpenShift clusters only so far.
+This operator was developed using mainly the Kubernetes APIs in order to be compatible with both, however, currently this project requires the usage of the https://docs.openshift.com/container-platform/3.11/rest_api/apis-route.openshift.io/v1.Route.html[v1.Route] to expose the service and https://github.com/openshift/oauth-proxy[OAuth-proxy] for authentication which make it unsupportable for Kubernetes.
 
 == Contributing
 
