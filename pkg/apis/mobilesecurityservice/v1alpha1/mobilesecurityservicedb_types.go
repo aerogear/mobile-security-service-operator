@@ -16,9 +16,8 @@ type MobileSecurityServiceDBSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
-	Size                   int32  `json:"size"`
-	Image                  string `json:"image"`
-	ContainerName          string `json:"containerName"`
+
+	//Enviroment Variables for the DB when the Service configMap was not found
 	DatabaseName           string `json:"databaseName,omitempty"`
 	DatabasePassword       string `json:"databasePassword,omitempty"`
 	DatabaseUser           string `json:"databaseUser,omitempty"`
@@ -26,10 +25,14 @@ type MobileSecurityServiceDBSpec struct {
 	DatabasePasswordParam  string `json:"databasePasswordParam"`
 	DatabaseUserParam      string `json:"databaseUserParam"`
 	DatabasePort           int32  `json:"databasePort"`
+
+	//CR mandatory configuration values
+	Size                   int32  `json:"size"`
+	Image                  string `json:"image"`
+	ContainerName          string `json:"containerName"`
 	DatabaseMemoryLimit    string `json:"databaseMemoryLimit"`
 	DatabaseMemoryRequest  string `json:"databaseMemoryRequest"`
 	DatabaseStorageRequest string `json:"databaseStorageRequest"`
-	ConfigMapName          string `json:"configMapName,omitempty"`
 }
 
 // MobileSecurityServiceDBStatus defines the observed state of MobileSecurityServiceDB

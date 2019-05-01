@@ -204,7 +204,6 @@ debug-setup:
 	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
 	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml
 	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceunbind_crd.yaml
-	- kubectl create -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml
 
 .PHONY: vet
 vet:

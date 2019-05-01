@@ -10,7 +10,7 @@ import (
 )
 
 //Returns the Deployment object for the Mobile Security Service Database
-func (r *ReconcileMobileSecurityServiceDB) buildDBDeployment(m *mobilesecurityservicev1alpha1.MobileSecurityServiceDB) *v1beta1.Deployment {
+func (r *ReconcileMobileSecurityServiceDB) buildDBDeployment(m *mobilesecurityservicev1alpha1.MobileSecurityServiceDB, serviceInstance *mobilesecurityservicev1alpha1.MobileSecurityService) *v1beta1.Deployment {
 	ls := getDBLabels(m.Name)
 	auto := true
 	replicas := m.Spec.Size
@@ -46,9 +46,9 @@ func (r *ReconcileMobileSecurityServiceDB) buildDBDeployment(m *mobilesecurityse
 							Protocol:      "TCP",
 						}},
 						Env: []corev1.EnvVar{
-							r.getDatabaseNameEnvVar(m),
-							r.getDatabaseUserEnvVar(m),
-							r.getDatabasePasswordEnvVar(m),
+							r.getDatabaseNameEnvVar(m, serviceInstance),
+							r.getDatabaseUserEnvVar(m, serviceInstance),
+							r.getDatabasePasswordEnvVar(m, serviceInstance),
 							{
 								Name:  "PGDATA",
 								Value: "/var/lib/pgsql/data/pgdata",

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/models"
+	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"github.com/go-logr/logr"
 )
 
@@ -22,15 +23,15 @@ func getSdkConfigStringJsonFormat(sdk *models.SDKConfig) string{
 }
 
 // return properties for the response SDK
-func getConfigMapSDKForMobileSecurityService(m *mobilesecurityservicev1alpha1.MobileSecurityServiceApp) map[string]string {
-	sdk := models.NewSDKConfig(m)
+func getConfigMapSDKForMobileSecurityService(m *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, serviceURL string) map[string]string {
+	sdk := models.NewSDKConfig(m, serviceURL)
 	return map[string]string{
 		"SDKConfig": getSdkConfigStringJsonFormat(sdk),
 	}
 }
 
 // return properties for the response SDK
-func getConfigMapName(m *mobilesecurityservicev1alpha1.MobileSecurityServiceApp) string {
+func getSDKConfigMapName(m *mobilesecurityservicev1alpha1.MobileSecurityServiceApp) string {
 	return m.Spec.AppName + SDK
 }
 
@@ -40,16 +41,23 @@ func hasApp(app models.App) bool {
 }
 
 //Check if the mandatory specs are filled
-func hasSpecs(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, reqLogger logr.Logger) bool {
-	//Check if the cluster host was added in the CR
-	if len(instance.Spec.ClusterHost) < 1 || instance.Spec.ClusterHost == "{{clusterHost}}" {
-		reqLogger.Info( "Cluster Host IP was not found. Check the App CR configuration or ignore if the object was deleted")
+func hasMandatorySpecs(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, serviceInstance *mobilesecurityservicev1alpha1.MobileSecurityService, reqLogger logr.Logger) bool {
+	//Check if the appId was added in the CR
+	if len(instance.Spec.AppId) < 1 {
+		reqLogger.Info("AppID was not found. Check the App CR configuration.")
 		return false
 	}
 
+	//Check if the appId was added in the CR
 	if len(instance.Spec.AppId) < 1 {
-		reqLogger.Info("AppID was not found. Check the App CR configuration or ignore if the object was deleted")
+		reqLogger.Info("AppName was not found. Check the App CR configuration.")
 		return false
 	}
+
+	//Check the values defined for the ClusterProtocol in the MobileSecurityService CR
+	if res := utils.CheckClusterProtocol(serviceInstance, reqLogger); res != true {
+		return false
+	}
+
 	return true
 }

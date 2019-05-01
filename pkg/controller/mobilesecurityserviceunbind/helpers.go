@@ -13,12 +13,6 @@ func hasApp(app models.App) bool {
 
 //Check if the mandatory specs are filled
 func hasSpecs(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceUnbind, reqLogger logr.Logger) bool {
-	//Check if the cluster host was added in the CR
-	if len(instance.Spec.ClusterHost) < 1 || instance.Spec.ClusterHost == "{{clusterHost}}" {
-		reqLogger.Info( "Cluster Host IP was not found. Check the Unbind CR configuration or ignore if the object was deleted")
-		return false
-	}
-
 	if len(instance.Spec.AppId) < 1 {
 		reqLogger.Info("AppID was not found. Check the Unbind CR configuration or ignore if the object was deleted")
 		return false

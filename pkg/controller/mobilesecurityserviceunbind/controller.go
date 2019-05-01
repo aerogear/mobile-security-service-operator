@@ -5,6 +5,7 @@ import (
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/service"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
@@ -12,6 +13,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 	"sigs.k8s.io/controller-runtime/pkg/source"
+	routev1 "github.com/openshift/api/route/v1"
 )
 
 var log = logf.Log.WithName("controller_mobilesecurityserviceunbind")
@@ -76,10 +78,25 @@ func (r *ReconcileMobileSecurityServiceUnbind) Reconcile(request reconcile.Reque
 		return reconcile.Result{Requeue: true}, nil
 	}
 
+	reqLogger.Info("Checking if the route already exists ...")
+	route := &routev1.Route{}
+	if err := r.client.Get(context.TODO(), types.NamespacedName{Name: "mobile-security-service", Namespace: "mobile-security-service-operator"}, route); err != nil {
+		return reconcile.Result{}, err
+	}
+
+	reqLogger.Info("Checking for service ...")
+	serviceInstance := &mobilesecurityservicev1alpha1.MobileSecurityService{}
+	if err := r.client.Get(context.TODO(), types.NamespacedName{Name: "mobile-security-service", Namespace: "mobile-security-service-operator"}, serviceInstance); err != nil {
+		return reconcile.Result{}, err
+	}
+
+	//Get the REST Service Endpoint
+	serviceAPI := service.GetServiceAPIURL(route, serviceInstance)
+
 	//Check if App is UnBind in the REST Service, if not then unbind it
-	if app, err := fetchBindAppRestServiceByAppID(instance, reqLogger); err == nil {
+	if app, err := fetchBindAppRestServiceByAppID(serviceAPI, instance, reqLogger); err == nil {
 		if hasApp(app) {
-			if err := service.DeleteAppFromServiceByRestAPI(instance.Spec.Protocol, instance.Spec.ClusterHost, instance.Spec.HostSufix,  app.ID, reqLogger); err != nil {
+			if err := service.DeleteAppFromServiceByRestAPI(serviceAPI,  app.ID, reqLogger); err != nil {
 				reqLogger.Error(err, "Failed to delete unbind app with id", "App.id",  app.ID)
 				return reconcile.Result{}, err
 			}
@@ -88,7 +105,7 @@ func (r *ReconcileMobileSecurityServiceUnbind) Reconcile(request reconcile.Reque
 	}
 
 	//Update status for UnBindStatus
-	if err := r.updateUnbindStatus(reqLogger, instance); err != nil {
+	if err := r.updateUnbindStatus(serviceAPI, instance, reqLogger); err != nil {
 		return reconcile.Result{}, err
 	}
 

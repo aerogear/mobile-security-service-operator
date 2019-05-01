@@ -13,12 +13,8 @@ type MobileSecurityServiceAppSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
-	ClusterHost                   string `json:"clusterHost"`
-	HostSufix                     string `json:"hostSufix"`
-	Protocol                      string `json:"protocol"`
 	AppName                       string `json:"appName"`
 	AppId                         string `json:"appId"`
-
 }
 
 // MobileSecurityServiceAppStatus defines the observed state of MobileSecurityServiceApp

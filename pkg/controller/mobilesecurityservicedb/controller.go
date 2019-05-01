@@ -3,9 +3,11 @@ package mobilesecurityservicedb
 import (
 	"context"
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
+	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
@@ -90,8 +92,8 @@ func (r *ReconcileMobileSecurityServiceDB) update( obj runtime.Object, reqLogger
 }
 
 //Create the object and reconcile it
-func (r *ReconcileMobileSecurityServiceDB) create(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceDB, reqLogger logr.Logger, kind string, err error) (reconcile.Result, error) {
-	obj, errBuildObject := r.buildFactory(reqLogger, instance, kind)
+func (r *ReconcileMobileSecurityServiceDB) create(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceDB, serviceInstance *mobilesecurityservicev1alpha1.MobileSecurityService, kind string, reqLogger logr.Logger, err error) (reconcile.Result, error) {
+	obj, errBuildObject := r.buildFactory(instance, serviceInstance, kind, reqLogger)
 	if errBuildObject != nil {
 		return reconcile.Result{}, errBuildObject
 	}
@@ -110,13 +112,13 @@ func (r *ReconcileMobileSecurityServiceDB) create(instance *mobilesecurityservic
 }
 
 //buildFactory will return the resource according to the kind defined
-func (r *ReconcileMobileSecurityServiceDB) buildFactory(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceDB, kind string) (runtime.Object, error) {
+func (r *ReconcileMobileSecurityServiceDB) buildFactory(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceDB, serviceInstance *mobilesecurityservicev1alpha1.MobileSecurityService, kind string, reqLogger logr.Logger) (runtime.Object, error) {
 	reqLogger.Info("Check "+kind, "into the namespace", instance.Namespace)
 	switch kind {
 	case PVC:
 		return r.buildPVCForDB(instance), nil
 	case DEEPLOYMENT:
-		return r.buildDBDeployment(instance), nil
+		return r.buildDBDeployment(instance,serviceInstance), nil
 	case SERVICE:
 		return r.buildDBService(instance), nil
 	default:
@@ -124,8 +126,6 @@ func (r *ReconcileMobileSecurityServiceDB) buildFactory(reqLogger logr.Logger, i
 		panic(msg)
 	}
 }
-
-
 
 // Reconcile reads that state of the cluster for a MobileSecurityServiceDB object and makes changes based on the state read
 // and what is in the MobileSecurityServiceDB.Spec
@@ -147,10 +147,16 @@ func (r *ReconcileMobileSecurityServiceDB) Reconcile(request reconcile.Request) 
 	//Check if Deployment for the app exist, if not create one
 	deployment, err := r.fetchDBDeployment(reqLogger, instance)
 	if err != nil {
-		// To give time for the mobile security service CRD controller create the configMap which will be used for both.
-		// If the configMap be not found it will created with the default values specified in its CR for the env variables
-		time.Sleep(10 * time.Second)
-		return r.create(instance, reqLogger, DEEPLOYMENT, err)
+		// To give time for the mobile security service be created
+		time.Sleep(30 * time.Second)
+
+		reqLogger.Info("Checking for service instance ...")
+		serviceInstance := &mobilesecurityservicev1alpha1.MobileSecurityService{}
+		if err := r.client.Get(context.TODO(), types.NamespacedName{Name: utils.SERVICE_INSTANCE_NAME, Namespace: utils.SERVICE_INSTANCE_NAMESPACE }, serviceInstance); err != nil {
+			return reconcile.Result{}, err
+		}
+
+		return r.create(instance, serviceInstance, DEEPLOYMENT, reqLogger, err)
 	}
 
 	//Ensure the deployment size is the same as the spec
@@ -163,12 +169,12 @@ func (r *ReconcileMobileSecurityServiceDB) Reconcile(request reconcile.Request) 
 
 	//Check if Service for the app exist, if not create one
 	if _, err := r.fetchDBService(reqLogger, instance); err != nil {
-		return r.create(instance, reqLogger, SERVICE, err)
+		return r.create(instance, nil, SERVICE, reqLogger, err)
 	}
 
 	//Check if PersistentVolumeClaim for the app exist, if not create one
 	if _, err := r.fetchDBPersistentVolumeClaim(reqLogger, instance); err != nil {
-		return r.create(instance, reqLogger, PVC, err)
+		return r.create(instance, nil, PVC, reqLogger, err)
 	}
 
 	//Update status for deployment

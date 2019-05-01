@@ -19,7 +19,7 @@ const (
 	CONFIGMAP     = "ConfigMap"
 	DEEPLOYMENT   = "Deployment"
 	SERVICE       = "Service"
-	INGRESS       = "Ingress"
+	ROUTE         = "Route"
 )
 
 var log = logf.Log.WithName("controller_mobilesecurityservice")
@@ -66,8 +66,8 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 		return err
 	}
 
-	//Ingress
-	if err:= watchIngress(c); err != nil {
+	//Route
+	if err:= watchRoute(c); err != nil {
 		return err
 	}
 
@@ -121,13 +121,13 @@ func (r *ReconcileMobileSecurityService) buildFactory(reqLogger logr.Logger, ins
 	reqLogger.Info("Check "+kind, "into the namespace", instance.Namespace)
 	switch kind {
 	case CONFIGMAP:
-		return r.buildAppConfigMap(instance), nil
+		return r.buildConfigMap(instance), nil
 	case DEEPLOYMENT:
-		return r.buildAppDeployment(instance), nil
+		return r.buildDeployment(instance), nil
 	case SERVICE:
-		return r.buildAppService(instance), nil
-	case INGRESS:
-		return r.buildAppIngress(instance), nil
+		return r.buildService(instance), nil
+	case ROUTE:
+		return r.buildRoute(instance), nil
 	default:
 		msg := "Failed to recognize type of object" + kind + " into the Namespace " + instance.Namespace
 		panic(msg)
@@ -143,7 +143,7 @@ func (r *ReconcileMobileSecurityService) buildFactory(reqLogger logr.Logger, ins
 // Result.Requeue is true, otherwise upon completion it will remove the work from the queue.
 func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (reconcile.Result, error) {
 	reqLogger := log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
-	reqLogger.Info("Reconciling Mobile Security Service App")
+	reqLogger.Info("Reconciling Mobile Security Service")
 
 	instance := &mobilesecurityservicev1alpha1.MobileSecurityService{}
 
@@ -153,13 +153,18 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 		return fetch(r, reqLogger, err)
 	}
 
+	//Check specs
+	if !hasMandatorySpecs(instance, reqLogger) {
+		return reconcile.Result{Requeue: true}, nil
+	}
+
 	//Check if ConfigMap for the app exist, if not create one.
-	if _, err := r.fetchAppConfigMap(reqLogger, instance); err != nil {
+	if _, err := r.fetchConfigMap(reqLogger, instance); err != nil {
 		return r.create(instance, reqLogger, CONFIGMAP, err)
 	}
 
 	//Check if Deployment for the app exist, if not create one
-	deployment, err := r.fetchAppDeployment(reqLogger, instance)
+	deployment, err := r.fetchDeployment(reqLogger, instance)
 	if err != nil {
 		return r.create(instance, reqLogger, DEEPLOYMENT, err)
 	}
@@ -172,13 +177,13 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 	}
 
 	//Check if Service for the app exist, if not create one
-	if _, err := r.fetchAppService(reqLogger, instance); err != nil {
+	if _, err := r.fetchService(reqLogger, instance); err != nil {
 		return r.create(instance, reqLogger, SERVICE, err)
 	}
 
-	//Check if Ingress for the app exist, if not create one
-	if _, err := r.fetchAppIngress(reqLogger, instance); err != nil {
-		return r.create(instance, reqLogger, INGRESS, err)
+	//Check if Route for the Service exist, if not create one
+	if _, err := r.fetchRoute(reqLogger, instance); err != nil {
+		return r.create(instance, reqLogger, ROUTE, err)
 	}
 
 	//Update status for ConfigMap
@@ -199,14 +204,14 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 		return reconcile.Result{}, err
 	}
 
-	//Update status for ingress
-	ingressStatus, err := r.updateIngressStatus(reqLogger, instance)
+	//Update status for Route
+	routeStatus, err := r.updateRouteStatus(reqLogger, instance)
 	if err != nil {
 		return reconcile.Result{}, err
 	}
 
 	//Update status for App
-	if err:= r.updateAppStatus(reqLogger, configMapStatus, deploymentStatus, serviceStatus, ingressStatus, instance); err != nil {
+	if err:= r.updateStatus(reqLogger, configMapStatus, deploymentStatus, serviceStatus, routeStatus, instance); err != nil {
 		return reconcile.Result{}, err
 	}
 

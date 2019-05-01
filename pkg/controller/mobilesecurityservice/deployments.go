@@ -10,8 +10,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
-//buildAppDeployment returns the Deployment object using as image the MobileSecurityService App ( UI + REST API)
-func (r *ReconcileMobileSecurityService) buildAppDeployment(m *mobilesecurityservicev1alpha1.MobileSecurityService) *v1beta1.Deployment {
+//buildDeployment returns the Deployment object using as image the MobileSecurityService App ( UI + REST API)
+func (r *ReconcileMobileSecurityService) buildDeployment(m *mobilesecurityservicev1alpha1.MobileSecurityService) *v1beta1.Deployment {
 	ls := getAppLabels(m.Name)
 	replicas := m.Spec.Size
 	envinronment := buildAppEnvVars(m)

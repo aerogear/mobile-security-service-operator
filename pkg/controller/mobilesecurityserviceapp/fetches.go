@@ -29,11 +29,11 @@ func fetch(r *ReconcileMobileSecurityServiceApp, reqLogger logr.Logger, err erro
 func (r *ReconcileMobileSecurityServiceApp) fetchSDKConfigMap(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp) (*corev1.ConfigMap, error) {
 	reqLogger.Info("Checking if the ConfigMap already exists")
 	configMap := &corev1.ConfigMap{}
-	err := r.client.Get(context.TODO(), types.NamespacedName{Name: getConfigMapName(instance), Namespace: instance.Namespace}, configMap)
+	err := r.client.Get(context.TODO(), types.NamespacedName{Name: getSDKConfigMapName(instance), Namespace: instance.Namespace}, configMap)
 	return configMap, err
 }
 
 //fetchBindAppRestServiceByAppID return app struct from Mobile Security Service Project/REST API or error
-func fetchBindAppRestServiceByAppID(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, reqLogger logr.Logger) (models.App, error){
-	return service.GetAppFromServiceByRestApi(instance.Spec.Protocol, instance.Spec.ClusterHost, instance.Spec.HostSufix, instance.Spec.AppId, reqLogger)
+func fetchBindAppRestServiceByAppID(serviceURL string, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, reqLogger logr.Logger) (models.App, error){
+	return service.GetAppFromServiceByRestApi(serviceURL, instance.Spec.AppId, reqLogger)
 }
