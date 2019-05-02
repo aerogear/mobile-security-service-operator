@@ -29,9 +29,9 @@ func (r *ReconcileMobileSecurityServiceApp) updateSDKConfigMapStatus(reqLogger l
 }
 
 //updateAppStatus returns error when status regards the all required resources could not be updated
-func (r *ReconcileMobileSecurityServiceApp) updateBindStatus(reqLogger logr.Logger, SDKConfigMapStatus *corev1.ConfigMap, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp) error {
+func (r *ReconcileMobileSecurityServiceApp) updateBindStatus(serviceURL string,reqLogger logr.Logger, SDKConfigMapStatus *corev1.ConfigMap, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp) error {
 	reqLogger.Info("Updating Bind App Status for the MobileSecurityServiceApp")
-	app, err := fetchBindAppRestServiceByAppID(instance, reqLogger)
+	app, err := fetchBindAppRestServiceByAppID(serviceURL, instance, reqLogger)
 	if err != nil {
 		reqLogger.Error(err, "Failed to get App for Status", "MobileSecurityServiceApp.Namespace", instance.Namespace, "MobileSecurityServiceApp.Name", instance.Name)
 		return err

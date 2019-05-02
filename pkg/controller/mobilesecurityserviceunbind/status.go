@@ -9,9 +9,9 @@ import (
 )
 
 //updateAppStatus returns error when status regards the all required resources could not be updated
-func (r *ReconcileMobileSecurityServiceUnbind) updateUnbindStatus(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceUnbind) error {
+func (r *ReconcileMobileSecurityServiceUnbind) updateUnbindStatus(serviceAPI string, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceUnbind, reqLogger logr.Logger) error {
 	reqLogger.Info("Updating Unbind App Status for the MobileSecurityServiceUnbind")
-	if app, err := fetchBindAppRestServiceByAppID(instance, reqLogger);  err != nil || hasApp(app){
+	if app, err := fetchBindAppRestServiceByAppID(serviceAPI, instance, reqLogger);  err != nil || hasApp(app){
 		if hasApp(app) {
 			err := fmt.Errorf("App was found in the REST Service API")
 			reqLogger.Error(err, "Failed to update Unbind App status", "App.appId", instance.Spec.AppId)

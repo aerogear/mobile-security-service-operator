@@ -22,8 +22,4 @@ spec:
   databaseName: "mobile_security_service"
   databasePassword: "postgres"
   databaseUser: "postgresql"
-  # The configMapName define the configMap which should be used in order to
-  # get the values of the Env Variables created by the Mobile Security Service Database deployment,
-  # However, if this ConfigMap be not found the default values defined above will be used instead of
-  # IMPORTANT: The configMapName should be the same specified in the Mobile Security Service CR
-  configMapName: "mss-config"
+

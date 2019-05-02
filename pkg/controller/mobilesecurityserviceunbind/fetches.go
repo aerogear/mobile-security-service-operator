@@ -23,6 +23,6 @@ func fetch(r *ReconcileMobileSecurityServiceUnbind, reqLogger logr.Logger, err e
 }
 
 //fetchBindAppRestServiceByAppID return app struct from Mobile Security Service Project/REST API or error
-func fetchBindAppRestServiceByAppID(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceUnbind, reqLogger logr.Logger) (models.App, error){
-	return service.GetAppFromServiceByRestApi(instance.Spec.Protocol, instance.Spec.ClusterHost, instance.Spec.HostSufix, instance.Spec.AppId, reqLogger)
+func fetchBindAppRestServiceByAppID(serviceAPI string, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceUnbind, reqLogger logr.Logger) (models.App, error){
+	return service.GetAppFromServiceByRestApi(serviceAPI, instance.Spec.AppId, reqLogger)
 }

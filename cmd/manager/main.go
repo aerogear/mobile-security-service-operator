@@ -10,6 +10,7 @@ import (
 	"github.com/aerogear/mobile-security-service-operator/pkg/apis"
 	"github.com/aerogear/mobile-security-service-operator/pkg/controller"
 
+	routev1 "github.com/openshift/api/route/v1"
 	"github.com/operator-framework/operator-sdk/pkg/leader"
 	"github.com/operator-framework/operator-sdk/pkg/log/zap"
 	"github.com/operator-framework/operator-sdk/pkg/metrics"
@@ -75,8 +76,9 @@ func main() {
 	}
 
 	// Create a new Cmd to provide shared dependencies and start components
-	mgr, err := manager.New(cfg, manager.Options{Namespace: ""}) // TO WATCH ALL NAMESPACES
-
+	mgr, err := manager.New(cfg, manager.Options{
+		Namespace:          "",
+	})
 	if err != nil {
 		log.Error(err, "")
 		os.Exit(1)
@@ -86,6 +88,12 @@ func main() {
 
 	// Setup Scheme for all resources
 	if err := apis.AddToScheme(mgr.GetScheme()); err != nil {
+		log.Error(err, "")
+		os.Exit(1)
+	}
+
+	//Add route scheme
+	if err := routev1.AddToScheme(mgr.GetScheme()); err != nil {
 		log.Error(err, "")
 		os.Exit(1)
 	}

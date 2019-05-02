@@ -5,9 +5,11 @@ import (
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/models"
 	"github.com/aerogear/mobile-security-service-operator/pkg/service"
+	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
@@ -15,6 +17,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 	"sigs.k8s.io/controller-runtime/pkg/source"
+	routev1 "github.com/openshift/api/route/v1"
 )
 
 var log = logf.Log.WithName("controller_mobilesecurityserviceapp")
@@ -66,8 +69,8 @@ type ReconcileMobileSecurityServiceApp struct {
 }
 
 //Build the object, cluster resource, and add the object in the queue to reconcile
-func (r *ReconcileMobileSecurityServiceApp) create(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, kind string, reqLogger logr.Logger, err error) (reconcile.Result, error) {
-	obj, errBuildObject := r.buildFactory(reqLogger, instance, kind)
+func (r *ReconcileMobileSecurityServiceApp) create(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, kind string, serviceURL string, reqLogger logr.Logger, err error) (reconcile.Result, error) {
+	obj, errBuildObject := r.buildFactory(reqLogger, instance, kind, serviceURL)
 	if errBuildObject != nil {
 		return reconcile.Result{}, errBuildObject
 	}
@@ -86,11 +89,11 @@ func (r *ReconcileMobileSecurityServiceApp) create(instance *mobilesecurityservi
 }
 
 //buildFactory will return the resource according to the kind defined
-func (r *ReconcileMobileSecurityServiceApp) buildFactory(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, kind string) (runtime.Object, error) {
+func (r *ReconcileMobileSecurityServiceApp) buildFactory(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, kind string, serviceURL string) (runtime.Object, error) {
 	reqLogger.Info("Building Object ", "kind", kind, "MobileSecurityServiceApp.Namespace", instance.Namespace, "MobileSecurityServiceApp.Name", instance.Name)
 	switch kind {
 	case CONFIGMAP:
-		return r.buildAppSDKConfigMap(instance), nil
+		return r.buildAppSDKConfigMap(instance, serviceURL), nil
 	default:
 		msg := "Failed to recognize type of object" + kind + " into the MobileSecurityServiceApp.Namespace " + instance.Namespace
 		panic(msg)
@@ -114,23 +117,39 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 		return fetch(r, reqLogger, err)
 	}
 
+	reqLogger.Info("Checking for service instance ...")
+	serviceInstance := &mobilesecurityservicev1alpha1.MobileSecurityService{}
+	if err := r.client.Get(context.TODO(), types.NamespacedName{Name: utils.SERVICE_INSTANCE_NAME, Namespace: utils.SERVICE_INSTANCE_NAMESPACE }, serviceInstance); err != nil {
+		return reconcile.Result{}, err
+	}
+
 	//Check specs
-	if !hasSpecs(instance, reqLogger) {
+	if !hasMandatorySpecs(instance, serviceInstance, reqLogger) {
 		return reconcile.Result{Requeue: true}, nil
 	}
 
+	reqLogger.Info("Checking if the route already exists ...")
+	route := &routev1.Route{}
+	if err := r.client.Get(context.TODO(), types.NamespacedName{Name: utils.GetRouteName(serviceInstance), Namespace: utils.SERVICE_INSTANCE_NAMESPACE }, route); err != nil {
+		return reconcile.Result{}, err
+	}
+
+	//Get the REST Service Endpoint
+	serviceAPI := service.GetServiceAPIURL(route, serviceInstance)
+
 	//Check if ConfigMap for the app exist, if not create one.
 	if _, err := r.fetchSDKConfigMap(reqLogger, instance); err != nil {
-		return r.create(instance, CONFIGMAP, reqLogger, err)
+		return r.create(instance, CONFIGMAP, serviceAPI , reqLogger, err)
 	}
 
 	//Check if App is Bind in the REST Service, if not then bind it
-	if app, err := fetchBindAppRestServiceByAppID(instance, reqLogger); err == nil {
+	if app, err := fetchBindAppRestServiceByAppID(serviceAPI, instance, reqLogger); err == nil {
 		//Update the name by the REST API
 		if hasApp(app) && app.AppName != instance.Spec.AppName {
 			app.AppName = instance.Spec.AppName
 			//Check if App was update with success
-			if err := service.UpdateAppNameByRestAPI(instance.Spec.Protocol, instance.Spec.ClusterHost, instance.Spec.HostSufix, app, reqLogger); err != nil {
+
+			if err := service.UpdateAppNameByRestAPI(serviceAPI, app, reqLogger); err != nil {
 				return reconcile.Result{}, err
 			}
 			return reconcile.Result{Requeue: true}, nil
@@ -138,7 +157,7 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 		// Bind App in the Service by the REST API
 		if !hasApp(app) {
 			newApp := models.NewApp(instance.Spec.AppName, instance.Spec.AppId)
-			if err := service.CreateAppByRestAPI(instance.Spec.Protocol, instance.Spec.ClusterHost, instance.Spec.HostSufix, newApp, reqLogger); err != nil {
+			if err := service.CreateAppByRestAPI(serviceAPI, newApp, reqLogger); err != nil {
 				return reconcile.Result{}, err
 			}
 			return reconcile.Result{Requeue: true}, nil
@@ -152,7 +171,7 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 	}
 
 	//Update status for BindStatus
-	if err := r.updateBindStatus(reqLogger, SDKConfigMapStatus, instance); err != nil {
+	if err := r.updateBindStatus(serviceAPI, reqLogger, SDKConfigMapStatus, instance); err != nil {
 		return reconcile.Result{}, err
 	}
 

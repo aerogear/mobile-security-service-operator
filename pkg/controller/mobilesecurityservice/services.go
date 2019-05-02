@@ -9,8 +9,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
-//buildAppService returns the service resource
-func (r *ReconcileMobileSecurityService) buildAppService(m *mobilesecurityservicev1alpha1.MobileSecurityService) *corev1.Service {
+//buildService returns the service resource
+func (r *ReconcileMobileSecurityService) buildService(m *mobilesecurityservicev1alpha1.MobileSecurityService) *corev1.Service {
 	ls := getAppLabels(m.Name)
 	ser := &corev1.Service{
 		TypeMeta: metav1.TypeMeta{

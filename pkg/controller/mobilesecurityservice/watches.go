@@ -7,6 +7,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/source"
+	routev1 "github.com/openshift/api/route/v1"
 )
 
 //Watch for changes to secondary resources and create the owner MobileSecurityService
@@ -40,11 +41,13 @@ func watchDeployment(c controller.Controller) error {
 }
 
 //Watch for changes to secondary resources and requeue the owner MobileSecurityService
-//Watch Ingress resources created in the project/namespace
-func watchIngress(c controller.Controller) error {
-	err := c.Watch(&source.Kind{Type: &v1beta1.Ingress{}}, &handler.EnqueueRequestForOwner{
+//Watch Route resources created in the project/namespace
+func watchRoute(c controller.Controller) error {
+	err := c.Watch(&source.Kind{Type: &routev1.Route{}}, &handler.EnqueueRequestForOwner{
 		IsController: true,
 		OwnerType:    &mobilesecurityservicev1alpha1.MobileSecurityService{},
 	})
 	return err
 }
+
+
