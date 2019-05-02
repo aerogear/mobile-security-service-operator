@@ -4,12 +4,8 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"os"
-	"runtime"
-
 	"github.com/aerogear/mobile-security-service-operator/pkg/apis"
 	"github.com/aerogear/mobile-security-service-operator/pkg/controller"
-
 	routev1 "github.com/openshift/api/route/v1"
 	"github.com/operator-framework/operator-sdk/pkg/leader"
 	"github.com/operator-framework/operator-sdk/pkg/log/zap"
@@ -17,6 +13,8 @@ import (
 	sdkVersion "github.com/operator-framework/operator-sdk/version"
 	"github.com/spf13/pflag"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
+	"os"
+	"runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
@@ -75,32 +73,25 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Create a new Cmd to provide shared dependencies and start components
+	//Create cmd Manager
+	//FIXME: We should not watch/cache all namespaces. However, the current version do not allow us pass the List of Namespaces.
+	// The impl to allow do it is done and merged in the master branch of the lib but not released in an stable version.
+	// See the PR which we are working on to update the deps and have this feature: https://github.com/operator-framework/operator-sdk/pull/1388
 	mgr, err := manager.New(cfg, manager.Options{
-		Namespace:          "",
+		Namespace: "", 
 	})
 	if err != nil {
 		log.Error(err, "")
 		os.Exit(1)
 	}
 
-	log.Info("Registering Components.")
+	//Add schemes to the manager
+	addSchemeToManager(mgr)
 
-	// Setup Scheme for all resources
-	if err := apis.AddToScheme(mgr.GetScheme()); err != nil {
-		log.Error(err, "")
-		os.Exit(1)
-	}
-
-	//Add route scheme
-	if err := routev1.AddToScheme(mgr.GetScheme()); err != nil {
-		log.Error(err, "")
-		os.Exit(1)
-	}
-
-	// Setup all Controllers
-	if err := controller.AddToManager(mgr); err != nil {
-		log.Error(err, "")
+	log.Info("Starting the Cmd.")
+	// Start the Cmd
+	if err := mgr.Start(signals.SetupSignalHandler()); err != nil {
+		log.Error(err, "Manager exited non-zero")
 		os.Exit(1)
 	}
 
@@ -110,11 +101,24 @@ func main() {
 		log.Info(err.Error())
 	}
 
-	log.Info("Starting the Cmd.")
+}
 
-	// Start the Cmd
-	if err := mgr.Start(signals.SetupSignalHandler()); err != nil {
-		log.Error(err, "Manager exited non-zero")
+//addSchemeToManager will register the schemas for each manager
+func addSchemeToManager(mgr manager.Manager) {
+	log.Info("Registering Components.")
+	// Setup Scheme for all resources
+	if err := apis.AddToScheme(mgr.GetScheme()); err != nil {
+		log.Error(err, "")
+		os.Exit(1)
+	}
+	//Add route Openshift scheme
+	if err := routev1.AddToScheme(mgr.GetScheme()); err != nil {
+		log.Error(err, "")
+		os.Exit(1)
+	}
+	// Setup all Controllers
+	if err := controller.AddToManager(mgr); err != nil {
+		log.Error(err, "")
 		os.Exit(1)
 	}
 }

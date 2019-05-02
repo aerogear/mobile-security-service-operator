@@ -5,6 +5,7 @@ import (
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"github.com/go-logr/logr"
+	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -135,6 +136,20 @@ func (r *ReconcileMobileSecurityServiceDB) buildFactory(instance *mobilesecurity
 func (r *ReconcileMobileSecurityServiceDB) Reconcile(request reconcile.Request) (reconcile.Result, error) {
 	reqLogger := log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
 	reqLogger.Info("Reconciling Mobile Security Service Database")
+
+	// FIXME: Check if is a valid namespace
+	// We should not checked if the namespace is valid or not. It is an workaround since currently is not possible watch/cache a List of Namespaces
+	// The impl to allow do it is done and merged in the master branch of the lib but not released in an stable version. It should be removed when this feature be impl.
+	// See the PR which we are working on to update the deps and have this feature: https://github.com/operator-framework/operator-sdk/pull/1388
+	if isValidNamespace, err:= utils.IsValidOperatorNamespace(request.Namespace); err != nil || isValidNamespace == false {
+		// Stop reconcile
+		operatorNamespace, _ := k8sutil.GetOperatorNamespace();
+		reqLogger.Error(err, "Unable to reconcile Mobile Security Service Database", "Request.Namespace", request.Namespace, "isValidNamespace", isValidNamespace, "Operator.Namespace", operatorNamespace)
+		return reconcile.Result{}, nil
+	}
+
+	reqLogger.Info("Valid namespace for Mobile Security Service DB", "Namespace", request.Namespace)
+	reqLogger.Info("Start Reconciling Mobile Security Service DB ...")
 
 	instance := &mobilesecurityservicev1alpha1.MobileSecurityServiceDB{}
 

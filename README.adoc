@@ -152,6 +152,13 @@ $ oc create rolebinding developer-mobile-security-service-operator --role=mobile
 $ oc create rolebinding developer-mobile-security-service --role=mobile-security-service --user=<user>
 ----
 
+=== Namespaces for the MobileSecurityServiceCR
+
+This operator will just working with the namespaces which are specified in the environment variable `APP_NAMESPACES` and the link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml[MobileSecurityServiceApp CR] which be applied in a NAMESPACE which was not defined on it will be ignored. See its configuration into the link:./deploy/operator.yaml[operator.yaml] file.
+
+IMPORTANT:The values should be informed split by `;`
+NOTE: To run the project locally export the ENV VAR. E.g `export APP_NAMESPACES=mobile-security-service-apps`
+
 === Database image and parameters
 
 The database image and its parameters as their default values are configurable and specified by the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml[MobileSecurityServiceDB CR].
