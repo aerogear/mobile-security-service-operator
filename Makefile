@@ -17,6 +17,8 @@ IMAGE_DEV_TAG=$(IMAGE_REGISTRY)/$(REGISTRY_ORG)/$(REGISTRY_REPO):$(TAG)-$(DEV)
 IMAGE_LATEST_TAG=$(IMAGE_REGISTRY)/$(REGISTRY_ORG)/$(REGISTRY_REPO):latest
 IMAGE_MASTER_TAG=$(IMAGE_REGISTRY)/$(REGISTRY_ORG)/$(REGISTRY_REPO):master
 IMAGE_RELEASE_TAG=$(IMAGE_REGISTRY)/$(REGISTRY_ORG)/$(REGISTRY_REPO):$(CIRCLE_TAG)
+NAMESPACE=mobile-security-service-operator
+APP_NAMESPACE=mobile-security-service-apps
 
 # This follows the output format for goreleaser
 BINARY_LINUX_64 = ./dist/linux_amd64/$(BINARY)
@@ -47,6 +49,11 @@ test-integration-cover:
 build_linux:
 	env GOOS=linux GOARCH=amd64 go build $(APP_FILE)
 
+.PHONY: create-app-ns
+create-app-ns:
+	@echo Creating the namespace ${APP_NAMESPACE}:
+	oc new-project ${APP_NAMESPACE}
+
 .PHONY: create-app
 create-app:
 	- kubectl delete -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceunbind_cr.yaml
@@ -62,7 +69,7 @@ run-local:
 	@echo Installing the operator in a cluster and run it locally:
 	- export OPERATOR_NAME=mobile-security-service-operator
 	- make create-all
-	- operator-sdk up local --namespace=mobile-security-service-operator
+	- operator-sdk up local --namespace=${NAMESPACE}
 
 .PHONY: create-all
 create-all:
