@@ -11,12 +11,15 @@ jobs:
 
     steps:
       - checkout
+      - run: go get github.com/mattn/goveralls
       - run:
           name: Install dep
           command: curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
       - run: make setup
-      - run: make test
       - run: make build_linux
+      - run: make test
+      - run: make test-integration-cover
+      - run: /go/bin/goveralls -coverprofile=coverage-all.out -service=circle-ci -repotoken=ycY6oBXw8F89TEabp46VXSRpVFjfYBujH
 
   image_push_master:
     working_directory: /go/src/github.com/aerogear/mobile-security-service-operator

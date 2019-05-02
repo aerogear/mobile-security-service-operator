@@ -8,7 +8,6 @@ ifdef::env-github[]
 :table-caption!:
 endif::[]
 
-
 :toc:
 :toc-placement!:
 
@@ -16,7 +15,9 @@ endif::[]
 
 ifdef::status[]
 .*Project health*
+image:https://circleci.com/gh/aerogear/mobile-security-service.svg?style=svg[Build Status (CircleCI), link=https://circleci.com/gh/aerogear/mobile-security-service]
 image:https://img.shields.io/:license-Apache2-blue.svg[License (License), link=http://www.apache.org/licenses/LICENSE-2.0]
+image:https://coveralls.io/repos/github/aerogear/mobile-security-service-operator/badge.svg?branch=master[Coverage Status (Coveralls), link=https://coveralls.io/github/aerogear/mobile-security-service-operator?branch=master]
 image:https://goreportcard.com/badge/github.com/aerogear/mobile-security-service-operator[Go Report Card (Go Report Card), link=https://goreportcard.com/report/github.com/aerogear/mobile-security-service-operator]
 endif::[]
 
@@ -353,28 +354,34 @@ image: aerogear/mobile-security-service-operator:0.1.0-dev
 
 NOTE: The image/tag used from https://github.com/aerogear/mobile-security-service[Mobile Security Service] is defined in link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml] file.
 
-== Using make commands
+== Makefile command reference
 
 |===
 | *Command*                     | *Description*
-| `make create-all`             | Create mobile-security-service-operator namespace, operator, service and roles
-| `make delete-all`             | Delete mobile-security-service-operator namespace, operator, service and roles
-| `make create-oper`            | Create mobile-security-service namespace, operator and roles
-| `make delete-oper`            | Delete mobile-security-service namespace, operator and roles
-| `make create-service`         | Create Mobile Security Service App and its database in the project
-| `make create-service-only`    | Create Mobile Security Service App without its database
-| `make delete-app`             | Delete Mobile Security Service App and its database
-| `make delete-app-only`        | Delete Mobile Security Service App only
-| `make create-db-only`         | Create Mobile Security Service Database without its application
-| `make delete-db-only`         | Delete Mobile Security Service Database only
-| `make create-app`             | Create the Bind CR and delete the Unbind CR examples. (Create/Update app in the Service and add SKD ConfigMap)
-| `make unbind`                 | Delete the Bind CR and create Unbind CR examples. (Delete app from the Service and SDKConfigMap)
-| `make build-dev`              | Build operator for development proposes
-| `make push-dev`               | Publish operator in https://hub.docker.com/[Docker Hub] for development proposes
-| `make run-local`              | Run the operator locally for development purposes
-| `make debug-setup`            | Setup environment for debug proposes
-| `make vet`                    | Examines source code and reports suspicious constructs using https://golang.org/cmd/vet/[vet]
-| `make fmt`                    | Formats code using https://golang.org/cmd/gofmt/[gofmt]
+| `make create-all`             | Create mobile-security-service-operator namespace, operator, service and roles.
+| `make delete-all`             | Delete mobile-security-service-operator namespace, operator, service and roles.
+| `make create-oper`            | Create mobile-security-service namespace, operator and roles.
+| `make delete-oper`            | Delete mobile-security-service namespace, operator and roles.
+| `make create-service`         | Create Mobile Security Service App and its database in the project.
+| `make create-service-only`    | Create Mobile Security Service App without its database.
+| `make delete-app`             | Delete Mobile Security Service App and its database.
+| `make delete-app-only`        | Delete Mobile Security Service App only.
+| `make create-db-only`         | Create Mobile Security Service Database without its application.
+| `make delete-db-only`         | Delete Mobile Security Service Database only.
+| `make create-app`             | Create the Bind CR and delete the Unbind CR examples. (Create/Update app in the Service and add SKD ConfigMap).
+| `make unbind`                 | Delete the Bind CR and create Unbind CR examples. (Delete app from the Service and SDKConfigMap).
+| `make build-dev`              | Build operator dev image with tag `quay.io/aerogear/mobile-security-service-operator:<version>-dev`.
+| `make push-dev`               | Push operator dev image to https://quay.io/repository/aerogear/mobile-security-service-operator[quay.io].
+| `make build-master`           | Used by CI to build operator image from `master` branch and add `:master` tag. 
+| `make push-master`            | Used by CI to push image built by `make build-master` to https://quay.io/repository/aerogear/mobile-security-service-operator[quay.io registry].
+| `make build-release`          | Used by CI to build operator image from a tagged commit and add `:<version>` tag.
+| `make push-release`           | Used by CI to push image built by `make build-release` to https://quay.io/repository/aerogear/mobile-security-service-operator[quay.io registry].
+| `make build-latest`           | Used by CI to build operator image from a tagged commit and add `:latest` tag.
+| `make push-latest`            | Used by CI to push image built by `make build-latest` to https://quay.io/repository/aerogear/mobile-security-service-operator[quay.io registry].
+| `make run-local`              | Run the operator locally for development purposes.
+| `make debug-setup`            | Setup environment for debug proposes.
+| `make vet`                    | Examines source code and reports suspicious constructs using https://golang.org/cmd/vet/[vet].
+| `make fmt`                    | Formats code using https://golang.org/cmd/gofmt/[gofmt].
 |===
 
 
