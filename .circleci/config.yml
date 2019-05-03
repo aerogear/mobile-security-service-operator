@@ -32,7 +32,7 @@ jobs:
           command: curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
       - run:
           name: Install operator-sdk to build image
-          command: curl -Lo operator-sdk https://github.com/operator-framework/operator-sdk/releases/download/v0.7.0/operator-sdk-v0.5.0-x86_64-linux-gnu && chmod +x operator-sdk && sudo mv operator-sdk /usr/local/bin/
+          command: curl -Lo operator-sdk https://github.com/operator-framework/operator-sdk/releases/download/v0.7.0/operator-sdk-v0.7.0-x86_64-linux-gnu && chmod +x operator-sdk && sudo mv operator-sdk /usr/local/bin/
       - run: make setup
       # circle ci key required for docker builds
       - setup_remote_docker
@@ -51,7 +51,7 @@ jobs:
           command: curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
       - run:
           name: Install operator-sdk to build image
-          command: curl -Lo operator-sdk https://github.com/operator-framework/operator-sdk/releases/download/v0.6.0/operator-sdk-v0.6.0-x86_64-linux-gnu && chmod +x operator-sdk && sudo mv operator-sdk /usr/local/bin/
+          command: curl -Lo operator-sdk https://github.com/operator-framework/operator-sdk/releases/download/v0.7.0/operator-sdk-v0.7.0-x86_64-linux-gnu && chmod +x operator-sdk && sudo mv operator-sdk /usr/local/bin/
       - run: make setup
       # circle ci key required for docker builds
       - setup_remote_docker
