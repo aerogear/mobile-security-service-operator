@@ -4,8 +4,11 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"os"
 	"runtime"
+	"sigs.k8s.io/controller-runtime/pkg/cache"
+	"strings"
 
 	"github.com/aerogear/mobile-security-service-operator/pkg/apis"
 	"github.com/aerogear/mobile-security-service-operator/pkg/controller"
@@ -75,9 +78,20 @@ func main() {
 		os.Exit(1)
 	}
 
+	appNamespacesEnvVar,err := utils.GetAppNamespaces()
+	if err != nil {
+		log.Error(err, "Unable to get ENV VAR APP NAMESPACES")
+		os.Exit(1)
+	}
+
+	var namespaces []string
+	for _, ns := range strings.Split(appNamespacesEnvVar, ";") {
+		namespaces = append(namespaces, string(ns))
+	}
+
 	// Create a new Cmd to provide shared dependencies and start components
 	mgr, err := manager.New(cfg, manager.Options{
-		Namespace:          "",
+		NewCache: cache.MultiNamespacedCacheBuilder(namespaces),
 	})
 	if err != nil {
 		log.Error(err, "")

@@ -74,6 +74,14 @@
   version = "v2.9.0"
 
 [[projects]]
+  digest = "1:4322fcb2f4d508898c3d9b0390a2e58211b53e6d9c25230b225df9a032fe26d6"
+  name = "github.com/evanphx/json-patch"
+  packages = ["."]
+  pruneopts = "NT"
+  revision = "5858425f75500d40c52783dce87d085a483ce135"
+  version = "v4.2.0"
+
+[[projects]]
   digest = "1:81466b4218bf6adddac2572a30ac733a9255919bc2f470b4827a317bd4ee1756"
   name = "github.com/ghodss/yaml"
   packages = ["."]
@@ -851,7 +859,7 @@
   revision = "0cf8f7e6ed1d2e3d47d02e3b6e559369af24d803"
 
 [[projects]]
-  digest = "1:06035489efbd51ccface65fc878ceeb849aba05b2f9443c8993f363fc96e80ac"
+  digest = "1:f27c48732f0350be071e81d971a62afb9f5f1ff686ee6cf2b5e14c9266f50741"
   name = "sigs.k8s.io/controller-runtime"
   packages = [
     "pkg/cache",
@@ -865,11 +873,15 @@
     "pkg/handler",
     "pkg/internal/controller",
     "pkg/internal/controller/metrics",
+    "pkg/internal/log",
+    "pkg/internal/objectutil",
     "pkg/internal/recorder",
     "pkg/leaderelection",
+    "pkg/log",
+    "pkg/log/zap",
     "pkg/manager",
+    "pkg/manager/signals",
     "pkg/metrics",
-    "pkg/patch",
     "pkg/predicate",
     "pkg/reconcile",
     "pkg/recorder",
@@ -879,14 +891,13 @@
     "pkg/runtime/signals",
     "pkg/source",
     "pkg/source/internal",
+    "pkg/webhook",
     "pkg/webhook/admission",
-    "pkg/webhook/admission/types",
     "pkg/webhook/internal/metrics",
-    "pkg/webhook/types",
   ]
   pruneopts = "NT"
-  revision = "12d98582e72927b6cd0123e2b4e819f9341ce62c"
-  version = "v0.1.10"
+  revision = "4276f3895df0acc9249f817eb86a47a3db6b7a9e"
+  version = "v0.2.0-alpha.0"
 
 [[projects]]
   digest = "1:0a14ea9a2647d064bb9d48b2de78306e74b196681efd7b654eb0b518d90c2e8d"
