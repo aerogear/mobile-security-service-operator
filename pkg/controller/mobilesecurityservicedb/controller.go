@@ -149,13 +149,11 @@ func (r *ReconcileMobileSecurityServiceDB) Reconcile(request reconcile.Request) 
 	if err != nil {
 		// To give time for the mobile security service be created
 		time.Sleep(30 * time.Second)
-
+		// It will fetch the service instance for the DB type be able to get the configMap config created by it, however,
+		// if the Instance cannot be found and/or its configMap was not created than the default values specified in its CR will be used
 		reqLogger.Info("Checking for service instance ...")
 		serviceInstance := &mobilesecurityservicev1alpha1.MobileSecurityService{}
-		if err := r.client.Get(context.TODO(), types.NamespacedName{Name: utils.SERVICE_INSTANCE_NAME, Namespace: utils.SERVICE_INSTANCE_NAMESPACE }, serviceInstance); err != nil {
-			return reconcile.Result{}, err
-		}
-
+		r.client.Get(context.TODO(), types.NamespacedName{Name: utils.SERVICE_INSTANCE_NAME, Namespace: utils.SERVICE_INSTANCE_NAMESPACE }, serviceInstance)
 		return r.create(instance, serviceInstance, DEEPLOYMENT, reqLogger, err)
 	}
 
