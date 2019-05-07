@@ -102,23 +102,19 @@ IMPORTANT: To create all you need be logged as admin. Use `oc login -u system:ad
 $ make create-app
 ----
 
-=== Unbinding an app
-* Create a link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceunbind_cr.yaml[MobileSecurityServiceUnbind CR] as this example.
-+
-* Add into into the link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceunbind_cr.yaml[MobileSecurityServiceUnbind CR] the app id as follows.
-+
-[source,shell]
-----
-  # The appId spec defines the appId of the app used to bind the service
-  appId: "appid"
-----
-+
-* Run the following command to unbind the app from the service
+NOTE: This command will just apply the link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml[MobileSecurityServiceApp CR] example with `kubectl create -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml`
+
+=== Deleting/Unbinding an app
+
+* Run the following command to delete/unbind the app from the service and remove its SDKConfigMap.
 +
 [source,shell]
 ----
-$ make unbind
+$ make delete-app
 ----
+
+IMPORTANT: This command will just delete the link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml[MobileSecurityServiceApp CR] example with `kubectl delete -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml`
+NOTE: The Rest Service endpoint to delete it is called in the finalizer of the link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml[MobileSecurityServiceApp CR] and the CR will be just allowed to be removed when the app is no longer available in its Service.
 
 === Removing
 
@@ -178,7 +174,6 @@ NOTE: The operator, application and database will be installed in the namespace 
 | link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml[MobileSecurityService]             | Packages, manages, installs and configures the https://github.com/aerogear/mobile-security-service[Mobile Security Service] on the cluster.
 | link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml[MobileSecurityServiceDB]             | Packages, manages, installs and configures the https://github.com/aerogear/mobile-security-service[Mobile Security Service] Database on the cluster.
 | link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml[MobileSecurityServiceApp]             | Creates and update the app in the Service REST API and create the SDK Config Map.
-| link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceunbind_crd.yaml[MobileSecurityServiceUnbind]             | Delete the app from the Service REST API.
 |===
 
 ==== Resources managed by each CRD Controller
@@ -243,13 +238,6 @@ NOTE: The operator, application and database will be installed in the namespace 
 | *Status*    | *Description*
 | `bindStatus` | For this status is expected the value `OK` which means that the app was created in the Rest Service API as its SDKConfigMap.
 | `SDKConfigMapName` | Name of the config map object created for the app with its SDK Config.
-|===
-
-* link:./pkg/apis/mobilesecurityservice/v1alpha1/mobilesecurityserviceunbind_types.go[MobileSecurityServiceUnbind]
-+
-|===
-| *Status*    | *Description*
-| `unbindStatus` | For this status is expected the value `OK` which means that the app was deleted in the Rest Service API as its SDKConfigMap.
 |===
 
 === Running the operator locally
@@ -364,31 +352,31 @@ NOTE: The image/tag used from https://github.com/aerogear/mobile-security-servic
 == Makefile command reference
 
 |===
-| *Command*                     | *Description*
-| `make create-all`             | Create mobile-security-service-operator namespace, operator, service and roles.
-| `make delete-all`             | Delete mobile-security-service-operator namespace, operator, service and roles.
-| `make create-oper`            | Create mobile-security-service namespace, operator and roles.
-| `make delete-oper`            | Delete mobile-security-service namespace, operator and roles.
-| `make create-service`         | Create Mobile Security Service App and its database in the project.
-| `make create-service-only`    | Create Mobile Security Service App without its database.
-| `make delete-app`             | Delete Mobile Security Service App and its database.
-| `make delete-app-only`        | Delete Mobile Security Service App only.
-| `make create-db-only`         | Create Mobile Security Service Database without its application.
-| `make delete-db-only`         | Delete Mobile Security Service Database only.
-| `make create-app`             | Create the Bind CR and delete the Unbind CR examples. (Create/Update app in the Service and add SKD ConfigMap).
-| `make unbind`                 | Delete the Bind CR and create Unbind CR examples. (Delete app from the Service and SDKConfigMap).
-| `make build-dev`              | Build operator dev image with tag `quay.io/aerogear/mobile-security-service-operator:<version>-dev`.
-| `make push-dev`               | Push operator dev image to https://quay.io/repository/aerogear/mobile-security-service-operator[quay.io].
-| `make build-master`           | Used by CI to build operator image from `master` branch and add `:master` tag. 
-| `make push-master`            | Used by CI to push image built by `make build-master` to https://quay.io/repository/aerogear/mobile-security-service-operator[quay.io registry].
-| `make build-release`          | Used by CI to build operator image from a tagged commit and add `:<version>` tag.
-| `make push-release`           | Used by CI to push image built by `make build-release` to https://quay.io/repository/aerogear/mobile-security-service-operator[quay.io registry].
-| `make build-latest`           | Used by CI to build operator image from a tagged commit and add `:latest` tag.
-| `make push-latest`            | Used by CI to push image built by `make build-latest` to https://quay.io/repository/aerogear/mobile-security-service-operator[quay.io registry].
-| `make run-local`              | Run the operator locally for development purposes.
-| `make debug-setup`            | Setup environment for debug proposes.
-| `make vet`                    | Examines source code and reports suspicious constructs using https://golang.org/cmd/vet/[vet].
-| `make fmt`                    | Formats code using https://golang.org/cmd/gofmt/[gofmt].
+| *Command*                        | *Description*
+| `make create-all`                | Create mobile-security-service-operator namespace, operator, service and roles.
+| `make delete-all`                | Delete mobile-security-service-operator namespace, operator, service and roles.
+| `make create-oper`               | Create mobile-security-service namespace, operator and roles.
+| `make delete-oper`               | Delete mobile-security-service namespace, operator and roles.
+| `make create-service-and-db`     | Create Mobile Security Service App and its database in the project.
+| `make create-service-only`       | Create Mobile Security Service App without its database.
+| `make delete-service-and-db`     | Delete Mobile Security Service App and its database.
+| `make delete-service-only`       | Delete Mobile Security Service App only.
+| `make create-db-only`            | Create Mobile Security Service Database without its application.
+| `make delete-db-only`            | Delete Mobile Security Service Database only.
+| `make create-app`                | Apply the App CR. (Create/Update app in the Service and add SKD ConfigMap).
+| `make delete-app`                | Delete the App CR. (Delete app from the Service and SDKConfigMap).
+| `make build-dev`                 | Build operator dev image with tag `quay.io/aerogear/mobile-security-service-operator:<version>-dev`.
+| `make push-dev`                  | Push operator dev image to https://quay.io/repository/aerogear/mobile-security-service-operator[quay.io].
+| `make build-master`              | Used by CI to build operator image from `master` branch and add `:master` tag.
+| `make push-master`               | Used by CI to push image built by `make build-master` to https://quay.io/repository/aerogear/mobile-security-service-operator[quay.io registry].
+| `make build-release`             | Used by CI to build operator image from a tagged commit and add `:<version>` tag.
+| `make push-release`              | Used by CI to push image built by `make build-release` to https://quay.io/repository/aerogear/mobile-security-service-operator[quay.io registry].
+| `make build-latest`              | Used by CI to build operator image from a tagged commit and add `:latest` tag.
+| `make push-latest`               | Used by CI to push image built by `make build-latest` to https://quay.io/repository/aerogear/mobile-security-service-operator[quay.io registry].
+| `make run-local`                 | Run the operator locally for development purposes.
+| `make debug-setup`               | Setup environment for debug proposes.
+| `make vet`                       | Examines source code and reports suspicious constructs using https://golang.org/cmd/vet/[vet].
+| `make fmt`                       | Formats code using https://golang.org/cmd/gofmt/[gofmt].
 |===
 
 
