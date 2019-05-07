@@ -14,7 +14,6 @@ rules:
   - events
   - configmaps
   - secrets
-  - mobilesecurityserviceunbinds
   - mobilesecurityserviceapps
   verbs:
   - '*'
@@ -45,7 +44,6 @@ rules:
   resourceNames:
   - mobile-security-service
   - mobile-security-service-app
-  - mobile-security-service-unbind
   resources:
   - deployments/finalizers
   verbs:

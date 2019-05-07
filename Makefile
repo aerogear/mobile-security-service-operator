@@ -49,13 +49,11 @@ build_linux:
 
 .PHONY: create-app
 create-app:
-	- kubectl delete -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceunbind_cr.yaml
-	- kubectl create -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml
+	kubectl create -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml
 
-.PHONY: unbind
-unbind:
-	- kubectl delete -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml
-	- kubectl apply -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceunbind_cr.yaml
+.PHONY: delete-app
+delete-app:
+	kubectl delete -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml
 
 .PHONY: run-local
 run-local:
@@ -78,7 +76,6 @@ delete-all:
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml
-	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceunbind_crd.yaml
 	- kubectl delete -f deploy/cluster_role.yaml
 	- kubectl delete -f deploy/cluster_role_binding.yaml
 	- kubectl delete -f deploy/service_account.yaml
@@ -94,7 +91,6 @@ create-oper:
 	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
 	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
 	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml
-	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceunbind_crd.yaml
 	- kubectl create -f deploy/cluster_role.yaml
 	- kubectl create -f deploy/cluster_role_binding.yaml
 	- kubectl create -f deploy/role.yaml
@@ -108,7 +104,6 @@ delete-oper:
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml
-	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceunbind_crd.yaml
 	- kubectl delete -f deploy/cluster_role.yaml
 	- kubectl delete -f deploy/cluster_role_binding.yaml
 	- kubectl delete -f deploy/service_account.yaml
@@ -117,8 +112,8 @@ delete-oper:
 	- kubectl delete -f deploy/role_binding.yaml
 	- kubectl delete namespace mobile-security-service-operator
 
-.PHONY: create-service
-create-service:
+.PHONY: create-service-and-db
+create-service-and-db:
 	@echo Creating Mobile Security Service and Database into project:
 	kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
 	kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
@@ -133,14 +128,14 @@ create-db-only:
 	@echo Creating Mobile Security Service Database only:
 	kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
 
-.PHONY: delete-app
-delete-app:
+.PHONY: delete-service-and-db
+delete-service-and-db:
 	@echo Deleting Mobile Security Service and Database:
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
 
-.PHONY: delete-app-only
-delete-app-only:
+.PHONY: delete-service-only
+delete-service-only:
 	@echo Deleting Mobile Security Service App only:
 	kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
 
@@ -203,7 +198,6 @@ debug-setup:
 	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
 	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
 	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml
-	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceunbind_crd.yaml
 
 .PHONY: vet
 vet:

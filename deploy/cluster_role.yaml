@@ -43,7 +43,6 @@ rules:
   - mobile-security-service-db
   - mobile-security-service
   - mobile-security-service-app
-  - mobile-security-service-unbind
   resources:
   - deployments/finalizers
   verbs:
