@@ -55,3 +55,4 @@ func hasMandatorySpecs(serviceInstance *mobilesecurityservicev1alpha1.MobileSecu
 
 	return true
 }
+

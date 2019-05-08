@@ -39,6 +39,8 @@ type MobileSecurityServiceSpec struct {
 	//CR optional configuration values
 	ConfigMapName                 string `json:"configMapName,omitempty"`
 	RouteName                     string `json:"routeName,omitempty"`
+	RoutePath                     string `json:"routePath,omitempty"`
+
 
 }
 

@@ -31,3 +31,4 @@ spec:
   #    The DB will looking for this ConfigMap to get the Env Values variables
   configMapName: "mobile-security-service-config"
   routeName: "service"
+  routePath: "mobile-security-service"

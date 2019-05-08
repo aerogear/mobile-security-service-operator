@@ -11,6 +11,8 @@ import (
 //buildRoute returns the route resource
 func (r *ReconcileMobileSecurityService) buildRoute(m *mobilesecurityservicev1alpha1.MobileSecurityService) *routev1.Route {
 	ls := getAppLabels(m.Name)
+
+
 	route := &routev1.Route{
 		TypeMeta: v1.TypeMeta{
 			APIVersion: "v1",
@@ -27,6 +29,10 @@ func (r *ReconcileMobileSecurityService) buildRoute(m *mobilesecurityservicev1al
 				Name: m.Name ,
 			},
 		},
+	}
+
+	if len(m.Spec.RoutePath) > 0 {
+		route.Spec.Path = m.Spec.RoutePath
 	}
 
 	// Set MobileSecurityService instance as the owner and controller

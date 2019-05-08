@@ -142,6 +142,13 @@ NOTE:
 * All values used in the default configuration came from the config-map which is managed and created by the Operator. This config map will be created in the Operator namespace and its name is defined by the attribute `configMapName` in the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService CR].
 * If the name of this ConfigMap be not specified then the name of the Mobile Security Service instance will be used instead of.
 
+
+=== Route Name and Path
+
+Into the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService CR] you are able to define the route name and its path.
+
+NOTE: This values are optionals and if they are not be defined the route name will be the names of the instance of MobileSecurityService CRD and the route will be created without a path which will make OCP generate the URL to expose the service automatically by its API.
+
 === Role for no-privilege users are able to create the Mobile Security Service App, Database and/or Bind and Unbind their apps
 
 By executing the following commands you will create roles in the cluster which will allow the <user> create the Mobile Security Service Application and Database in their namespaces. In this would not be required be the system:admin. However, the Mobile Security Service Operator is cluster scoped and will still only accessible for the `system admin users.
