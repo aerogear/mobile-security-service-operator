@@ -1,44 +1,76 @@
 package mobilesecurityservice
 
 import (
-	errs "errors"
+	"context"
 	"reflect"
 	"testing"
 
-	"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
+	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	routev1 "github.com/openshift/api/route/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
-	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes/scheme"
-	"sigs.k8s.io/controller-runtime/pkg/client"
+	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
 var (
-	instance = mobilesecurityservicev1alpha1.MobileSecurityService{
+	instanceOne = mobilesecurityservicev1alpha1.MobileSecurityService{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "mobile-security-service-app",
 			Namespace: "mobile-security-service-operator",
 		},
-		Spec: v1alpha1.MobileSecurityServiceSpec{
-			Size:          1,
-			MemoryLimit:   "512Mi",
-			MemoryRequest: "512Mi",
+		Spec: mobilesecurityservicev1alpha1.MobileSecurityServiceSpec{
+			Size:                    1,
+			MemoryLimit:             "512Mi",
+			MemoryRequest:           "512Mi",
+			ClusterProtocol:         "http",
+			ConfigMapName:           "mss-config",
+			RouteName:               "mss-route",
+			SkipNamespaceValidation: true,
+		},
+	}
+
+	instanceTwo = mobilesecurityservicev1alpha1.MobileSecurityService{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "mobile-security-service-app",
+			Namespace: "mobile-security-service-operator-2",
+		},
+		Spec: mobilesecurityservicev1alpha1.MobileSecurityServiceSpec{
+			Size:                    1,
+			MemoryLimit:             "512Mi",
+			MemoryRequest:           "512Mi",
+			ClusterProtocol:         "http",
+			ConfigMapName:           "mss-config",
+			RouteName:               "mss-route",
+			SkipNamespaceValidation: true,
+		},
+	}
+
+	route = routev1.Route{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "route.openshift.io/v1",
+			Kind:       "Route",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      utils.GetRouteName(&instanceOne),
+			Namespace: instanceOne.Namespace,
+			Labels:    getAppLabels(instanceOne.Name),
 		},
 	}
 )
 
 func TestReconcileMobileSecurityService_update(t *testing.T) {
 	type fields struct {
-		instance *v1alpha1.MobileSecurityService
-		scheme   *runtime.Scheme
+		createdInstance  *mobilesecurityservicev1alpha1.MobileSecurityService
+		instanceToUpdate *mobilesecurityservicev1alpha1.MobileSecurityService
+		scheme           *runtime.Scheme
+		namespace        string
 	}
 	tests := []struct {
 		name    string
@@ -47,36 +79,43 @@ func TestReconcileMobileSecurityService_update(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "should requeue",
+			name: "should successfully update an instance",
 			fields: fields{
-				instance: &instance,
-				scheme:   scheme.Scheme,
+				createdInstance:  &instanceOne,
+				instanceToUpdate: &instanceOne,
+				scheme:           scheme.Scheme,
 			},
 			want:    reconcile.Result{Requeue: true},
 			wantErr: false,
+		},
+		{
+			name: "should give error when namespace not found",
+			fields: fields{
+				createdInstance:  &instanceOne,
+				instanceToUpdate: &instanceTwo,
+				scheme:           scheme.Scheme,
+			},
+			want:    reconcile.Result{},
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			objs := []runtime.Object{tt.fields.instance}
+			objs := []runtime.Object{tt.fields.createdInstance}
 
-			tt.fields.scheme.AddKnownTypes(mobilesecurityservicev1alpha1.SchemeGroupVersion, tt.fields.instance)
-
-			cl := fake.NewFakeClient(objs...)
-
-			r := &ReconcileMobileSecurityService{cl, tt.fields.scheme}
+			r := getReconciler(objs)
 
 			req := reconcile.Request{
 				NamespacedName: types.NamespacedName{
-					Name:      tt.fields.instance.Name,
-					Namespace: tt.fields.instance.Namespace,
+					Name:      tt.fields.createdInstance.Name,
+					Namespace: tt.fields.createdInstance.Namespace,
 				},
 			}
 
 			reqLogger := log.WithValues("Request.Namespace", req.Namespace, "Request.Name", req.Name)
 
-			got, err := r.update(objs[0], reqLogger)
+			got, err := r.update(tt.fields.instanceToUpdate, reqLogger)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ReconcileMobileSecurityService.update() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -95,40 +134,39 @@ func TestReconcileMobileSecurityService_create(t *testing.T) {
 	type args struct {
 		instance *mobilesecurityservicev1alpha1.MobileSecurityService
 		kind     string
-		err      error
 	}
 	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		want    reconcile.Result
-		wantErr bool
+		name      string
+		fields    fields
+		args      args
+		want      reconcile.Result
+		wantErr   bool
+		wantPanic bool
 	}{
-		{
-			name: "should return an error",
-			fields: fields{
-				scheme: scheme.Scheme,
-			},
-			args: args{
-				instance: &instance,
-				kind:     DEEPLOYMENT,
-				err:      errors.NewInternalError(errs.New("Internal Server Error")),
-			},
-			want:    reconcile.Result{},
-			wantErr: true,
-		},
 		{
 			name: "should create and return a new deployment",
 			fields: fields{
 				scheme: scheme.Scheme,
 			},
 			args: args{
-				instance: &instance,
+				instance: &instanceOne,
 				kind:     DEEPLOYMENT,
-				err:      errors.NewNotFound(schema.GroupResource{Group: "api/v1", Resource: "ResourceName"}, "Not Found"),
 			},
 			want:    reconcile.Result{Requeue: true},
 			wantErr: false,
+		},
+		{
+			name: "should fail to create an unknown kind",
+			fields: fields{
+				scheme: scheme.Scheme,
+			},
+			args: args{
+				instance: &instanceOne,
+				kind:     "OBJECT",
+			},
+			want:      reconcile.Result{},
+			wantErr:   true,
+			wantPanic: true,
 		},
 	}
 	for _, tt := range tests {
@@ -136,18 +174,20 @@ func TestReconcileMobileSecurityService_create(t *testing.T) {
 
 			objs := []runtime.Object{tt.args.instance}
 
-			tt.fields.scheme.AddKnownTypes(mobilesecurityservicev1alpha1.SchemeGroupVersion, tt.args.instance)
-
-			cl := fake.NewFakeClient(objs...)
-
-			r := &ReconcileMobileSecurityService{
-				client: cl,
-				scheme: tt.fields.scheme,
-			}
+			r := getReconciler(objs)
 
 			reqLogger := log.WithValues("Request.Namespace", tt.args.instance.Namespace, "Request.Name", tt.args.instance.Name)
 
-			got, err := r.create(tt.args.instance, reqLogger, tt.args.kind, tt.args.err)
+			// testing if the panic() function is executed
+			defer func() {
+				r := recover()
+				if (r != nil) != tt.wantPanic {
+					t.Errorf("ReconcileMobileSecurityService.create() recover = %v, wantPanic = %v", r, tt.wantPanic)
+				}
+			}()
+
+			got, err := r.create(tt.args.instance, reqLogger, tt.args.kind)
+
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ReconcileMobileSecurityService.create() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -182,7 +222,7 @@ func TestReconcileMobileSecurityService_buildFactory(t *testing.T) {
 			},
 			want: reflect.TypeOf(&v1beta1.Deployment{}),
 			args: args{
-				instance: &instance,
+				instance: &instanceOne,
 				kind:     DEEPLOYMENT,
 			},
 		},
@@ -193,7 +233,7 @@ func TestReconcileMobileSecurityService_buildFactory(t *testing.T) {
 			},
 			want: reflect.TypeOf(&corev1.ConfigMap{}),
 			args: args{
-				instance: &instance,
+				instance: &instanceOne,
 				kind:     CONFIGMAP,
 			},
 		},
@@ -204,7 +244,7 @@ func TestReconcileMobileSecurityService_buildFactory(t *testing.T) {
 			},
 			want: reflect.TypeOf(&corev1.Service{}),
 			args: args{
-				instance: &instance,
+				instance: &instanceOne,
 				kind:     SERVICE,
 			},
 		},
@@ -215,7 +255,7 @@ func TestReconcileMobileSecurityService_buildFactory(t *testing.T) {
 			},
 			want: reflect.TypeOf(&routev1.Route{}),
 			args: args{
-				instance: &instance,
+				instance: &instanceOne,
 				kind:     ROUTE,
 			},
 		},
@@ -225,7 +265,7 @@ func TestReconcileMobileSecurityService_buildFactory(t *testing.T) {
 				scheme: scheme.Scheme,
 			},
 			args: args{
-				instance: &instance,
+				instance: &instanceOne,
 				kind:     "UNDEFINED",
 			},
 			wantPanic: true,
@@ -236,14 +276,7 @@ func TestReconcileMobileSecurityService_buildFactory(t *testing.T) {
 
 			objs := []runtime.Object{tt.args.instance}
 
-			tt.fields.scheme.AddKnownTypes(mobilesecurityservicev1alpha1.SchemeGroupVersion, tt.args.instance)
-
-			cl := fake.NewFakeClient(objs...)
-
-			r := &ReconcileMobileSecurityService{
-				client: cl,
-				scheme: tt.fields.scheme,
-			}
+			r := getReconciler(objs)
 
 			reqLogger := log.WithValues("Request.Namespace", tt.args.instance.Namespace, "Request.Name", tt.args.instance.Name)
 
@@ -269,36 +302,148 @@ func TestReconcileMobileSecurityService_buildFactory(t *testing.T) {
 }
 
 func TestReconcileMobileSecurityService_Reconcile(t *testing.T) {
-	type fields struct {
-		client client.Client
-		scheme *runtime.Scheme
+
+	// objects to track in the fake client
+	objs := []runtime.Object{
+		&instanceOne,
+		&route,
 	}
-	type args struct {
-		request reconcile.Request
+
+	r := getReconciler(objs)
+
+	// mock request to simulate Reconcile() being called on an event for a watched resource
+	req := reconcile.Request{
+		NamespacedName: types.NamespacedName{
+			Name:      instanceOne.Name,
+			Namespace: instanceOne.Namespace,
+		},
 	}
-	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		want    reconcile.Result
-		wantErr bool
-	}{
-		// TODO: Add test cases.
+
+	res, err := r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			r := &ReconcileMobileSecurityService{
-				client: tt.fields.client,
-				scheme: tt.fields.scheme,
-			}
-			got, err := r.Reconcile(tt.args.request)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("ReconcileMobileSecurityService.Reconcile() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ReconcileMobileSecurityService.Reconcile() = %v, want %v", got, tt.want)
-			}
-		})
+
+	configMap := &corev1.ConfigMap{}
+	err = r.client.Get(context.TODO(), req.NamespacedName, configMap)
+
+	// Check the result of reconciliation to make sure it has the desired state
+	if !res.Requeue {
+		t.Error("reconcile did not requeue request as expected")
 	}
+
+	res, err = r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+	// Check the result of reconciliation to make sure it has the desired state
+	if !res.Requeue {
+		t.Error("reconcile did not requeue request as expected")
+	}
+
+	// check if the deployment has been created
+	dep := &v1beta1.Deployment{}
+	err = r.client.Get(context.TODO(), req.NamespacedName, dep)
+	if err != nil {
+		t.Fatalf("get deployment: (%v)", err)
+	}
+
+	res, err = r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+
+	if !res.Requeue {
+		t.Error("reconcile did not requeue request as expected")
+	}
+
+	// check if the service has been created
+	service := &corev1.Service{}
+	err = r.client.Get(context.TODO(), req.NamespacedName, service)
+	if err != nil {
+		t.Fatalf("get service: (%v)", service)
+	}
+
+	res, err = r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+
+	if res.Requeue {
+		t.Error("reconcile unexpectedly requeued request")
+	}
+
+	route := &routev1.Route{}
+	err = r.client.Get(context.TODO(), types.NamespacedName{Name: utils.GetRouteName(&instanceOne), Namespace: instanceOne.Namespace}, route)
+	if err != nil {
+		t.Fatalf("get route: (%v)", err)
+	}
+}
+
+func TestReconcileMobileSecurityService_Reconcile_InvalidInstance(t *testing.T) {
+	invalidInstance := &instanceOne
+	invalidInstance.Spec.ClusterProtocol = "ws"
+
+	// objects to track in the fake client
+	objs := []runtime.Object{
+		&instanceOne,
+	}
+
+	r := getReconciler(objs)
+
+	// mock request to simulate Reconcile() being called on an event for a watched resource
+	req := reconcile.Request{
+		NamespacedName: types.NamespacedName{
+			Name:      instanceOne.Name,
+			Namespace: instanceOne.Namespace,
+		},
+	}
+
+	res, err := r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+
+	if !res.Requeue {
+		t.Fatal("reconcile did not requeue request as expected")
+	}
+}
+
+func TestReconcileMobileSecurityService_Reconcile_UnknownNamespace(t *testing.T) {
+	// objects to track in the fake client
+	objs := []runtime.Object{
+		&instanceOne,
+	}
+
+	r := getReconciler(objs)
+
+	namespace := "unknown-namespace"
+
+	// mock request to simulate Reconcile() being called on an event for a watched resource
+	req := reconcile.Request{
+		NamespacedName: types.NamespacedName{
+			Name:      instanceOne.Name,
+			Namespace: namespace,
+		},
+	}
+
+	_, err := r.Reconcile(req)
+	if err == nil {
+		t.Fatalf("expected not to find namespace '%v'", namespace)
+	}
+}
+
+func getReconciler(objs []runtime.Object) *ReconcileMobileSecurityService {
+	s := scheme.Scheme
+
+	routev1.AddToScheme(s)
+
+	s.AddKnownTypes(mobilesecurityservicev1alpha1.SchemeGroupVersion, &mobilesecurityservicev1alpha1.MobileSecurityService{})
+	s.AddKnownTypes(routev1.SchemeGroupVersion, &routev1.Route{})
+	s.AddKnownTypes(corev1.SchemeGroupVersion, &corev1.ConfigMap{}, &corev1.Service{})
+
+	// create a fake client to mock API calls
+	cl := fake.NewFakeClient(objs...)
+	// create a ReconcileMobileSecurityService object with the scheme and fake client
+	return &ReconcileMobileSecurityService{client: cl, scheme: s}
 }
