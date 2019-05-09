@@ -2,7 +2,7 @@ apiVersion: mobile-security-service.aerogear.com/v1alpha1
 kind: MobileSecurityServiceDB
 metadata:
   name: mobile-security-service-db
-  namespace: mobile-security-service-operator
+  namespace: mobile-security-service
 spec:
   size: 1
   # The imaged used in this project is from Red Hat. See more in https://docs.okd.io/latest/using_images/db_images/postgresql.html

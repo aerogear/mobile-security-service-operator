@@ -17,7 +17,7 @@ IMAGE_DEV_TAG=$(IMAGE_REGISTRY)/$(REGISTRY_ORG)/$(REGISTRY_REPO):$(TAG)-$(DEV)
 IMAGE_LATEST_TAG=$(IMAGE_REGISTRY)/$(REGISTRY_ORG)/$(REGISTRY_REPO):latest
 IMAGE_MASTER_TAG=$(IMAGE_REGISTRY)/$(REGISTRY_ORG)/$(REGISTRY_REPO):master
 IMAGE_RELEASE_TAG=$(IMAGE_REGISTRY)/$(REGISTRY_ORG)/$(REGISTRY_REPO):$(CIRCLE_TAG)
-NAMESPACE=mobile-security-service-operator
+NAMESPACE=mobile-security-service
 APP_NAMESPACE=mobile-security-service-apps
 
 # This follows the output format for goreleaser
@@ -89,12 +89,12 @@ delete-all:
 	- kubectl delete -f deploy/operator.yaml
 	- kubectl delete -f deploy/role.yaml
 	- kubectl delete -f deploy/role_binding.yaml
-	- kubectl delete namespace mobile-security-service-operator
+	- kubectl delete namespace ${NAMESPACE}
 
 .PHONY: create-oper
 create-oper:
 	@echo Create Mobile Security Service Operator:
-	- kubectl create namespace mobile-security-service-operator
+	- oc new-project ${NAMESPACE}
 	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
 	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
 	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml
@@ -200,7 +200,7 @@ debug-setup:
 	@echo Exporting WATCH_NAMESPACE=default:
 	- export WATCH_NAMESPACE=default
 	@echo Create Namespace:
-	- kubectl create namespace mobile-security-service-operator
+	- oc new-project ${NAMESPACE}
 	@echo Installing the CRD:
 	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
 	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml

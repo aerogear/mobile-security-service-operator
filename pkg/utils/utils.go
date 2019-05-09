@@ -15,11 +15,10 @@ import (
 // The namespaces should be informed split by ";".
 const APP_NAMESPACE_ENV_VAR = "APP_NAMESPACES"
 const SERVICE_INSTANCE_NAME = "mobile-security-service"
-const SERVICE_INSTANCE_NAMESPACE = "mobile-security-service-operator"
 
 var log = logf.Log.WithName("mobile-security-service-operator.utils")
 
-// GetRouteName returns an string name with the name of the router
+//GetRouteName returns an string name with the name of the router
 func GetRouteName(m *mobilesecurityservicev1alpha1.MobileSecurityService) string {
 	if len(m.Spec.RouteName) > 0 {
 		return m.Spec.RouteName

@@ -9,6 +9,7 @@ import (
 	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"github.com/go-logr/logr"
 	routev1 "github.com/openshift/api/route/v1"
+	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -134,7 +135,8 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 
 	reqLogger.Info("Checking for service instance ...")
 	serviceInstance := &mobilesecurityservicev1alpha1.MobileSecurityService{}
-	if err := r.client.Get(context.TODO(), types.NamespacedName{Name: utils.SERVICE_INSTANCE_NAME, Namespace: utils.SERVICE_INSTANCE_NAMESPACE}, serviceInstance); err != nil {
+	operatorNamespace, _ := k8sutil.GetOperatorNamespace()
+	if err := r.client.Get(context.TODO(), types.NamespacedName{Name: utils.SERVICE_INSTANCE_NAME, Namespace: operatorNamespace}, serviceInstance); err != nil {
 		// Return and don't create
 		reqLogger.Info("Mobile Security Service instance resource not found. Ignoring since object must be deleted")
 		return reconcile.Result{}, nil
@@ -147,7 +149,7 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 
 	reqLogger.Info("Checking if the route already exists ...")
 	route := &routev1.Route{}
-	if err := r.client.Get(context.TODO(), types.NamespacedName{Name: utils.GetRouteName(serviceInstance), Namespace: utils.SERVICE_INSTANCE_NAMESPACE}, route); err != nil {
+	if err := r.client.Get(context.TODO(), types.NamespacedName{Name: utils.GetRouteName(serviceInstance), Namespace: operatorNamespace}, route); err != nil {
 		return reconcile.Result{}, err
 	}
 
