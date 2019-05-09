@@ -1,7 +1,0 @@
-apiVersion: mobile-security-service.aerogear.com/v1alpha1
-kind: MobileSecurityServiceUnbind
-metadata:
-  name: mobile-security-service-unbind
-spec:
-  # The appId spec defines the appId of the app used to bind the service
-  appId: "appid.example.com"

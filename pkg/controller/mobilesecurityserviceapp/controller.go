@@ -134,7 +134,9 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 	reqLogger.Info("Checking for service instance ...")
 	serviceInstance := &mobilesecurityservicev1alpha1.MobileSecurityService{}
 	if err := r.client.Get(context.TODO(), types.NamespacedName{Name: utils.SERVICE_INSTANCE_NAME, Namespace: utils.SERVICE_INSTANCE_NAMESPACE }, serviceInstance); err != nil {
-		return reconcile.Result{}, err
+		// Return and don't create
+		reqLogger.Info("Mobile Security Service instance resource not found. Ignoring since object must be deleted")
+		return reconcile.Result{}, nil
 	}
 
 	//Check specs
@@ -186,6 +188,16 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 
 	//Update status for BindStatus
 	if err := r.updateBindStatus(serviceAPI, reqLogger, SDKConfigMapStatus, instance); err != nil {
+		return reconcile.Result{}, err
+	}
+
+	//Handle the finalizer when the CR is deleted to unbind the app
+	if err := r.handleFinalizer(serviceAPI, reqLogger, instance); err != nil {
+		return reconcile.Result{}, err
+	}
+
+	//Update finalizer timestamp to allow delete CR
+	if err := r.updateFinilizer(serviceAPI, reqLogger, instance); err != nil {
 		return reconcile.Result{}, err
 	}
 

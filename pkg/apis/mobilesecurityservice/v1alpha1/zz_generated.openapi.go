@@ -19,9 +19,6 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceDBStatus":     schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceDBStatus(ref),
 		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceSpec":         schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceSpec(ref),
 		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceStatus":       schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceStatus(ref),
-		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceUnbind":       schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceUnbind(ref),
-		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceUnbindSpec":   schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceUnbindSpec(ref),
-		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceUnbindStatus": schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceUnbindStatus(ref),
 	}
 }
 
@@ -365,73 +362,6 @@ func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceStatus(
 					},
 				},
 				Required: []string{"nodes"},
-			},
-		},
-		Dependencies: []string{},
-	}
-}
-
-func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceUnbind(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Description: "MobileSecurityServiceUnbind is the Schema for the mobilesecurityserviceunbinds API",
-				Properties: map[string]spec.Schema{
-					"kind": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"apiVersion": {
-						SchemaProps: spec.SchemaProps{
-							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"metadata": {
-						SchemaProps: spec.SchemaProps{
-							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
-						},
-					},
-					"spec": {
-						SchemaProps: spec.SchemaProps{
-							Ref: ref("github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceUnbindSpec"),
-						},
-					},
-					"status": {
-						SchemaProps: spec.SchemaProps{
-							Ref: ref("github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceUnbindStatus"),
-						},
-					},
-				},
-			},
-		},
-		Dependencies: []string{
-			"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceUnbindSpec", "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceUnbindStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
-	}
-}
-
-func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceUnbindSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Description: "MobileSecurityServiceUnbindSpec defines the desired state of MobileSecurityServiceUnbind",
-				Properties:  map[string]spec.Schema{},
-			},
-		},
-		Dependencies: []string{},
-	}
-}
-
-func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceUnbindStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Description: "MobileSecurityServiceUnbindStatus defines the observed state of MobileSecurityServiceUnbind",
-				Properties:  map[string]spec.Schema{},
 			},
 		},
 		Dependencies: []string{},

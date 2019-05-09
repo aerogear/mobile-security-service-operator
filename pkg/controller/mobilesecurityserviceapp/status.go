@@ -52,3 +52,4 @@ func (r *ReconcileMobileSecurityServiceApp) updateBindStatus(serviceURL string,r
 	}
 	return nil
 }
+
