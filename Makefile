@@ -73,7 +73,7 @@ run-local:
 create-all:
 	@echo Create Mobile Security Service Operator and Service in the namespace "mobile-security-service-operator":
 	make create-oper
-	make create-service
+	make create-service-and-db
 
 .PHONY: delete-all
 delete-all:
