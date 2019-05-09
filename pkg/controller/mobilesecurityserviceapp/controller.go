@@ -7,6 +7,7 @@ import (
 	"github.com/aerogear/mobile-security-service-operator/pkg/service"
 	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"github.com/go-logr/logr"
+	routev1 "github.com/openshift/api/route/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -17,7 +18,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 	"sigs.k8s.io/controller-runtime/pkg/source"
-	routev1 "github.com/openshift/api/route/v1"
 )
 
 var log = logf.Log.WithName("controller_mobilesecurityserviceapp")
@@ -108,6 +108,20 @@ func (r *ReconcileMobileSecurityServiceApp) buildFactory(reqLogger logr.Logger, 
 func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request) (reconcile.Result, error) {
 	reqLogger := log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
 	reqLogger.Info("Reconciling MobileSecurityServiceApp")
+
+	// FIXME: Check if is a valid namespace
+	// We should not checked if the namespace is valid or not. It is an workaround since currently is not possible watch/cache a List of Namespaces
+	// The impl to allow do it is done and merged in the master branch of the lib but not released in an stable version. It should be removed when this feature be impl.
+	// See the PR which we are working on to update the deps and have this feature: https://github.com/operator-framework/operator-sdk/pull/1388
+	if isValidNamespace, err:= utils.IsValidAppNamespace(request.Namespace); err != nil || isValidNamespace == false {
+		// Stop reconcile
+		envVar, _ := utils.GetAppNamespaces();
+		reqLogger.Error(err, "Unable to reconcile Mobile Security Service App", "Request.Namespace", request.Namespace, "isValidNamespace", isValidNamespace, "EnvVar.APP_NAMESPACES", envVar)
+		return reconcile.Result{}, nil
+	}
+
+	reqLogger.Info("Valid namespace for MobileSecurityServiceApp", "Namespace", request.Namespace)
+	reqLogger.Info("Start Reconciling MobileSecurityServiceApp ...")
 
 	instance := &mobilesecurityservicev1alpha1.MobileSecurityServiceApp{}
 
