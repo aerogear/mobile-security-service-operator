@@ -38,8 +38,9 @@ type MobileSecurityServiceSpec struct {
 	OAuthPort       int32  `json:"oAuthPort"`
 
 	//CR optional configuration values
-	ConfigMapName string `json:"configMapName,omitempty"`
-	RouteName     string `json:"routeName,omitempty"`
+	ConfigMapName           string `json:"configMapName,omitempty"`
+	RouteName               string `json:"routeName,omitempty"`
+	SkipNamespaceValidation bool   `json:"skipNamespaceValidation,omitempty"`
 }
 
 // MobileSecurityServiceStatus defines the observed state of MobileSecurityService

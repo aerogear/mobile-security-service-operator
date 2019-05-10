@@ -1,10 +1,9 @@
 package v1alpha1
 
 import (
-	"k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
-
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
@@ -18,13 +17,13 @@ type MobileSecurityServiceDBSpec struct {
 	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
 
 	//Enviroment Variables for the DB when the Service configMap was not found
-	DatabaseName           string `json:"databaseName,omitempty"`
-	DatabasePassword       string `json:"databasePassword,omitempty"`
-	DatabaseUser           string `json:"databaseUser,omitempty"`
-	DatabaseNameParam      string `json:"databaseNameParam"`
-	DatabasePasswordParam  string `json:"databasePasswordParam"`
-	DatabaseUserParam      string `json:"databaseUserParam"`
-	DatabasePort           int32  `json:"databasePort"`
+	DatabaseName          string `json:"databaseName,omitempty"`
+	DatabasePassword      string `json:"databasePassword,omitempty"`
+	DatabaseUser          string `json:"databaseUser,omitempty"`
+	DatabaseNameParam     string `json:"databaseNameParam"`
+	DatabasePasswordParam string `json:"databasePasswordParam"`
+	DatabaseUserParam     string `json:"databaseUserParam"`
+	DatabasePort          int32  `json:"databasePort"`
 
 	//CR mandatory configuration values
 	Size                   int32  `json:"size"`
@@ -33,6 +32,9 @@ type MobileSecurityServiceDBSpec struct {
 	DatabaseMemoryLimit    string `json:"databaseMemoryLimit"`
 	DatabaseMemoryRequest  string `json:"databaseMemoryRequest"`
 	DatabaseStorageRequest string `json:"databaseStorageRequest"`
+
+	// Optional configuration values
+	SkipNamespaceValidation bool `json:"skipNamespaceValidation,omitempty"`
 }
 
 // MobileSecurityServiceDBStatus defines the observed state of MobileSecurityServiceDB
@@ -41,12 +43,12 @@ type MobileSecurityServiceDBStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
-	PersistentVolumeClaimName string `json:"persistentVolumeClaimName"`
-	DeploymentName string `json:"deploymentName"`
-	DeploymentStatus v1beta1.DeploymentStatus `json:"deploymentStatus"`
-	ServiceName string `json:"serviceName"`
-	ServiceStatus v1.ServiceStatus `json:"serviceStatus"`
-	DatabaseStatus string `json:databaseStatus"`
+	PersistentVolumeClaimName string                   `json:"persistentVolumeClaimName"`
+	DeploymentName            string                   `json:"deploymentName"`
+	DeploymentStatus          v1beta1.DeploymentStatus `json:"deploymentStatus"`
+	ServiceName               string                   `json:"serviceName"`
+	ServiceStatus             v1.ServiceStatus         `json:"serviceStatus"`
+	DatabaseStatus            string                   `json:databaseStatus"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

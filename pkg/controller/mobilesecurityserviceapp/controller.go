@@ -2,6 +2,7 @@ package mobilesecurityserviceapp
 
 import (
 	"context"
+
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/models"
 	"github.com/aerogear/mobile-security-service-operator/pkg/service"
@@ -109,20 +110,6 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 	reqLogger := log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
 	reqLogger.Info("Reconciling MobileSecurityServiceApp")
 
-	// FIXME: Check if is a valid namespace
-	// We should not checked if the namespace is valid or not. It is an workaround since currently is not possible watch/cache a List of Namespaces
-	// The impl to allow do it is done and merged in the master branch of the lib but not released in an stable version. It should be removed when this feature be impl.
-	// See the PR which we are working on to update the deps and have this feature: https://github.com/operator-framework/operator-sdk/pull/1388
-	if isValidNamespace, err:= utils.IsValidAppNamespace(request.Namespace); err != nil || isValidNamespace == false {
-		// Stop reconcile
-		envVar, _ := utils.GetAppNamespaces();
-		reqLogger.Error(err, "Unable to reconcile Mobile Security Service App", "Request.Namespace", request.Namespace, "isValidNamespace", isValidNamespace, "EnvVar.APP_NAMESPACES", envVar)
-		return reconcile.Result{}, nil
-	}
-
-	reqLogger.Info("Valid namespace for MobileSecurityServiceApp", "Namespace", request.Namespace)
-	reqLogger.Info("Start Reconciling MobileSecurityServiceApp ...")
-
 	instance := &mobilesecurityservicev1alpha1.MobileSecurityServiceApp{}
 
 	//Fetch the MobileSecurityService instance
@@ -131,9 +118,23 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 		return fetch(r, reqLogger, err)
 	}
 
+	// FIXME: Check if is a valid namespace
+	// We should not checked if the namespace is valid or not. It is an workaround since currently is not possible watch/cache a List of Namespaces
+	// The impl to allow do it is done and merged in the master branch of the lib but not released in an stable version. It should be removed when this feature be impl.
+	// See the PR which we are working on to update the deps and have this feature: https://github.com/operator-framework/operator-sdk/pull/1388
+	if isValidNamespace, err := utils.IsValidAppNamespace(request.Namespace); err != nil || isValidNamespace == false {
+		// Stop reconcile
+		envVar, _ := utils.GetAppNamespaces()
+		reqLogger.Error(err, "Unable to reconcile Mobile Security Service App", "Request.Namespace", request.Namespace, "isValidNamespace", isValidNamespace, "EnvVar.APP_NAMESPACES", envVar)
+		return reconcile.Result{}, nil
+	}
+
+	reqLogger.Info("Valid namespace for MobileSecurityServiceApp", "Namespace", request.Namespace)
+	reqLogger.Info("Start Reconciling MobileSecurityServiceApp ...")
+
 	reqLogger.Info("Checking for service instance ...")
 	serviceInstance := &mobilesecurityservicev1alpha1.MobileSecurityService{}
-	if err := r.client.Get(context.TODO(), types.NamespacedName{Name: utils.SERVICE_INSTANCE_NAME, Namespace: utils.SERVICE_INSTANCE_NAMESPACE }, serviceInstance); err != nil {
+	if err := r.client.Get(context.TODO(), types.NamespacedName{Name: utils.SERVICE_INSTANCE_NAME, Namespace: utils.SERVICE_INSTANCE_NAMESPACE}, serviceInstance); err != nil {
 		// Return and don't create
 		reqLogger.Info("Mobile Security Service instance resource not found. Ignoring since object must be deleted")
 		return reconcile.Result{}, nil
@@ -146,7 +147,7 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 
 	reqLogger.Info("Checking if the route already exists ...")
 	route := &routev1.Route{}
-	if err := r.client.Get(context.TODO(), types.NamespacedName{Name: utils.GetRouteName(serviceInstance), Namespace: utils.SERVICE_INSTANCE_NAMESPACE }, route); err != nil {
+	if err := r.client.Get(context.TODO(), types.NamespacedName{Name: utils.GetRouteName(serviceInstance), Namespace: utils.SERVICE_INSTANCE_NAMESPACE}, route); err != nil {
 		return reconcile.Result{}, err
 	}
 
@@ -155,7 +156,7 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 
 	//Check if ConfigMap for the app exist, if not create one.
 	if _, err := r.fetchSDKConfigMap(reqLogger, instance); err != nil {
-		return r.create(instance, CONFIGMAP, serviceAPI , reqLogger, err)
+		return r.create(instance, CONFIGMAP, serviceAPI, reqLogger, err)
 	}
 
 	//Check if App is Bind in the REST Service, if not then bind it
