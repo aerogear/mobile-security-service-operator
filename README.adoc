@@ -146,8 +146,6 @@ $ make delete-all
 
 An Oauth Proxy container and the required configuration will be setup by default by the operator to provide authentication to the Mobile Security Service.
 
-NOTE: The route name which is specified in link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService CR] is also referenced in the link:./deploy/service_account.yaml[Service Account]. The Route Name specified in the Service Account needs to match the route name provided by the CR, otherwise authentication and routing will not work correctly.
-
 === Environment Variables and ConfigMap
 
 Environment Variables are used to configure the https://github.com/aerogear/mobile-security-service[Mobile Security Service] Application and Database. For further information on configuration see the https://github.com/aerogear/mobile-security-service#setup-and-configurations[Setup and Configuration] section.
