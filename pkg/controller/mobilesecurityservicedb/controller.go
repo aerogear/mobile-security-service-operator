@@ -2,6 +2,8 @@ package mobilesecurityservicedb
 
 import (
 	"context"
+	"time"
+
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"github.com/go-logr/logr"
@@ -16,7 +18,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 	"sigs.k8s.io/controller-runtime/pkg/source"
-	"time"
 )
 
 var log = logf.Log.WithName("controller_mobilesecurityservicedb")
@@ -82,7 +83,7 @@ type ReconcileMobileSecurityServiceDB struct {
 }
 
 //Update the object and reconcile it
-func (r *ReconcileMobileSecurityServiceDB) update( obj runtime.Object, reqLogger logr.Logger) (reconcile.Result, error) {
+func (r *ReconcileMobileSecurityServiceDB) update(obj runtime.Object, reqLogger logr.Logger) (reconcile.Result, error) {
 	err := r.client.Update(context.TODO(), obj)
 	if err != nil {
 		reqLogger.Error(err, "Failed to update Spec")
@@ -119,7 +120,7 @@ func (r *ReconcileMobileSecurityServiceDB) buildFactory(instance *mobilesecurity
 	case PVC:
 		return r.buildPVCForDB(instance), nil
 	case DEEPLOYMENT:
-		return r.buildDBDeployment(instance,serviceInstance), nil
+		return r.buildDBDeployment(instance, serviceInstance), nil
 	case SERVICE:
 		return r.buildDBService(instance), nil
 	default:
@@ -141,9 +142,9 @@ func (r *ReconcileMobileSecurityServiceDB) Reconcile(request reconcile.Request) 
 	// We should not checked if the namespace is valid or not. It is an workaround since currently is not possible watch/cache a List of Namespaces
 	// The impl to allow do it is done and merged in the master branch of the lib but not released in an stable version. It should be removed when this feature be impl.
 	// See the PR which we are working on to update the deps and have this feature: https://github.com/operator-framework/operator-sdk/pull/1388
-	if isValidNamespace, err:= utils.IsValidOperatorNamespace(request.Namespace); err != nil || isValidNamespace == false {
+	if isValidNamespace, err := utils.IsValidOperatorNamespace(request.Namespace); err != nil || isValidNamespace == false {
 		// Stop reconcile
-		operatorNamespace, _ := k8sutil.GetOperatorNamespace();
+		operatorNamespace, _ := k8sutil.GetOperatorNamespace()
 		reqLogger.Error(err, "Unable to reconcile Mobile Security Service Database", "Request.Namespace", request.Namespace, "isValidNamespace", isValidNamespace, "Operator.Namespace", operatorNamespace)
 		return reconcile.Result{}, nil
 	}
@@ -168,7 +169,7 @@ func (r *ReconcileMobileSecurityServiceDB) Reconcile(request reconcile.Request) 
 		// if the Instance cannot be found and/or its configMap was not created than the default values specified in its CR will be used
 		reqLogger.Info("Checking for service instance ...")
 		serviceInstance := &mobilesecurityservicev1alpha1.MobileSecurityService{}
-		r.client.Get(context.TODO(), types.NamespacedName{Name: utils.SERVICE_INSTANCE_NAME, Namespace: utils.SERVICE_INSTANCE_NAMESPACE }, serviceInstance)
+		r.client.Get(context.TODO(), types.NamespacedName{Name: utils.SERVICE_INSTANCE_NAME, Namespace: utils.SERVICE_INSTANCE_NAMESPACE}, serviceInstance)
 		return r.create(instance, serviceInstance, DEEPLOYMENT, reqLogger, err)
 	}
 
@@ -191,7 +192,7 @@ func (r *ReconcileMobileSecurityServiceDB) Reconcile(request reconcile.Request) 
 	}
 
 	//Update status for deployment
-	deploymentStatus, err := r.updateDeploymentStatus(reqLogger,instance)
+	deploymentStatus, err := r.updateDeploymentStatus(reqLogger, instance)
 	if err != nil {
 		return reconcile.Result{}, err
 	}
@@ -209,7 +210,7 @@ func (r *ReconcileMobileSecurityServiceDB) Reconcile(request reconcile.Request) 
 	}
 
 	//Update status for DB
-	if err:= r.updateDBStatus(reqLogger, deploymentStatus, serviceStatus, pvcStatus, instance); err != nil {
+	if err := r.updateDBStatus(reqLogger, deploymentStatus, serviceStatus, pvcStatus, instance); err != nil {
 		return reconcile.Result{}, err
 	}
 

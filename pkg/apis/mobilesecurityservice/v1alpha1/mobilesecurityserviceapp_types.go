@@ -13,8 +13,8 @@ type MobileSecurityServiceAppSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
-	AppName                       string `json:"appName"`
-	AppId                         string `json:"appId"`
+	AppName string `json:"appName"`
+	AppId   string `json:"appId"`
 }
 
 // MobileSecurityServiceAppStatus defines the observed state of MobileSecurityServiceApp
@@ -24,7 +24,7 @@ type MobileSecurityServiceAppStatus struct {
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
 	SDKConfigMapName string `json:"sdkConfigMapName"`
-	BindStatus string `json:"bindStatus"`
+	BindStatus       string `json:"bindStatus"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
