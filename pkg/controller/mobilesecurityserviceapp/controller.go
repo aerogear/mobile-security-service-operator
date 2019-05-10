@@ -144,11 +144,6 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 		return reconcile.Result{}, nil
 	}
 
-	//Check specs
-	if !hasMandatorySpecs(instance, serviceInstance, reqLogger) {
-		return reconcile.Result{Requeue: true}, nil
-	}
-
 	reqLogger.Info("Checking if the route already exists ...")
 	route := &routev1.Route{}
 	if err := r.client.Get(context.TODO(), types.NamespacedName{Name: utils.GetRouteName(serviceInstance), Namespace: operatorNamespace}, route); err != nil {
@@ -158,6 +153,43 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 	//Get the REST Service Endpoint
 	serviceAPI := service.GetServiceAPIURL(route, serviceInstance)
 
+	//Check if the APP CR was marked to be deleted
+	isAppMarkedToBeDeleted := instance.GetDeletionTimestamp() != nil
+	if isAppMarkedToBeDeleted {
+		//If the CR was marked to be deleted before it finalizes the app need to be deleted from the Service
+		//Do request to get the app.ID to delete app
+		app, err := fetchBindAppRestServiceByAppID(serviceAPI, instance, reqLogger);
+		if err != nil {
+			return reconcile.Result{}, err
+		}
+
+		// If the request works with success and the app was found then
+		// Do request to delete it from the service
+		if  app.ID != "" {
+			if err := service.DeleteAppFromServiceByRestAPI(serviceAPI,  app.ID, reqLogger); err != nil {
+				reqLogger.Error(err, "Unable to delete app from Service", "App.ID",  app.ID)
+				return reconcile.Result{}, err
+			}
+			reqLogger.Info("Successfully delete app ...")
+		}
+		
+		// Check if the finalizer criteria is met and remove finalizer from the CR
+		if err := r.removeFinalizer(serviceAPI, reqLogger, request); err != nil {
+			return reconcile.Result{}, err
+		}
+		return reconcile.Result{}, nil
+	}
+
+	//Check specs
+	if !hasMandatorySpecs(instance, serviceInstance, reqLogger) {
+		return reconcile.Result{Requeue: true}, nil
+	}
+
+	//Add finalizer for this CR
+	if err := r.addFinalizer(reqLogger, instance, request); err != nil {
+		return reconcile.Result{}, err
+	}
+
 	//Check if ConfigMap for the app exist, if not create one.
 	if _, err := r.fetchSDKConfigMap(reqLogger, instance); err != nil {
 		return r.create(instance, CONFIGMAP, serviceAPI, reqLogger, request)
@@ -166,7 +198,7 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 	//Check if App is Bind in the REST Service, if not then bind it
 	if app, err := fetchBindAppRestServiceByAppID(serviceAPI, instance, reqLogger); err == nil {
 		//Update the name by the REST API
-		if hasApp(app) && app.AppName != instance.Spec.AppName {
+		if app.AppName != instance.Spec.AppName {
 			app.AppName = instance.Spec.AppName
 			//Check if App was update with success
 
@@ -176,7 +208,7 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 			return reconcile.Result{Requeue: true}, nil
 		}
 		// Bind App in the Service by the REST API
-		if !hasApp(app) {
+		if app.ID == "" {
 			newApp := models.NewApp(instance.Spec.AppName, instance.Spec.AppId)
 			if err := service.CreateAppByRestAPI(serviceAPI, newApp, reqLogger); err != nil {
 				return reconcile.Result{}, err
@@ -193,16 +225,6 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 
 	//Update status for BindStatus
 	if err := r.updateBindStatus(serviceAPI, reqLogger, SDKConfigMapStatus, request); err != nil {
-		return reconcile.Result{}, err
-	}
-
-	//Handle the finalizer when the CR is deleted to unbind the app
-	if err := r.handleFinalizer(serviceAPI, reqLogger, request); err != nil {
-		return reconcile.Result{}, err
-	}
-
-	//Update finalizer timestamp to allow delete CR
-	if err := r.updateFinilizer(serviceAPI, reqLogger, request); err != nil {
 		return reconcile.Result{}, err
 	}
 

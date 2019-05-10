@@ -9,6 +9,7 @@ import (
 )
 
 const SDK  = "-sdk"
+const FINALIZER = "finalizer.mobile-security-service.aerogear.com"
 
 // Returns an string map with the labels which wil be associated to the kubernetes/openshift objects
 // which will be created and managed by this operator
@@ -33,11 +34,6 @@ func getConfigMapSDKForMobileSecurityService(m *mobilesecurityservicev1alpha1.Mo
 // return properties for the response SDK
 func getSDKConfigMapName(m *mobilesecurityservicev1alpha1.MobileSecurityServiceApp) string {
 	return m.Spec.AppName + SDK
-}
-
-//hasApp return true when APP has ID which is just created by the REST Service API
-func hasApp(app models.App) bool {
-	return len(app.ID) > 0
 }
 
 //Check if the mandatory specs are filled
