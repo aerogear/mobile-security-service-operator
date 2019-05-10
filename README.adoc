@@ -82,6 +82,20 @@ $ make create-all
 
 IMPORTANT: To create all you need be logged as admin. Use `oc login -u system:admin`.
 
+To verify the installation has been successful run the following
+[source,shell]
+----
+# check the project exists 
+$ oc project mobile-security-service-operator
+# check the pods are deployed
+$ oc get pods
+NAME                                                READY     STATUS    RESTARTS   AGE
+mobile-security-service-569d4f8d86-vp5hq            1/1       Running   2          1h
+mobile-security-service-db-ccb5856f6-8qnvc          1/1       Running   0          1h
+mobile-security-service-operator-785cbdbf46-wq2lf   1/1       Running   0          1h
+
+----
+
 === Creating/Binding an app
 
 * Create a link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml[MobileSecurityServiceApp CR] as this example.
