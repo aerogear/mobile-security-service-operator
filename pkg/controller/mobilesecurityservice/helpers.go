@@ -1,8 +1,6 @@
 package mobilesecurityservice
 
 import (
-	"fmt"
-
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"github.com/go-logr/logr"
@@ -56,7 +54,6 @@ func getOAuthArgsMap(m *mobilesecurityservicev1alpha1.MobileSecurityService) []s
 		"--provider=openshift",
 		"--openshift-service-account=mobile-security-service-operator",
 		"--upstream=http://localhost:3000",
-		fmt.Sprintf("--openshift-sar=[{\"namespace\":\"%s\",\"resource\":\"services\",\"name\":\"%s\",\"verb\":\"get\"}]", m.Namespace, m.Name),
 		"--cookie-secure=true",
 		"--cookie-secret=SECRET",
 		"--cookie-httponly=false",
