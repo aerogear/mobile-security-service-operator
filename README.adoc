@@ -142,7 +142,7 @@ $ make delete-all
 
 == Configuration and Options
 
-=== Oauth Configration
+=== Oauth Configuration
 
 An Oauth Proxy container and the required configuration will be setup by default by the operator to provide authentication to the Mobile Security Service.
 
@@ -157,9 +157,9 @@ NOTE:
 * All values used in the default configuration are sourced from the config-map which is managed and created by the Operator. This config map will be created in the Operator namespace and its name is defined by the attribute `configMapName` in the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService CR].
 * If the name of this ConfigMap is not specified then the name of the Mobile Security Service instance will be used instead.
 
-=== Configure roles for no-priveledge users
+=== Configure roles for non-privileged users
 
-By executing the following commands you will create the requred roles which allow the <user> to create the Mobile Security Service Application and Database in their namespaces so it is not required to be logged in to the system:admin user. However, the Mobile Security Service Operator is cluster scoped and will still only accessible to the system:admin user.
+By executing the following commands you will create the required roles which allow the <user> to create the Mobile Security Service Application and Database in their namespaces so it is not required to be logged in to the system:admin user. However, the Mobile Security Service Operator is cluster scoped and will still only accessible to the system:admin user.
 
 [source,shell]
 ----
