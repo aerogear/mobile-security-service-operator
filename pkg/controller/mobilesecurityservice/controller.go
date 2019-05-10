@@ -19,10 +19,11 @@ import (
 
 const (
 	CONFIGMAP           = "ConfigMap"
-	DEEPLOYMENT         = "Deployment"
+	DEPLOYMENT          = "Deployment"
 	PROXY_SERVICE       = "Proxy Service"
 	ROUTE               = "Route"
 	APPLICATION_SERVICE = "Application Service"
+	SERVICEACCOUNT      = "ServiceAccount"
 )
 
 var log = logf.Log.WithName("controller_mobilesecurityservice")
@@ -74,6 +75,11 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 		return err
 	}
 
+	//ServiceAccount
+	if err := watchServiceAccount(c); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -116,7 +122,7 @@ func (r *ReconcileMobileSecurityService) buildFactory(reqLogger logr.Logger, ins
 	switch resource {
 	case CONFIGMAP:
 		return r.buildConfigMap(instance)
-	case DEEPLOYMENT:
+	case DEPLOYMENT:
 		return r.buildDeployment(instance)
 	case PROXY_SERVICE:
 		return r.buildProxyService(instance)
@@ -124,6 +130,8 @@ func (r *ReconcileMobileSecurityService) buildFactory(reqLogger logr.Logger, ins
 		return r.buildApplicationService(instance)
 	case ROUTE:
 		return r.buildRoute(instance)
+	case SERVICEACCOUNT:
+		return r.buildServiceAccount(instance)
 	default:
 		msg := "Failed to recognize type of object" + resource + " into the Namespace " + instance.Namespace
 		panic(msg)
@@ -177,7 +185,7 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 	//Check if Deployment for the app exist, if not create one
 	deployment, err := r.fetchDeployment(reqLogger, instance)
 	if err != nil {
-		if err := r.create(instance, reqLogger, DEEPLOYMENT); err != nil {
+		if err := r.create(instance, reqLogger, DEPLOYMENT); err != nil {
 			return reconcile.Result{}, err
 		}
 		return reconcile.Result{Requeue: true}, nil
@@ -210,6 +218,13 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 	//Check if Route for the Service exist, if not create one
 	if _, err := r.fetchRoute(reqLogger, instance); err != nil {
 		if err := r.create(instance, reqLogger, ROUTE); err != nil {
+			return reconcile.Result{}, err
+		}
+	}
+
+	//Check if ServiceAccount for the app exist, if not create one
+	if _, err := r.fetchServiceAccount(reqLogger, instance); err != nil {
+		if err := r.create(instance, reqLogger, SERVICEACCOUNT); err != nil {
 			return reconcile.Result{}, err
 		}
 	}

@@ -49,3 +49,13 @@ func watchRoute(c controller.Controller) error {
 	})
 	return err
 }
+
+//Watch for changes to secondary resources and requeue the owner MobileSecurityService
+//Watch ServiceAccount resources created in the project/namespace
+func watchServiceAccount(c controller.Controller) error {
+	err := c.Watch(&source.Kind{Type: &corev1.ServiceAccount{}}, &handler.EnqueueRequestForOwner{
+		IsController: true,
+		OwnerType:    &mobilesecurityservicev1alpha1.MobileSecurityService{},
+	})
+	return err
+}

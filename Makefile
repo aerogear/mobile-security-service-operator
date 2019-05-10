@@ -155,28 +155,28 @@ delete-db-only:
 
 .PHONY: build-dev
 build-dev:
-	@echo Building operator with the tag $(IMAGE_DEV_TAG):
+	@echo Building operator with the tag: $(IMAGE_DEV_TAG)
 	operator-sdk build $(IMAGE_DEV_TAG)
 
 .PHONY: build-master
 build-master:
-	@echo Building operator with the tag $(IMAGE_MASTER_TAG):
+	@echo Building operator with the tag: $(IMAGE_MASTER_TAG)
 	operator-sdk build $(IMAGE_MASTER_TAG)
 
 .PHONY: build-release
 build-release:
-	@echo Building operator with the tag $(IMAGE_RELEASE_TAG):
+	@echo Building operator with the tag: $(IMAGE_RELEASE_TAG)
 	operator-sdk build $(IMAGE_RELEASE_TAG)
 
 .PHONY: build-latest
 build-latest:
-	@echo Building operator with the tag $(IMAGE_LATEST_TAG):
+	@echo Building operator with the tag: $(IMAGE_LATEST_TAG)
 	operator-sdk build $(IMAGE_LATEST_TAG)
 	
 .PHONY: push-dev
 push-dev:
 	@echo Pushing operator with tag $(IMAGE_DEV_TAG) to $(IMAGE_REGISTRY)
-	@docker login quay.io
+	@docker login $(IMAGE_REGISTRY)
 	docker push $(IMAGE_DEV_TAG)
 
 .PHONY: push-master
