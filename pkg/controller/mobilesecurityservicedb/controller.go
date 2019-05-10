@@ -138,11 +138,19 @@ func (r *ReconcileMobileSecurityServiceDB) Reconcile(request reconcile.Request) 
 	reqLogger := log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
 	reqLogger.Info("Reconciling Mobile Security Service Database")
 
+	instance := &mobilesecurityservicev1alpha1.MobileSecurityServiceDB{}
+
+	//Fetch the MobileSecurityService instance
+	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
+	if err != nil {
+		return fetch(r, reqLogger, err)
+	}
+
 	// FIXME: Check if is a valid namespace
 	// We should not checked if the namespace is valid or not. It is an workaround since currently is not possible watch/cache a List of Namespaces
 	// The impl to allow do it is done and merged in the master branch of the lib but not released in an stable version. It should be removed when this feature be impl.
 	// See the PR which we are working on to update the deps and have this feature: https://github.com/operator-framework/operator-sdk/pull/1388
-	if isValidNamespace, err := utils.IsValidOperatorNamespace(request.Namespace); err != nil || isValidNamespace == false {
+	if isValidNamespace, err := utils.IsValidOperatorNamespace(request.Namespace, instance.Spec.SkipNamespaceValidation); err != nil || isValidNamespace == false {
 		// Stop reconcile
 		operatorNamespace, _ := k8sutil.GetOperatorNamespace()
 		reqLogger.Error(err, "Unable to reconcile Mobile Security Service Database", "Request.Namespace", request.Namespace, "isValidNamespace", isValidNamespace, "Operator.Namespace", operatorNamespace)
@@ -152,16 +160,9 @@ func (r *ReconcileMobileSecurityServiceDB) Reconcile(request reconcile.Request) 
 	reqLogger.Info("Valid namespace for Mobile Security Service DB", "Namespace", request.Namespace)
 	reqLogger.Info("Start Reconciling Mobile Security Service DB ...")
 
-	instance := &mobilesecurityservicev1alpha1.MobileSecurityServiceDB{}
-
-	//Fetch the MobileSecurityService instance
-	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
-	if err != nil {
-		return fetch(r, reqLogger, err)
-	}
-
 	//Check if Deployment for the app exist, if not create one
 	deployment, err := r.fetchDBDeployment(reqLogger, instance)
+
 	if err != nil {
 		// To give time for the mobile security service be created
 		time.Sleep(30 * time.Second)

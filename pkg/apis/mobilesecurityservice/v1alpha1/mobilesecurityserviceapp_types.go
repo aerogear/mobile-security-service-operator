@@ -15,6 +15,9 @@ type MobileSecurityServiceAppSpec struct {
 	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
 	AppName string `json:"appName"`
 	AppId   string `json:"appId"`
+
+	// Optional configuration values
+	SkipNamespaceValidation bool `json:"skipNamespaceValidation,omitempty"`
 }
 
 // MobileSecurityServiceAppStatus defines the observed state of MobileSecurityServiceApp
