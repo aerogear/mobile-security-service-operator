@@ -119,7 +119,7 @@ func (r *ReconcileMobileSecurityService) create(instance *mobilesecurityservicev
 
 }
 
-//buildFactory will return the resource according to the kind defined
+// buildFactory will return the resource according to the kind defined
 func (r *ReconcileMobileSecurityService) buildFactory(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityService, kind string) (runtime.Object, error) {
 	reqLogger.Info("Check "+kind, "into the namespace", instance.Namespace)
 	switch kind {
@@ -146,11 +146,19 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 	reqLogger := log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
 	reqLogger.Info("Reconciling Mobile Security Service ...")
 
+	instance := &mobilesecurityservicev1alpha1.MobileSecurityService{}
+
+	//Fetch the MobileSecurityService instance
+	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
+	if err != nil {
+		return fetch(r, reqLogger, err)
+	}
+
 	// FIXME: Check if is a valid namespace
 	// We should not checked if the namespace is valid or not. It is an workaround since currently is not possible watch/cache a List of Namespaces
 	// The impl to allow do it is done and merged in the master branch of the lib but not released in an stable version. It should be removed when this feature be impl.
 	// See the PR which we are working on to update the deps and have this feature: https://github.com/operator-framework/operator-sdk/pull/1388
-	if isValidNamespace, err := utils.IsValidOperatorNamespace(request.Namespace); err != nil || isValidNamespace == false {
+	if isValidNamespace, err := utils.IsValidOperatorNamespace(request.Namespace, instance.Spec.SkipNamespaceValidation); err != nil || isValidNamespace == false {
 		// Stop reconcile
 		operatorNamespace, _ := k8sutil.GetOperatorNamespace()
 		reqLogger.Error(err, "Unable to reconcile Mobile Security Service", "Request.Namespace", request.Namespace, "isValidNamespace", isValidNamespace, "Operator.Namespace", operatorNamespace)
@@ -159,14 +167,6 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 
 	reqLogger.Info("Valid namespace for Mobile Security Service", "Namespace", request.Namespace)
 	reqLogger.Info("Start Reconciling Mobile Security Service ...")
-
-	instance := &mobilesecurityservicev1alpha1.MobileSecurityService{}
-
-	//Fetch the MobileSecurityService instance
-	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
-	if err != nil {
-		return fetch(r, reqLogger, err)
-	}
 
 	//Check specs
 	if !hasMandatorySpecs(instance, reqLogger) {

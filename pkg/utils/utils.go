@@ -60,8 +60,14 @@ func IsValidAppNamespace(namespace string) (bool, error) {
 	return false, err
 }
 
-//IsValidAppNamespace return true when the namespace informed is declared in the ENV VAR APP_NAMESPACES
-func IsValidOperatorNamespace(namespace string) (bool, error) {
+// IsValidOperatorNamespace return true when the namespace informed is declared in the ENV VAR APP_NAMESPACES
+func IsValidOperatorNamespace(namespace string, skipCheck bool) (bool, error) {
+	//FIXME: this check is used to bypass validation of namespace.
+	// This is a workaround and should be removed in the future.
+	if skipCheck {
+		return true, nil
+	}
+
 	ns, err := k8sutil.GetOperatorNamespace()
 	if err != nil {
 		return false, err

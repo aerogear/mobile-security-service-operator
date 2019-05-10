@@ -110,6 +110,14 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 	reqLogger := log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
 	reqLogger.Info("Reconciling MobileSecurityServiceApp")
 
+	instance := &mobilesecurityservicev1alpha1.MobileSecurityServiceApp{}
+
+	//Fetch the MobileSecurityService instance
+	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
+	if err != nil {
+		return fetch(r, reqLogger, err)
+	}
+
 	// FIXME: Check if is a valid namespace
 	// We should not checked if the namespace is valid or not. It is an workaround since currently is not possible watch/cache a List of Namespaces
 	// The impl to allow do it is done and merged in the master branch of the lib but not released in an stable version. It should be removed when this feature be impl.
@@ -123,14 +131,6 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 
 	reqLogger.Info("Valid namespace for MobileSecurityServiceApp", "Namespace", request.Namespace)
 	reqLogger.Info("Start Reconciling MobileSecurityServiceApp ...")
-
-	instance := &mobilesecurityservicev1alpha1.MobileSecurityServiceApp{}
-
-	//Fetch the MobileSecurityService instance
-	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
-	if err != nil {
-		return fetch(r, reqLogger, err)
-	}
 
 	reqLogger.Info("Checking for service instance ...")
 	serviceInstance := &mobilesecurityservicev1alpha1.MobileSecurityService{}

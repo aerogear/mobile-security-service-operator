@@ -32,6 +32,9 @@ type MobileSecurityServiceDBSpec struct {
 	DatabaseMemoryLimit    string `json:"databaseMemoryLimit"`
 	DatabaseMemoryRequest  string `json:"databaseMemoryRequest"`
 	DatabaseStorageRequest string `json:"databaseStorageRequest"`
+
+	// Optional configuration values
+	SkipNamespaceValidation bool `json:"skipNamespaceValidation,omitempty"`
 }
 
 // MobileSecurityServiceDBStatus defines the observed state of MobileSecurityServiceDB
