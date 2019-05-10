@@ -2,6 +2,7 @@ package mobilesecurityservice
 
 import (
 	"context"
+
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"github.com/go-logr/logr"
@@ -18,10 +19,10 @@ import (
 )
 
 const (
-	CONFIGMAP     = "ConfigMap"
-	DEEPLOYMENT   = "Deployment"
-	SERVICE       = "Service"
-	ROUTE         = "Route"
+	CONFIGMAP   = "ConfigMap"
+	DEEPLOYMENT = "Deployment"
+	SERVICE     = "Service"
+	ROUTE       = "Route"
 )
 
 var log = logf.Log.WithName("controller_mobilesecurityservice")
@@ -69,7 +70,7 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	}
 
 	//Route
-	if err:= watchRoute(c); err != nil {
+	if err := watchRoute(c); err != nil {
 		return err
 	}
 
@@ -98,7 +99,7 @@ func (r *ReconcileMobileSecurityService) update(obj runtime.Object, reqLogger lo
 }
 
 //Create the factory object and requeue
-func (r *ReconcileMobileSecurityService) create( instance *mobilesecurityservicev1alpha1.MobileSecurityService, reqLogger logr.Logger, kind string, err error) (reconcile.Result, error) {
+func (r *ReconcileMobileSecurityService) create(instance *mobilesecurityservicev1alpha1.MobileSecurityService, reqLogger logr.Logger, kind string, err error) (reconcile.Result, error) {
 	obj, errBuildObject := r.buildFactory(reqLogger, instance, kind)
 	if errBuildObject != nil {
 		return reconcile.Result{}, errBuildObject
@@ -136,8 +137,6 @@ func (r *ReconcileMobileSecurityService) buildFactory(reqLogger logr.Logger, ins
 	}
 }
 
-
-
 // Reconcile reads that state of the cluster for a MobileSecurityService object and makes changes based on the state read
 // and what is in the MobileSecurityService.Spec
 // Note:
@@ -151,9 +150,9 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 	// We should not checked if the namespace is valid or not. It is an workaround since currently is not possible watch/cache a List of Namespaces
 	// The impl to allow do it is done and merged in the master branch of the lib but not released in an stable version. It should be removed when this feature be impl.
 	// See the PR which we are working on to update the deps and have this feature: https://github.com/operator-framework/operator-sdk/pull/1388
-	if isValidNamespace, err:= utils.IsValidOperatorNamespace(request.Namespace); err != nil || isValidNamespace == false {
+	if isValidNamespace, err := utils.IsValidOperatorNamespace(request.Namespace); err != nil || isValidNamespace == false {
 		// Stop reconcile
-		operatorNamespace, _ := k8sutil.GetOperatorNamespace();
+		operatorNamespace, _ := k8sutil.GetOperatorNamespace()
 		reqLogger.Error(err, "Unable to reconcile Mobile Security Service", "Request.Namespace", request.Namespace, "isValidNamespace", isValidNamespace, "Operator.Namespace", operatorNamespace)
 		return reconcile.Result{}, nil
 	}
@@ -209,7 +208,7 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 	}
 
 	//Update status for deployment
-	deploymentStatus, err := r.updateDeploymentStatus(reqLogger,instance)
+	deploymentStatus, err := r.updateDeploymentStatus(reqLogger, instance)
 	if err != nil {
 		return reconcile.Result{}, err
 	}
@@ -227,7 +226,7 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 	}
 
 	//Update status for App
-	if err:= r.updateStatus(reqLogger, configMapStatus, deploymentStatus, serviceStatus, routeStatus, instance); err != nil {
+	if err := r.updateStatus(reqLogger, configMapStatus, deploymentStatus, serviceStatus, routeStatus, instance); err != nil {
 		return reconcile.Result{}, err
 	}
 
