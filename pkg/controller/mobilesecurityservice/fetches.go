@@ -5,26 +5,22 @@ import (
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"github.com/go-logr/logr"
+	routev1 "github.com/openshift/api/route/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
-	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	routev1 "github.com/openshift/api/route/v1"
 )
 
 // Request object not found, could have been deleted after reconcile request.
 // Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
-func fetch(r *ReconcileMobileSecurityService, reqLogger logr.Logger, err error) (reconcile.Result, error) {
-	if errors.IsNotFound(err) {
-		// Return and don't create
-		reqLogger.Info("Mobile Security Service App resource not found. Ignoring since object must be deleted")
-		return reconcile.Result{}, nil
-	}
-	// Error reading the object - create the request.
-	reqLogger.Error(err, "Failed to get Mobile Security Service App")
-	return reconcile.Result{}, err
+func (r *ReconcileMobileSecurityService) fetchInstance( reqLogger logr.Logger, request reconcile.Request) (*mobilesecurityservicev1alpha1.MobileSecurityService, error) {
+	instance := &mobilesecurityservicev1alpha1.MobileSecurityService{}
+	//Fetch the MobileSecurityService instance
+	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
+	return instance, err
 }
+
 
 //fetchRoute returns the Route resource created for this instance
 func (r *ReconcileMobileSecurityService) fetchRoute(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityService) (*routev1.Route, error) {

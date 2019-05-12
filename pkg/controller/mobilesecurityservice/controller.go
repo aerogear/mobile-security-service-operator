@@ -7,7 +7,6 @@ import (
 	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"github.com/go-logr/logr"
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
-	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
@@ -99,24 +98,20 @@ func (r *ReconcileMobileSecurityService) update(obj runtime.Object, reqLogger lo
 }
 
 //Create the factory object and requeue
-func (r *ReconcileMobileSecurityService) create(instance *mobilesecurityservicev1alpha1.MobileSecurityService, reqLogger logr.Logger, kind string, err error) (reconcile.Result, error) {
-	obj, errBuildObject := r.buildFactory(reqLogger, instance, kind)
-	if errBuildObject != nil {
-		return reconcile.Result{}, errBuildObject
+func (r *ReconcileMobileSecurityService) create(instance *mobilesecurityservicev1alpha1.MobileSecurityService, reqLogger logr.Logger, kind string) (reconcile.Result, error) {
+	obj, err := r.buildFactory(reqLogger, instance, kind)
+	if err != nil {
+		return reconcile.Result{}, err
 	}
-	if errors.IsNotFound(err) {
-		reqLogger.Info("Creating a new ", "kind", kind, "Namespace", instance.Namespace)
-		err = r.client.Create(context.TODO(), obj)
-		if err != nil {
-			reqLogger.Error(err, "Failed to create new ", "kind", kind, "Namespace", instance.Namespace)
-			return reconcile.Result{}, err
-		}
-		reqLogger.Info("Created successfully - return and create", "kind", kind, "Namespace", instance.Namespace)
-		return reconcile.Result{Requeue: true}, nil
-	}
-	reqLogger.Error(err, "Failed to get", "kind", kind, "Namespace", instance.Namespace)
-	return reconcile.Result{}, err
 
+	reqLogger.Info("Creating a new ", "kind", kind, "Namespace", instance.Namespace)
+	err = r.client.Create(context.TODO(), obj)
+	if err != nil {
+		reqLogger.Error(err, "Failed to create new ", "kind", kind, "Namespace", instance.Namespace)
+		return reconcile.Result{}, err
+	}
+	reqLogger.Info("Created successfully - return and create", "kind", kind, "Namespace", instance.Namespace)
+	return reconcile.Result{Requeue: true}, nil
 }
 
 // buildFactory will return the resource according to the kind defined
@@ -146,12 +141,13 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 	reqLogger := log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
 	reqLogger.Info("Reconciling Mobile Security Service ...")
 
-	instance := &mobilesecurityservicev1alpha1.MobileSecurityService{}
-
 	//Fetch the MobileSecurityService instance
+	instance := &mobilesecurityservicev1alpha1.MobileSecurityService{}
 	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
 	if err != nil {
-		return fetch(r, reqLogger, err)
+		instance, err = r.fetchInstance(reqLogger, request)
+		reqLogger.Error(err, "Failed to get Mobile Security Service ")
+		return reconcile.Result{}, err
 	}
 
 	// FIXME: Check if is a valid namespace
@@ -166,7 +162,6 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 	}
 
 	reqLogger.Info("Valid namespace for Mobile Security Service", "Namespace", request.Namespace)
-	reqLogger.Info("Start Reconciling Mobile Security Service ...")
 
 	//Check specs
 	if !hasMandatorySpecs(instance, reqLogger) {
@@ -175,13 +170,13 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 
 	//Check if ConfigMap for the app exist, if not create one.
 	if _, err := r.fetchConfigMap(reqLogger, instance); err != nil {
-		return r.create(instance, reqLogger, CONFIGMAP, err)
+		return r.create(instance, reqLogger, CONFIGMAP)
 	}
 
 	//Check if Deployment for the app exist, if not create one
 	deployment, err := r.fetchDeployment(reqLogger, instance)
 	if err != nil {
-		return r.create(instance, reqLogger, DEEPLOYMENT, err)
+		return r.create(instance, reqLogger, DEEPLOYMENT)
 	}
 
 	reqLogger.Info("Ensuring the Mobile Security Service deployment size is the same as the spec")
@@ -193,40 +188,41 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 
 	//Check if Service for the app exist, if not create one
 	if _, err := r.fetchService(reqLogger, instance); err != nil {
-		return r.create(instance, reqLogger, SERVICE, err)
+		return r.create(instance, reqLogger, SERVICE)
 	}
 
 	//Check if Route for the Service exist, if not create one
 	if _, err := r.fetchRoute(reqLogger, instance); err != nil {
-		return r.create(instance, reqLogger, ROUTE, err)
+		return r.create(instance, reqLogger, ROUTE)
 	}
 
 	//Update status for ConfigMap
-	configMapStatus, err := r.updateConfigMapStatus(reqLogger, instance)
+
+	configMapStatus, err := r.updateConfigMapStatus(reqLogger, request)
 	if err != nil {
 		return reconcile.Result{}, err
 	}
 
 	//Update status for deployment
-	deploymentStatus, err := r.updateDeploymentStatus(reqLogger, instance)
+	deploymentStatus, err := r.updateDeploymentStatus(reqLogger, request)
 	if err != nil {
 		return reconcile.Result{}, err
 	}
 
 	//Update status for Service
-	serviceStatus, err := r.updateServiceStatus(reqLogger, instance)
+	serviceStatus, err := r.updateServiceStatus(reqLogger,request)
 	if err != nil {
 		return reconcile.Result{}, err
 	}
 
 	//Update status for Route
-	routeStatus, err := r.updateRouteStatus(reqLogger, instance)
+	routeStatus, err := r.updateRouteStatus(reqLogger, request)
 	if err != nil {
 		return reconcile.Result{}, err
 	}
 
 	//Update status for App
-	if err := r.updateStatus(reqLogger, configMapStatus, deploymentStatus, serviceStatus, routeStatus, instance); err != nil {
+	if err := r.updateStatus(reqLogger, configMapStatus, deploymentStatus, serviceStatus, routeStatus, request); err != nil {
 		return reconcile.Result{}, err
 	}
 

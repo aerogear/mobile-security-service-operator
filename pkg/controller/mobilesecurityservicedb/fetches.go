@@ -1,27 +1,22 @@
 package mobilesecurityservicedb
 
 import (
-	"k8s.io/apimachinery/pkg/api/errors"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"context"
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/go-logr/logr"
-	"k8s.io/api/extensions/v1beta1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
 // Request object not found, could have been deleted after reconcile request.
 // Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
-func fetch(r *ReconcileMobileSecurityServiceDB, reqLogger logr.Logger, err error) (reconcile.Result, error) {
-	if errors.IsNotFound(err) {
-		// Return and don't create
-		reqLogger.Info("Mobile Security Service DB resource not found. Ignoring since object must be deleted")
-		return reconcile.Result{}, nil
-	}
-	// Error reading the object - create the request.
-	reqLogger.Error(err, "Failed to get Mobile Security Service DB")
-	return reconcile.Result{}, err
+func (r *ReconcileMobileSecurityServiceDB) fetchInstance( reqLogger logr.Logger, request reconcile.Request) (*mobilesecurityservicev1alpha1.MobileSecurityServiceDB, error) {
+	instance := &mobilesecurityservicev1alpha1.MobileSecurityServiceDB{}
+	//Fetch the MobileSecurityServiceDB instance
+	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
+	return instance, err
 }
 
 //fetchDBService returns the service resource created for this instance

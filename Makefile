@@ -18,7 +18,7 @@ IMAGE_LATEST_TAG=$(IMAGE_REGISTRY)/$(REGISTRY_ORG)/$(REGISTRY_REPO):latest
 IMAGE_MASTER_TAG=$(IMAGE_REGISTRY)/$(REGISTRY_ORG)/$(REGISTRY_REPO):master
 IMAGE_RELEASE_TAG=$(IMAGE_REGISTRY)/$(REGISTRY_ORG)/$(REGISTRY_REPO):$(CIRCLE_TAG)
 NAMESPACE=mobile-security-service
-APP_NAMESPACE=mobile-security-service-apps
+APP_NAMESPACES=mobile-security-service-apps
 
 # This follows the output format for goreleaser
 BINARY_LINUX_64 = ./dist/linux_amd64/$(BINARY)
@@ -51,8 +51,8 @@ build_linux:
 
 .PHONY: create-app-ns
 create-app-ns:
-	@echo Creating the namespace ${APP_NAMESPACE}:
-	oc new-project ${APP_NAMESPACE}
+	@echo Creating the namespace ${APP_NAMESPACES}:
+	oc new-project ${APP_NAMESPACES}
 
 .PHONY: create-app
 create-app:
@@ -67,7 +67,7 @@ delete-app:
 run-local:
 	@echo Installing the operator in a cluster and run it locally:
 	- export OPERATOR_NAME=mobile-security-service-operator
-	- export APP_NAMESPACES=${APP_NAMESPACE}
+	- export APP_NAMESPACES=${APP_NAMESPACES}
 	- make create-all
 	- operator-sdk up local --namespace=${NAMESPACE}
 

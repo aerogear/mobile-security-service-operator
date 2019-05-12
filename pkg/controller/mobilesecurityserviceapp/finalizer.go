@@ -1,14 +1,18 @@
 package mobilesecurityserviceapp
 
 import (
+	"context"
 	"fmt"
 	"github.com/aerogear/mobile-security-service-operator/pkg/service"
 	"github.com/go-logr/logr"
-	"context"
-	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 //updateFinilizer returns error when the app still not deleted in the REST Service
-func (r *ReconcileMobileSecurityServiceApp) updateFinilizer(serviceAPI string,reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp) error {
+func (r *ReconcileMobileSecurityServiceApp) updateFinilizer(serviceAPI string,reqLogger logr.Logger, request reconcile.Request) error {
+	instance, err := r.fetchInstance(reqLogger, request)
+	if err != nil {
+		return err
+	}
 	if len(instance.GetFinalizers()) > 0 && instance.GetDeletionTimestamp() != nil {
 		reqLogger.Info("Removing Finalizer for the MobileSecurityServiceApp")
 		if app, err := fetchBindAppRestServiceByAppID(serviceAPI, instance, reqLogger);  err != nil || hasApp(app){
@@ -31,7 +35,11 @@ func (r *ReconcileMobileSecurityServiceApp) updateFinilizer(serviceAPI string,re
 }
 
 //handleFinalizer check if has the finalizer and delete the app
-func (r *ReconcileMobileSecurityServiceApp) handleFinalizer(serviceAPI string,reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp) error {
+func (r *ReconcileMobileSecurityServiceApp) handleFinalizer(serviceAPI string,reqLogger logr.Logger, request reconcile.Request) error {
+	instance, err := r.fetchInstance(reqLogger, request)
+	if err != nil {
+		return err
+	}
 	// set up finalizers
 	if len(instance.GetFinalizers()) > 0 && instance.GetDeletionTimestamp() != nil {
 		//Check if App is delete into the REST Service
