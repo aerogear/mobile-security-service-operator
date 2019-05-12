@@ -62,10 +62,12 @@ create-app:
 delete-app:
 	kubectl delete -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml
 
+#fixme: The exports in the make file are not working see AEROGEAR-9156. Until it be fixed, run this commands manually.
 .PHONY: run-local
 run-local:
 	@echo Installing the operator in a cluster and run it locally:
 	- export OPERATOR_NAME=mobile-security-service-operator
+	- export APP_NAMESPACES=${APP_NAMESPACE}
 	- make create-all
 	- operator-sdk up local --namespace=${NAMESPACE}
 
@@ -78,8 +80,6 @@ create-all:
 .PHONY: delete-all
 delete-all:
 	@echo Delete Mobile Security Service Operator, Service and namespace "mobile-security-service-operator":
-	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
-	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml
