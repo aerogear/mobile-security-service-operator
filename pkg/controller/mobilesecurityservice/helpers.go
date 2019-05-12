@@ -46,24 +46,6 @@ func getAppEnvVarsMap(m *mobilesecurityservicev1alpha1.MobileSecurityService) ma
 	}
 }
 
-// getOAuthArgsMap is a helper to get the []string with values required/used to set OAuth for the Mobile Security Service Project
-func getOAuthArgsMap(m *mobilesecurityservicev1alpha1.MobileSecurityService) []string {
-	return []string{
-		"--http-address=0.0.0.0:4180",
-		"--https-address=",
-		"--provider=openshift",
-		"--openshift-service-account=mobile-security-service-operator",
-		"--upstream=http://localhost:3000",
-		"--cookie-secure=true",
-		"--cookie-secret=SECRET",
-		"--cookie-httponly=false",
-		"--bypass-auth-for=/api/init",
-		"--bypass-auth-for=/api/healthz",
-		"--bypass-auth-for=/api/ping",
-		"--pass-user-headers=true",
-	}
-}
-
 //Check if the mandatory specs are filled
 func hasMandatorySpecs(serviceInstance *mobilesecurityservicev1alpha1.MobileSecurityService, reqLogger logr.Logger) bool {
 	//Check the values defined for the ClusterProtocol in the MobileSecurityService CR

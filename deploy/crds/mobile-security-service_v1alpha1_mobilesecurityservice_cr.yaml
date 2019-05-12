@@ -19,7 +19,6 @@ spec:
   databaseUser: "postgresql"
   databaseHost: "mobile-security-service-db"
   port: 3000
-  oAuthPort: 4180
   logLevel: "info"
   logFormat: "json"
   accessControlAllowOrigin: "*"
