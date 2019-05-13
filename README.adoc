@@ -6,7 +6,7 @@ ifdef::env-github[]
 :caution-caption: :fire:
 :warning-caption: :warning:
 :table-caption!:
-:namespace: mobile-security-service-operator
+:namespace: mobile-security-service
 endif::[]
 
 :toc:

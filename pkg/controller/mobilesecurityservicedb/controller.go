@@ -146,13 +146,13 @@ func (r *ReconcileMobileSecurityServiceDB) Reconcile(request reconcile.Request) 
 		return fetch(r, reqLogger, err)
 	}
 
+	operatorNamespace, _ := k8sutil.GetOperatorNamespace()
 	// FIXME: Check if is a valid namespace
 	// We should not checked if the namespace is valid or not. It is an workaround since currently is not possible watch/cache a List of Namespaces
 	// The impl to allow do it is done and merged in the master branch of the lib but not released in an stable version. It should be removed when this feature be impl.
 	// See the PR which we are working on to update the deps and have this feature: https://github.com/operator-framework/operator-sdk/pull/1388
 	if isValidNamespace, err := utils.IsValidOperatorNamespace(request.Namespace, instance.Spec.SkipNamespaceValidation); err != nil || isValidNamespace == false {
 		// Stop reconcile
-		operatorNamespace, _ := k8sutil.GetOperatorNamespace()
 		reqLogger.Error(err, "Unable to reconcile Mobile Security Service Database", "Request.Namespace", request.Namespace, "isValidNamespace", isValidNamespace, "Operator.Namespace", operatorNamespace)
 		return reconcile.Result{}, nil
 	}
@@ -170,7 +170,7 @@ func (r *ReconcileMobileSecurityServiceDB) Reconcile(request reconcile.Request) 
 		// if the Instance cannot be found and/or its configMap was not created than the default values specified in its CR will be used
 		reqLogger.Info("Checking for service instance ...")
 		serviceInstance := &mobilesecurityservicev1alpha1.MobileSecurityService{}
-		r.client.Get(context.TODO(), types.NamespacedName{Name: utils.SERVICE_INSTANCE_NAME, Namespace: utils.SERVICE_INSTANCE_NAMESPACE}, serviceInstance)
+		r.client.Get(context.TODO(), types.NamespacedName{Name: utils.SERVICE_INSTANCE_NAME, Namespace: operatorNamespace}, serviceInstance)
 		return r.create(instance, serviceInstance, DEEPLOYMENT, reqLogger, err)
 	}
 
