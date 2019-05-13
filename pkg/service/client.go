@@ -10,13 +10,13 @@ import (
 
 //DeleteAppFromServiceByRestAPI delete the app object in the service
 func DeleteAppFromServiceByRestAPI(serviceAPI string, id string, reqLogger logr.Logger ) error {
-	reqLogger.Info( "Calling REST API to DELETE app", "serviceAPI", serviceAPI, "App.id", id )
+	reqLogger.Info( "Calling REST Service to DELETE app", "serviceAPI", serviceAPI, "App.id", id )
 	//Create the DELETE request
 	url:= serviceAPI + "/apps/" + id
 	req, err := http.NewRequest(http.MethodDelete, url ,nil)
 	req.Header.Set("Content-Type", "application/json")
 	if err != nil {
-		reqLogger.Error(err, "Error when try to create the request", "HTTPMethod", http.MethodDelete, "Request", req, "url", url, "error", err)
+		reqLogger.Error(err, "Unable to create DELETE request", "HTTPMethod", http.MethodDelete, "url", url)
 		return err
 	}
 
@@ -25,19 +25,19 @@ func DeleteAppFromServiceByRestAPI(serviceAPI string, id string, reqLogger logr.
 	response, err := client.Do(req)
 	defer response.Body.Close()
 
-	if err != nil {
-		reqLogger.Error(err, "Error when try to do the request", "HTTPMethod", http.MethodDelete, "Request", req, "url", url, "error", err)
+	if err != nil || 204 != response.StatusCode {
+		reqLogger.Error(err, "HTTP StatusCode not expected", "HTTPMethod", http.MethodDelete, "url", url, "response.StatusCode", response.StatusCode)
 		return err
 	}
 
-	reqLogger.Info("Deleted successfully app object in REST Service API",  "App.Id:", id)
+	reqLogger.Info("Successfully deleted app  ...",  "App.Id:", id)
 	return nil
 }
 
 
 //CreateAppByRestAPI create the app object in the service
 func CreateAppByRestAPI(serviceAPI string, app models.App, reqLogger logr.Logger) error {
-	reqLogger.Info( "Calling REST API to POST app", "serviceAPI", serviceAPI, "App", app )
+	reqLogger.Info( "Calling Service to POST app", "serviceAPI", serviceAPI, "App", app )
 
 	// Create the object and parse for JSON
 	appJSON, err := json.Marshal(app)
@@ -51,20 +51,21 @@ func CreateAppByRestAPI(serviceAPI string, app models.App, reqLogger logr.Logger
 	req, err := http.NewRequest(http.MethodPost, url , strings.NewReader(string(appJSON)))
 	req.Header.Set("Content-Type", "application/json")
 	if err != nil {
-		reqLogger.Error(err, "Error when try to create the request", "HTTPMethod", http.MethodPost, "Request", req, "url", url, "error", err)
+		reqLogger.Error(err, "Unable to create POST request", "HTTPMethod", http.MethodPost, "url", url)
 		return err
 	}
 
 	//Do the request
 	client := &http.Client{}
 	response, err := client.Do(req)
-	if err != nil {
-		reqLogger.Error(err, "Error when try to do the request", "HTTPMethod", http.MethodPost, "Request", req, "Response", response, "url", url, "error", err)
-		return err
-	}
 	defer response.Body.Close()
 
-	reqLogger.Info("Created successfully app object in REST Service API",  "App:", app)
+	if err != nil || 201 != response.StatusCode {
+		reqLogger.Error(err, "HTTP StatusCode not expected", "HTTPMethod", http.MethodPost, "url", url, "response.StatusCode", response.StatusCode )
+		return err
+	}
+
+	reqLogger.Info("Successfully created app  ...",  "App:", app)
 	return nil
 }
 
@@ -76,8 +77,8 @@ func GetAppFromServiceByRestApi(serviceAPI string, appId string, reqLogger logr.
 	// Transform the body request in the version struct
 	got := models.App{}
 
-	if len(appId) < 1 {
-		reqLogger.Info( "Unable to get the AppID", "AppId", appId)
+	if appId == "" {
+		reqLogger.Info( "App without AppId", "App.AppId", appId)
 		return got, nil
 	}
 
@@ -85,10 +86,9 @@ func GetAppFromServiceByRestApi(serviceAPI string, appId string, reqLogger logr.
 	url:= serviceAPI + "/apps" +"?appId="+appId
 	req, err := http.NewRequest(http.MethodGet,  url, nil)
 	reqLogger.Info("URL to get", "HTTPMethod", http.MethodGet, "url", url)
-
 	req.Header.Set("Content-Type", "application/json")
 	if err != nil {
-		reqLogger.Error(err, "Error when try to create the request", "HTTPMethod", http.MethodGet, "Request", req, "url", url, "error", err)
+		reqLogger.Error(err, "Unable to create GET request", "HTTPMethod", http.MethodGet, "Request", req, "url", url)
 		return got, err
 	}
 
@@ -96,36 +96,35 @@ func GetAppFromServiceByRestApi(serviceAPI string, appId string, reqLogger logr.
 	client := &http.Client{}
 	response, err := client.Do(req)
 	defer response.Body.Close()
-
 	if err != nil {
-		reqLogger.Error(err, "Error when try to do the request", "HTTPMethod", http.MethodGet, "Request", req, "url", url, "error", err)
+		reqLogger.Error(err, "Unable to execute GET request", "HTTPMethod", http.MethodGet, "url", url, "response.StatusCode", response.StatusCode)
 		return got, err
 	}
 
-	if 200 != response.StatusCode {
-		reqLogger.Info("The app was not found in the REST Service API", "HTTPMethod", http.MethodGet, "url", url)
+	if 200 != response.StatusCode && 204 != response.StatusCode {
+		reqLogger.Error(err, "HTTP StatusCode not expected", "HTTPMethod", http.MethodGet, "url", url, "response.StatusCode", response.StatusCode)
 		return got, nil
 	}
 
 	var obj []models.App
 	err = json.NewDecoder(response.Body).Decode(&obj)
 	if err != nil {
-		reqLogger.Error(err, "Error when try to do decoder the body response", "HTTPMethod", http.MethodGet, "Request", req, "Response", response, "url", url, "error", err)
+		reqLogger.Error(err, "Error when try to do decode the body response", "HTTPMethod", http.MethodGet, "url", url, "Response.Body", response.Body )
 		return got, err
 	}
 
-	if len(got.ID) < 0 {
+	if 204 == response.StatusCode || got.ID == "" {
 		reqLogger.Info("The app was not found in the REST Service API", "HTTPMethod", http.MethodGet, "url", url)
 		return got, nil
 	}
 
-	reqLogger.Info("App found in the Rest Service", "App", obj[0])
+	reqLogger.Info("App found in the Service", "App", obj[0])
 	return obj[0], nil
 }
 
-//deleteAppFromServiceByRestAPI delete the app object in the service
+//UpdateAppNameByRestAPI will update name of the APP in the Service
 func UpdateAppNameByRestAPI(serviceAPI string, app models.App, reqLogger logr.Logger) error {
-	reqLogger.Info( "Calling REST API to PATCH app", "serviceAPI", serviceAPI, "App", app )
+	reqLogger.Info( "Calling Service to update app name", "serviceAPI", serviceAPI, "App", app )
 
 	//Create the DELETE request
 	url:= serviceAPI + "/apps" +app.ID
@@ -139,7 +138,7 @@ func UpdateAppNameByRestAPI(serviceAPI string, app models.App, reqLogger logr.Lo
 	req, err := http.NewRequest(http.MethodPatch, url ,strings.NewReader(string(appJSON)))
 	req.Header.Set("Content-Type", "application/json")
 	if err != nil {
-		reqLogger.Error(err, "Error when try to create the request", "HTTPMethod", http.MethodPatch, "Request", req, "url", url, "error", err)
+		reqLogger.Error(err, "Unable to create PATCH request to update app name", "HTTPMethod", http.MethodPatch, "url", url)
 		return err
 	}
 
@@ -147,11 +146,11 @@ func UpdateAppNameByRestAPI(serviceAPI string, app models.App, reqLogger logr.Lo
 	client := &http.Client{}
 	response, err := client.Do(req)
 	if err != nil || 204 != response.StatusCode {
-		reqLogger.Error(err, "Error when try to do the request", "HTTPMethod", http.MethodPatch, "Request", req, "url", url, "error", err)
+		reqLogger.Error(err, "HTTP StatusCode not expected", "HTTPMethod", http.MethodPatch, "url", url, "response.StatusCode", response.StatusCode)
 		return err
 	}
 	defer response.Body.Close()
 
-	reqLogger.Info("Deleted successfully app object in REST Service API",  "App:", app)
+	reqLogger.Info("Successfully updated app name ...",  "App", app)
 	return nil
 }
