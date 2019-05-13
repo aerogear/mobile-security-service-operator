@@ -71,23 +71,19 @@ type ReconcileMobileSecurityServiceApp struct {
 }
 
 //Build the object, cluster resource, and add the object in the queue to reconcile
-func (r *ReconcileMobileSecurityServiceApp) create(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, kind string, serviceURL string, reqLogger logr.Logger, err error) (reconcile.Result, error) {
-	obj, errBuildObject := r.buildFactory(reqLogger, instance, kind, serviceURL)
-	if errBuildObject != nil {
-		return reconcile.Result{}, errBuildObject
+func (r *ReconcileMobileSecurityServiceApp) create(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, kind string, serviceURL string, reqLogger logr.Logger, request reconcile.Request) (reconcile.Result, error) {
+	obj, err := r.buildFactory(reqLogger, instance, kind, serviceURL)
+	if err != nil {
+		return reconcile.Result{}, err
 	}
-	if errors.IsNotFound(err) {
-		reqLogger.Info("Creating a new ", "kind", kind, "Instance.Namespace", instance.Namespace, "Instance.Name", instance.Name)
-		err = r.client.Create(context.TODO(), obj)
-		if err != nil {
-			reqLogger.Error(err, "Failed to create new ", "kind", kind, "Instance.Namespace", instance.Namespace, "Instance.Name", instance.Name)
-			return reconcile.Result{}, err
-		}
-		reqLogger.Info("Created successfully - return and create", "kind", kind, "Instance.Namespace", instance.Namespace, "Instance.Name", instance.Name)
-		return reconcile.Result{Requeue: true}, nil
+	reqLogger.Info("Creating a new ", "kind", kind, "Instance.Namespace", instance.Namespace, "Instance.Name", instance.Name)
+	err = r.client.Create(context.TODO(), obj)
+	if err != nil {
+		reqLogger.Error(err, "Failed to create new ", "kind", kind, "Instance.Namespace", instance.Namespace, "Instance.Name", instance.Name)
+		return reconcile.Result{}, err
 	}
-	reqLogger.Error(err, "Failed to build", "kind", kind, "Instance.Namespace", instance.Namespace, "Instance.Name", instance.Name)
-	return reconcile.Result{}, err
+	reqLogger.Info("Created successfully - return and create", "kind", kind, "Instance.Namespace", instance.Namespace, "Instance.Name", instance.Name)
+	return reconcile.Result{Requeue: true}, nil
 }
 
 //buildFactory will return the resource according to the kind defined
@@ -111,12 +107,19 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 	reqLogger := log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
 	reqLogger.Info("Reconciling MobileSecurityServiceApp")
 
+	//Fetch the MobileSecurityService App instance
 	instance := &mobilesecurityservicev1alpha1.MobileSecurityServiceApp{}
-
-	//Fetch the MobileSecurityService instance
 	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
 	if err != nil {
-		return fetch(r, reqLogger, err)
+		instance, err = r.fetchInstance(reqLogger, request)
+		if errors.IsNotFound(err) {
+			// Return and don't create
+			reqLogger.Info("Mobile Security Service App resource not found. Ignoring since object must be deleted")
+			return reconcile.Result{}, nil
+		}
+		// Error reading the object - create the request.
+		reqLogger.Error(err, "Failed to get Mobile Security Service App")
+		return reconcile.Result{}, err
 	}
 
 	// FIXME: Check if is a valid namespace
@@ -131,7 +134,6 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 	}
 
 	reqLogger.Info("Valid namespace for MobileSecurityServiceApp", "Namespace", request.Namespace)
-	reqLogger.Info("Start Reconciling MobileSecurityServiceApp ...")
 
 	reqLogger.Info("Checking for service instance ...")
 	serviceInstance := &mobilesecurityservicev1alpha1.MobileSecurityService{}
@@ -158,7 +160,7 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 
 	//Check if ConfigMap for the app exist, if not create one.
 	if _, err := r.fetchSDKConfigMap(reqLogger, instance); err != nil {
-		return r.create(instance, CONFIGMAP, serviceAPI, reqLogger, err)
+		return r.create(instance, CONFIGMAP, serviceAPI, reqLogger, request)
 	}
 
 	//Check if App is Bind in the REST Service, if not then bind it
@@ -184,23 +186,23 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 	}
 
 	//Update status for SDKConfigMap
-	SDKConfigMapStatus, err := r.updateSDKConfigMapStatus(reqLogger, instance)
+	SDKConfigMapStatus, err := r.updateSDKConfigMapStatus(reqLogger, request)
 	if err != nil {
 		return reconcile.Result{}, err
 	}
 
 	//Update status for BindStatus
-	if err := r.updateBindStatus(serviceAPI, reqLogger, SDKConfigMapStatus, instance); err != nil {
+	if err := r.updateBindStatus(serviceAPI, reqLogger, SDKConfigMapStatus, request); err != nil {
 		return reconcile.Result{}, err
 	}
 
 	//Handle the finalizer when the CR is deleted to unbind the app
-	if err := r.handleFinalizer(serviceAPI, reqLogger, instance); err != nil {
+	if err := r.handleFinalizer(serviceAPI, reqLogger, request); err != nil {
 		return reconcile.Result{}, err
 	}
 
 	//Update finalizer timestamp to allow delete CR
-	if err := r.updateFinilizer(serviceAPI, reqLogger, instance); err != nil {
+	if err := r.updateFinilizer(serviceAPI, reqLogger, request); err != nil {
 		return reconcile.Result{}, err
 	}
 
