@@ -18,10 +18,11 @@ import (
 )
 
 const (
-	CONFIGMAP   = "ConfigMap"
-	DEEPLOYMENT = "Deployment"
-	SERVICE     = "Service"
-	ROUTE       = "Route"
+	CONFIGMAP     = "ConfigMap"
+	DEEPLOYMENT   = "Deployment"
+	SERVICE       = "Service"
+	ROUTE         = "Route"
+	SERVERSERVICE = "Server Service"
 )
 
 var log = logf.Log.WithName("controller_mobilesecurityservice")
@@ -124,6 +125,8 @@ func (r *ReconcileMobileSecurityService) buildFactory(reqLogger logr.Logger, ins
 		return r.buildDeployment(instance), nil
 	case SERVICE:
 		return r.buildService(instance), nil
+	case SERVERSERVICE:
+		return r.buildServerService(instance), nil
 	case ROUTE:
 		return r.buildRoute(instance), nil
 	default:
@@ -191,6 +194,11 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 		return r.create(instance, reqLogger, SERVICE)
 	}
 
+	//Check if Service for the app exist, if not create one
+	if _, err := r.fetchServerService(reqLogger, instance); err != nil {
+		return r.create(instance, reqLogger, SERVERSERVICE)
+	}
+
 	//Check if Route for the Service exist, if not create one
 	if _, err := r.fetchRoute(reqLogger, instance); err != nil {
 		return r.create(instance, reqLogger, ROUTE)
@@ -210,6 +218,12 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 
 	//Update status for Service
 	serviceStatus, err := r.updateServiceStatus(reqLogger, request)
+
+	if err != nil {
+		return reconcile.Result{}, err
+	}
+
+	serverServiceStatus, err := r.updateServiceStatus(reqLogger, request)
 	if err != nil {
 		return reconcile.Result{}, err
 	}
@@ -221,7 +235,8 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 	}
 
 	//Update status for App
-	if err := r.updateStatus(reqLogger, configMapStatus, deploymentStatus, serviceStatus, routeStatus, request); err != nil {
+	if err := r.updateStatus(reqLogger, configMapStatus, deploymentStatus, serviceStatus, serverServiceStatus, routeStatus, request); err != nil {
+
 		return reconcile.Result{}, err
 	}
 

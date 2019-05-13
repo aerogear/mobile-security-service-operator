@@ -3,9 +3,10 @@ package mobilesecurityserviceapp
 import (
 	"context"
 	"fmt"
+	"reflect"
+
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
-	"reflect"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
@@ -48,7 +49,7 @@ func (r *ReconcileMobileSecurityServiceApp) updateSDKConfigMapStatus(reqLogger l
 }
 
 //updateAppStatus returns error when status regards the all required resources could not be updated
-func (r *ReconcileMobileSecurityServiceApp) updateBindStatus(serviceURL string,reqLogger logr.Logger, SDKConfigMapStatus *corev1.ConfigMap, request reconcile.Request) error {
+func (r *ReconcileMobileSecurityServiceApp) updateBindStatus(serviceURL string, reqLogger logr.Logger, SDKConfigMapStatus *corev1.ConfigMap, request reconcile.Request) error {
 	reqLogger.Info("Updating Bind App Status for the MobileSecurityServiceApp")
 
 	// Get the latest version of CR
@@ -70,7 +71,7 @@ func (r *ReconcileMobileSecurityServiceApp) updateBindStatus(serviceURL string,r
 		reqLogger.Error(err, "One of the resources are not created", "MobileSecurityServiceApp.Namespace", instance.Namespace, "MobileSecurityServiceApp.Name", instance.Name)
 		return err
 	}
-	status:= "OK"
+	status := "OK"
 
 	//Update Bind CR Status with OK
 	if !reflect.DeepEqual(status, instance.Status.BindStatus) {

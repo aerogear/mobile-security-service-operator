@@ -2,6 +2,7 @@ package mobilesecurityservice
 
 import (
 	"context"
+
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"github.com/go-logr/logr"
@@ -14,13 +15,12 @@ import (
 
 // Request object not found, could have been deleted after reconcile request.
 // Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
-func (r *ReconcileMobileSecurityService) fetchInstance( reqLogger logr.Logger, request reconcile.Request) (*mobilesecurityservicev1alpha1.MobileSecurityService, error) {
+func (r *ReconcileMobileSecurityService) fetchInstance(reqLogger logr.Logger, request reconcile.Request) (*mobilesecurityservicev1alpha1.MobileSecurityService, error) {
 	instance := &mobilesecurityservicev1alpha1.MobileSecurityService{}
 	//Fetch the MobileSecurityService instance
 	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
 	return instance, err
 }
-
 
 //fetchRoute returns the Route resource created for this instance
 func (r *ReconcileMobileSecurityService) fetchRoute(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityService) (*routev1.Route, error) {
@@ -35,6 +35,14 @@ func (r *ReconcileMobileSecurityService) fetchService(reqLogger logr.Logger, ins
 	reqLogger.Info("Checking if the service already exists")
 	service := &corev1.Service{}
 	err := r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, service)
+	return service, err
+}
+
+//fetchServerService returns the service resource created for this instance
+func (r *ReconcileMobileSecurityService) fetchServerService(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityService) (*corev1.Service, error) {
+	reqLogger.Info("Checking if the service already exists")
+	service := &corev1.Service{}
+	err := r.client.Get(context.TODO(), types.NamespacedName{Name: utils.SERVER_SERVICE_INSTANCE_NAME, Namespace: instance.Namespace}, service)
 	return service, err
 }
 
@@ -53,5 +61,3 @@ func (r *ReconcileMobileSecurityService) fetchConfigMap(reqLogger logr.Logger, i
 	err := r.client.Get(context.TODO(), types.NamespacedName{Name: utils.GetConfigMapName(instance), Namespace: instance.Namespace}, configMap)
 	return configMap, err
 }
-
-

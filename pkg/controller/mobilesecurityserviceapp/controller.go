@@ -8,7 +8,6 @@ import (
 	"github.com/aerogear/mobile-security-service-operator/pkg/service"
 	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"github.com/go-logr/logr"
-	routev1 "github.com/openshift/api/route/v1"
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -144,35 +143,29 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 		return reconcile.Result{}, nil
 	}
 
-	reqLogger.Info("Checking if the route already exists ...")
-	route := &routev1.Route{}
-	if err := r.client.Get(context.TODO(), types.NamespacedName{Name: utils.GetRouteName(serviceInstance), Namespace: operatorNamespace}, route); err != nil {
-		return reconcile.Result{}, err
-	}
-
 	//Get the REST Service Endpoint
-	serviceAPI := service.GetServiceAPIURL(route, serviceInstance)
+	serviceAPI := service.GetServiceAPIURL(serviceInstance)
 
 	//Check if the APP CR was marked to be deleted
 	isAppMarkedToBeDeleted := instance.GetDeletionTimestamp() != nil
 	if isAppMarkedToBeDeleted {
 		//If the CR was marked to be deleted before it finalizes the app need to be deleted from the Service
 		//Do request to get the app.ID to delete app
-		app, err := fetchBindAppRestServiceByAppID(serviceAPI, instance, reqLogger);
+		app, err := fetchBindAppRestServiceByAppID(serviceAPI, instance, reqLogger)
 		if err != nil {
 			return reconcile.Result{}, err
 		}
 
 		// If the request works with success and the app was found then
 		// Do request to delete it from the service
-		if  app.ID != "" {
-			if err := service.DeleteAppFromServiceByRestAPI(serviceAPI,  app.ID, reqLogger); err != nil {
-				reqLogger.Error(err, "Unable to delete app from Service", "App.ID",  app.ID)
+		if app.ID != "" {
+			if err := service.DeleteAppFromServiceByRestAPI(serviceAPI, app.ID, reqLogger); err != nil {
+				reqLogger.Error(err, "Unable to delete app from Service", "App.ID", app.ID)
 				return reconcile.Result{}, err
 			}
 			reqLogger.Info("Successfully delete app ...")
 		}
-		
+
 		// Check if the finalizer criteria is met and remove finalizer from the CR
 		if err := r.removeFinalizer(serviceAPI, reqLogger, request); err != nil {
 			return reconcile.Result{}, err
@@ -215,6 +208,7 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 			}
 			return reconcile.Result{Requeue: true}, nil
 		}
+		return reconcile.Result{Requeue: true}, nil
 	}
 
 	//Update status for SDKConfigMap

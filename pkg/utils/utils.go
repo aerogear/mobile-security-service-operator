@@ -15,6 +15,7 @@ import (
 // The namespaces should be informed split by ";".
 const APP_NAMESPACE_ENV_VAR = "APP_NAMESPACES"
 const SERVICE_INSTANCE_NAME = "mobile-security-service"
+const SERVER_SERVICE_INSTANCE_NAME = "mobile-security-server"
 
 var log = logf.Log.WithName("mobile-security-service-operator.utils")
 

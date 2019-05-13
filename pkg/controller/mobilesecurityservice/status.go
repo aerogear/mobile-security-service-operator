@@ -14,7 +14,7 @@ import (
 )
 
 //updateStatus returns error when status regards the all required resources could not be updated
-func (r *ReconcileMobileSecurityService) updateStatus(reqLogger logr.Logger, configMapStatus *corev1.ConfigMap, deploymentStatus *v1beta1.Deployment, serviceStatus *corev1.Service, routeStatus *routev1.Route, request reconcile.Request) error {
+func (r *ReconcileMobileSecurityService) updateStatus(reqLogger logr.Logger, configMapStatus *corev1.ConfigMap, deploymentStatus *v1beta1.Deployment, serviceStatus *corev1.Service, serverServiceStatus *corev1.Service, routeStatus *routev1.Route, request reconcile.Request) error {
 	reqLogger.Info("Updating App Status for the MobileSecurityService")
 	// Get the latest version of the CR
 	instance, err := r.fetchInstance(reqLogger, request)
@@ -23,7 +23,7 @@ func (r *ReconcileMobileSecurityService) updateStatus(reqLogger logr.Logger, con
 	}
 
 	//Check if all required objects are created
-	if len(configMapStatus.UID) < 1 && len(deploymentStatus.UID) < 1 && len(serviceStatus.UID) < 1 && len(routeStatus.Name) < 1 {
+	if len(configMapStatus.UID) < 1 && len(deploymentStatus.UID) < 1 && len(serviceStatus.UID) < 1 && len(serverServiceStatus.UID) < 1 && len(routeStatus.Name) < 1 {
 		err := fmt.Errorf("Failed to get OK Status for MobileSecurityService")
 		reqLogger.Error(err, "One of the resources are not created", "MobileSecurityService.Namespace", instance.Namespace, "MobileSecurityService.Name", instance.Name)
 		return err
