@@ -70,7 +70,7 @@ package mobilesecurityservice
 // 		t.Run(tt.name, func(t *testing.T) {
 // 			objs := []runtime.Object{tt.fields.instance}
 
-// 			r, _ := getReconciler(objs)
+// 			r, _ := getReconcile(objs)
 
 // 			req := reconcile.Request{
 // 				NamespacedName: types.NamespacedName{
