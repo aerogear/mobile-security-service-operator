@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
-	"github.com/go-logr/logr"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 
 	"k8s.io/apimachinery/pkg/runtime"
@@ -123,33 +123,75 @@ func TestReconcileMobileSecurityServiceApp_buildFactory(t *testing.T) {
 		scheme *runtime.Scheme
 	}
 	type args struct {
-		reqLogger  logr.Logger
 		instance   *mobilesecurityservicev1alpha1.MobileSecurityServiceApp
 		kind       string
 		serviceURL string
 	}
 	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		want    runtime.Object
-		wantErr bool
+		name      string
+		fields    fields
+		args      args
+		want      reflect.Type
+		wantErr   bool
+		wantPanic bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "should create a ConfigMap",
+			fields: fields{
+				scheme: scheme.Scheme,
+			},
+			want: reflect.TypeOf(&corev1.ConfigMap{}),
+			args: args{
+				instance: &instance,
+				kind:     CONFIGMAP,
+				serviceURL: "service-url",
+			},
+		},
+		{
+			name: "Should panic when trying to create unrecognized object type",
+			fields: fields{
+				scheme: scheme.Scheme,
+			},
+			args: args{
+				instance: &instance,
+				kind:     "UNDEFINED",
+				serviceURL: "service-url",
+			},
+			wantPanic: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+
+			objs := []runtime.Object{tt.args.instance}
+
+			tt.fields.scheme.AddKnownTypes(mobilesecurityservicev1alpha1.SchemeGroupVersion, tt.args.instance)
+
+			cl := fake.NewFakeClient(objs...)
+
 			r := &ReconcileMobileSecurityServiceApp{
-				client: tt.fields.client,
+				client: cl,
 				scheme: tt.fields.scheme,
 			}
-			got, err := r.buildFactory(tt.args.reqLogger, tt.args.instance, tt.args.kind, tt.args.serviceURL)
+
+			reqLogger := log.WithValues("Request.Namespace", tt.args.instance.Namespace, "Request.Name", tt.args.instance.Name)
+
+			// testing if the panic() function is executed
+			defer func() {
+				r := recover()
+				if (r != nil) != tt.wantPanic {
+					t.Errorf("ReconcileMobileSecurityServiceApp.buildFactory() recover = %v, wantPanic = %v", r, tt.wantPanic)
+				}
+			}()
+
+			got, err := r.buildFactory(reqLogger, tt.args.instance, tt.args.kind, tt.args.serviceURL)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ReconcileMobileSecurityServiceApp.buildFactory() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ReconcileMobileSecurityServiceApp.buildFactory() = %v, want %v", got, tt.want)
+
+			if gotType := reflect.TypeOf(got); !reflect.DeepEqual(gotType, tt.want) {
+				t.Errorf("ReconcileMobileSecurityServiceApp.buildFactory() = %v, want %v", gotType, tt.want)
 			}
 		})
 	}
