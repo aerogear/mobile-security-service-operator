@@ -2,24 +2,39 @@ package mobilesecurityservice
 
 import (
 	"context"
+	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"reflect"
-	"testing"
-
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
-	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	routev1 "github.com/openshift/api/route/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	"testing"
+
+	//"context"
+	//_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
+	//"testing"
+	//mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
+	//routev1 "github.com/openshift/api/route/v1"
+	//metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	//corev1 "k8s.io/api/core/v1"
+	//"k8s.io/api/extensions/v1beta1"
+	//"k8s.io/apimachinery/pkg/apis/meta/v1"
+	//"k8s.io/apimachinery/pkg/runtime"
+	//"k8s.io/apimachinery/pkg/types"
+	//"k8s.io/client-go/kubernetes/scheme"
+	//_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
+	//"sigs.k8s.io/controller-runtime/pkg/client/fake"
+	//"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
 var (
@@ -386,10 +401,17 @@ func TestReconcileMobileSecurityService_Reconcile_InvalidInstance(t *testing.T) 
 	}
 }
 
-func getReconciler(objs []runtime.Object) (*ReconcileMobileSecurityService, client.Client) {
+func buiReconciler() (*ReconcileMobileSecurityService, client.Client) {
+	//dev logs
+	logf.SetLogger(logf.ZapLogger(true))
+
+	// Register operator types with the runtime scheme.
 	s := scheme.Scheme
 
-	routev1.Install(s)
+	//Add route Openshift scheme
+	if err := routev1.AddToScheme(s); err != nil {
+		t.Fatalf("Unable to add route scheme: (%v)", err)
+	}
 
 	s.AddKnownTypes(mobilesecurityservicev1alpha1.SchemeGroupVersion, &mobilesecurityservicev1alpha1.MobileSecurityService{})
 	s.AddKnownTypes(routev1.SchemeGroupVersion, &routev1.Route{})
