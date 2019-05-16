@@ -12,10 +12,6 @@ import (
 func (r *ReconcileMobileSecurityServiceDB) buildPVCForDB(m *mobilesecurityservicev1alpha1.MobileSecurityServiceDB) *corev1.PersistentVolumeClaim {
 	ls := getDBLabels(m.Name)
 	pv := &corev1.PersistentVolumeClaim{
-		TypeMeta: v1.TypeMeta{
-			APIVersion: "v1",
-			Kind:       "PersistentVolumeClaim",
-		},
 		ObjectMeta: v1.ObjectMeta{
 			Name:      m.Name,
 			Namespace: m.Namespace,

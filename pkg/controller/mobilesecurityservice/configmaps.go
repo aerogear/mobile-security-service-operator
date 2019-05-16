@@ -11,10 +11,6 @@ import (
 // Returns the ConfigMap with the properties used to setup/config the Mobile Security Service Project
 func (r *ReconcileMobileSecurityService) buildConfigMap(m *mobilesecurityservicev1alpha1.MobileSecurityService) *corev1.ConfigMap {
 	ser := &corev1.ConfigMap{
-		TypeMeta: metav1.TypeMeta{
-			APIVersion: "v1",
-			Kind:       "ConfigMap",
-		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      utils.GetConfigMapName(m),
 			Namespace: m.Namespace,
