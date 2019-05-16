@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/aerogear/mobile-security-service-operator/pkg/models"
 	"github.com/go-logr/logr"
 	"net/http"
@@ -78,8 +79,8 @@ func GetAppFromServiceByRestApi(serviceAPI string, appId string, reqLogger logr.
 	got := models.App{}
 
 	if appId == "" {
-		reqLogger.Info( "App without AppId", "App.AppId", appId)
-		return got, nil
+		err := fmt.Errorf( "App without AppId", "App.AppId", appId)
+		return got, err
 	}
 
 	//Create the GET request
@@ -102,8 +103,9 @@ func GetAppFromServiceByRestApi(serviceAPI string, appId string, reqLogger logr.
 	}
 
 	if 200 != response.StatusCode && 204 != response.StatusCode {
+		err := fmt.Errorf( "HTTP StatusCode not expected")
 		reqLogger.Error(err, "HTTP StatusCode not expected", "HTTPMethod", http.MethodGet, "url", url, "response.StatusCode", response.StatusCode)
-		return got, nil
+		return got, err
 	}
 
 	var obj []models.App

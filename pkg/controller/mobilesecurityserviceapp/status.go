@@ -65,7 +65,7 @@ func (r *ReconcileMobileSecurityServiceApp) updateBindStatus(serviceURL string,r
 	}
 
 	// Check if the ConfigMap and the App is created in the Rest Service
-	if len(SDKConfigMapStatus.UID) < 1 && !hasApp(app) {
+	if len(SDKConfigMapStatus.UID) < 1 && app.ID == "" {
 		err := fmt.Errorf("Failed to get OK Status for MobileSecurityService Bind.")
 		reqLogger.Error(err, "One of the resources are not created", "MobileSecurityServiceApp.Namespace", instance.Namespace, "MobileSecurityServiceApp.Name", instance.Name)
 		return err

@@ -2,8 +2,6 @@ apiVersion: mobile-security-service.aerogear.com/v1alpha1
 kind: MobileSecurityServiceApp
 metadata:
   name: mobile-security-service-app
-  finalizers:
-  - finalizer.mobile-security-service.aerogear.com
 spec:
   appName: "example-appname"
   # The appId spec defines the appId of the app used to bind the service
