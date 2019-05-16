@@ -11,5 +11,6 @@ const ENDPOINT_API = "/api"
 
 //Return REST Service API
 func GetServiceAPIURL(mssInstance *mobilesecurityservicev1alpha1.MobileSecurityService) string {
-	return mssInstance.Spec.ClusterProtocol + "://" + utils.APPLICATION_SERVICE_INSTANCE_NAME + ":" + fmt.Sprint(mssInstance.Spec.Port) + ENDPOINT_API
+	uri := mssInstance.Spec.ClusterProtocol + "://" + utils.APPLICATION_SERVICE_INSTANCE_NAME + ":" + fmt.Sprint(mssInstance.Spec.Port) + ENDPOINT_API
+	return uri
 }

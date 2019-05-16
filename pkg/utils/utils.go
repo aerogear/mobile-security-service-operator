@@ -45,7 +45,12 @@ func GetAppNamespaces() (string, error) {
 }
 
 // IsValidAppNamespace return true when the namespace informed is declared in the ENV VAR APP_NAMESPACES
-func IsValidAppNamespace(namespace string) (bool, error) {
+func IsValidAppNamespace(namespace string, skipCheck bool) (bool, error) {
+	//FIXME: this check is used to bypass validation of namespace.
+	// This is a workaround and should be removed in the future.
+	if skipCheck {
+		return true, nil
+	}
 	appNamespacesEnvVar, err := GetAppNamespaces()
 	if err != nil {
 		log.Error(err, "Unable to check if is app namespace %s is valid", namespace)
@@ -78,3 +83,15 @@ func IsValidOperatorNamespace(namespace string, skipCheck bool) (bool, error) {
 	err = fmt.Errorf("Invalid Namespace")
 	return false, err
 }
+
+// 
+func getOperatorNamespace(skipCheck bool) (namespace string, err error) {
+	// Returns a hardcoded namespace string for testing purposes
+	// Tests will not run on a cluster to retrieve a namespace value from cluster 
+	if skipCheck {
+		return "mobile-security-service-operator", nil
+	}
+	namespace, err = k8sutil.GetOperatorNamespace()
+	return namespace, err
+}
+

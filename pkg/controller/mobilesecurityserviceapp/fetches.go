@@ -30,6 +30,6 @@ func (r *ReconcileMobileSecurityServiceApp) fetchSDKConfigMap(reqLogger logr.Log
 }
 
 //fetchBindAppRestServiceByAppID return app struct from Mobile Security Service Project/REST API or error
-func fetchBindAppRestServiceByAppID(serviceURL string, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, reqLogger logr.Logger) (*models.App, error) {
+var fetchBindAppRestServiceByAppID = func(serviceURL string, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, reqLogger logr.Logger) (*models.App, error) {
 	return service.GetAppFromServiceByRestApi(serviceURL, instance.Spec.AppId, reqLogger)
 }
