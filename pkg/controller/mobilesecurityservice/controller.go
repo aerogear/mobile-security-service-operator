@@ -197,7 +197,6 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 	}
 
 	//Update status for ConfigMap
-
 	configMapStatus, err := r.updateConfigMapStatus(reqLogger, request)
 	if err != nil {
 		return reconcile.Result{}, err

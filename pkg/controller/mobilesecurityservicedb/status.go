@@ -66,7 +66,7 @@ func (r *ReconcileMobileSecurityServiceDB) updateDeploymentStatus(reqLogger logr
 		return deploymentStatus, err
 	}
 	// Update the Deployment Name and Status
-	if !reflect.DeepEqual(deploymentStatus.Name, instance.Status.DeploymentName) || !reflect.DeepEqual(deploymentStatus.Status, instance.Status.DeploymentStatus){
+	if deploymentStatus.Name != instance.Status.DeploymentName || !reflect.DeepEqual(deploymentStatus.Status, instance.Status.DeploymentStatus){
 		// Get the latest version of the instance CR
 		instance, err = r.fetchInstance(reqLogger, request)
 		if err != nil {
@@ -104,7 +104,7 @@ func (r *ReconcileMobileSecurityServiceDB) updateServiceStatus(reqLogger logr.Lo
 	}
 
 	// Update the Service Name and Status
-	if !reflect.DeepEqual(serviceStatus.Name, instance.Status.ServiceName) || !reflect.DeepEqual(serviceStatus.Status, instance.Status.ServiceStatus)  {
+	if serviceStatus.Name != instance.Status.ServiceName || !reflect.DeepEqual(serviceStatus.Status, instance.Status.ServiceStatus)  {
 		// Get the latest version of the instance CR
 		instance, err = r.fetchInstance(reqLogger, request)
 		if err != nil {
@@ -142,7 +142,7 @@ func (r *ReconcileMobileSecurityServiceDB) updatePvcStatus(reqLogger logr.Logger
 	}
 
 	// Update CR with PVC name
-	if !reflect.DeepEqual(pvcStatus.Name, instance.Status.PersistentVolumeClaimName) {
+	if pvcStatus.Name != instance.Status.PersistentVolumeClaimName {
 		// Get the latest version of the instance CR
 		instance, err = r.fetchInstance(reqLogger, request)
 		if err != nil {

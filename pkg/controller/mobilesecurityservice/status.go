@@ -67,7 +67,7 @@ func (r *ReconcileMobileSecurityService) updateConfigMapStatus(reqLogger logr.Lo
 	}
 
 	// Update ConfigMap Name
-	if !reflect.DeepEqual(configMapStatus.Name, instance.Status.ConfigMapName) {
+	if configMapStatus.Name != instance.Status.ConfigMapName {
 		// Get the latest version of the CR
 		instance, err := r.fetchInstance(reqLogger, request)
 		if err != nil {
@@ -104,7 +104,7 @@ func (r *ReconcileMobileSecurityService) updateDeploymentStatus(reqLogger logr.L
 	}
 
 	// Update the Deployment Name and Status
-	if !reflect.DeepEqual(deploymentStatus.Name, instance.Status.DeploymentName) || !reflect.DeepEqual(deploymentStatus.Status, instance.Status.DeploymentStatus) {
+	if deploymentStatus.Name != instance.Status.DeploymentName || !reflect.DeepEqual(deploymentStatus.Status, instance.Status.DeploymentStatus) {
 		// Get the latest version of the CR
 		instance, err := r.fetchInstance(reqLogger, request)
 		if err != nil {
@@ -142,7 +142,7 @@ func (r *ReconcileMobileSecurityService) updateServiceStatus(reqLogger logr.Logg
 	}
 
 	// Update the Service Status and Name
-	if !reflect.DeepEqual(serviceStatus.Name, instance.Status.ServiceName) || !reflect.DeepEqual(serviceStatus.Status, instance.Status.ServiceStatus) {
+	if serviceStatus.Name != instance.Status.ServiceName || !reflect.DeepEqual(serviceStatus.Status, instance.Status.ServiceStatus) {
 		// Get the latest version of the CR
 		instance, err := r.fetchInstance(reqLogger, request)
 		if err != nil {
@@ -184,7 +184,7 @@ func (r *ReconcileMobileSecurityService) updateRouteStatus(reqLogger logr.Logger
 	routeName := utils.GetRouteName(instance)
 
 	// Update the Route Status and Name
-	if !reflect.DeepEqual(routeName, instance.Status.RouteName) || !reflect.DeepEqual(route.Status, instance.Status.RouteStatus) {
+	if routeName != instance.Status.RouteName || !reflect.DeepEqual(route.Status, instance.Status.RouteStatus) {
 
 		// Get the latest version of the CR
 		instance, err := r.fetchInstance(reqLogger, request)

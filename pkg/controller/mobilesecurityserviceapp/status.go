@@ -27,7 +27,7 @@ func (r *ReconcileMobileSecurityServiceApp) updateSDKConfigMapStatus(reqLogger l
 	}
 
 	//Update CR Status with SDKConfigMap name
-	if !reflect.DeepEqual(SDKConfigMapStatus.Name, instance.Status.SDKConfigMapName) {
+	if SDKConfigMapStatus.Name != instance.Status.SDKConfigMapName {
 		// Get the latest version of CR
 		instance, err := r.fetchInstance(reqLogger, request)
 		if err != nil {
