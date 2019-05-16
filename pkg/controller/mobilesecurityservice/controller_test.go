@@ -306,7 +306,6 @@ func TestReconcileMobileSecurityService_Reconcile(t *testing.T) {
 	// objects to track in the fake client
 	objs := []runtime.Object{
 		&instanceOne,
-		&route,
 	}
 
 	r := getReconciler(objs)
@@ -369,7 +368,7 @@ func TestReconcileMobileSecurityService_Reconcile(t *testing.T) {
 		t.Fatalf("reconcile: (%v)", err)
 	}
 
-	if res.Requeue {
+	if !res.Requeue {
 		t.Error("reconcile unexpectedly requeued request")
 	}
 
@@ -377,6 +376,11 @@ func TestReconcileMobileSecurityService_Reconcile(t *testing.T) {
 	err = r.client.Get(context.TODO(), types.NamespacedName{Name: utils.GetRouteName(&instanceOne), Namespace: instanceOne.Namespace}, route)
 	if err != nil {
 		t.Fatalf("get route: (%v)", err)
+	}
+
+	res, err = r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
 	}
 }
 
