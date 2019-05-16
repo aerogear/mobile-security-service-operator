@@ -14,10 +14,6 @@ func (r *ReconcileMobileSecurityService) buildService(m *mobilesecurityservicev1
 	ls := getAppLabels(m.Name)
 	targetPort := intstr.FromInt(int(m.Spec.OAuthPort))
 	ser := &corev1.Service{
-		TypeMeta: metav1.TypeMeta{
-			APIVersion: "v1",
-			Kind:       "Service",
-		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      m.Name,
 			Namespace: m.Namespace,

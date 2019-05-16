@@ -13,10 +13,6 @@ import (
 func (r *ReconcileMobileSecurityServiceDB) buildDBService(m *mobilesecurityservicev1alpha1.MobileSecurityServiceDB) *corev1.Service {
 	ls := getDBLabels(m.Name)
 	ser := &corev1.Service{
-		TypeMeta: metav1.TypeMeta{
-			APIVersion: "v1",
-			Kind:       "Service",
-		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      m.Name,
 			Namespace: m.Namespace,

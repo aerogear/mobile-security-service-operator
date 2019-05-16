@@ -14,10 +14,6 @@ func (r *ReconcileMobileSecurityService) buildRoute(m *mobilesecurityservicev1al
 
 	ls := getAppLabels(m.Name)
 	route := &routev1.Route{
-		TypeMeta: v1.TypeMeta{
-			APIVersion: "v1",
-			Kind:       "Route",
-		},
 		ObjectMeta: v1.ObjectMeta{
 			Name:      utils.GetRouteName(m),
 			Namespace: m.Namespace,

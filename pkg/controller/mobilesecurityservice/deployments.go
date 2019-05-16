@@ -16,10 +16,6 @@ func (r *ReconcileMobileSecurityService) buildDeployment(m *mobilesecurityservic
 	ls := getAppLabels(m.Name)
 	replicas := m.Spec.Size
 	dep := &v1beta1.Deployment{
-		TypeMeta: metav1.TypeMeta{
-			APIVersion: "extensions/v1beta1",
-			Kind:       "Deployment",
-		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      m.Name,
 			Namespace: m.Namespace,
