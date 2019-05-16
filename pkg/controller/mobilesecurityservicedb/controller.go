@@ -115,7 +115,7 @@ func (r *ReconcileMobileSecurityServiceDB) buildFactory(instance *mobilesecurity
 	reqLogger.Info("Check "+kind, "into the namespace", instance.Namespace)
 	switch kind {
 	case PVC:
-		return r.buildPVCForDB(instance), nil
+		return r.buildPVCForDB(instance, serviceInstance), nil
 	case DEEPLOYMENT:
 		return r.buildDBDeployment(instance, serviceInstance), nil
 	case SERVICE:

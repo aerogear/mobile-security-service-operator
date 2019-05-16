@@ -41,6 +41,13 @@ type MobileSecurityServiceSpec struct {
 	ConfigMapName           string `json:"configMapName,omitempty"`
 	RouteName               string `json:"routeName,omitempty"`
 	SkipNamespaceValidation bool   `json:"skipNamespaceValidation,omitempty"`
+
+	//CR Optional configuration values for the Database which will be used by it
+	// If the values be not specified then DB will be installed/config with its default definitions
+	DatabaseMemoryLimit    string `json:"databaseMemoryLimit,omitempty"`
+	DatabaseMemoryRequest  string `json:"databaseMemoryRequest,omitempty"`
+	DatabaseStorageRequest string `json:"databaseStorageRequest,omitempty"`
+
 }
 
 // MobileSecurityServiceStatus defines the observed state of MobileSecurityService

@@ -32,3 +32,9 @@ spec:
   #    The DB will looking for this ConfigMap to get the Env Values variables
   configMapName: "mobile-security-service-config"
   routeName: "route"
+  # The following config is optional. These values defined the resources which the MSS Service needs
+  # for the database which will used by it.
+  # NOTE: If this values be not informed then the DB will be installed/config with its own default configurations.
+  databaseMemoryLimit: "512Mi"
+  databaseMemoryRequest: "512Mi"
+  databaseStorageRequest: "1Gi"

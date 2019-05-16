@@ -93,10 +93,10 @@ func (r *ReconcileMobileSecurityServiceDB) buildDBDeployment(m *mobilesecurityse
 						},
 						Resources: corev1.ResourceRequirements{
 							Limits: corev1.ResourceList{
-								corev1.ResourceMemory: resource.MustParse(m.Spec.DatabaseMemoryLimit),
+								corev1.ResourceMemory: resource.MustParse(getDatabaseMemoryLimit(m,serviceInstance)),
 							},
 							Requests: corev1.ResourceList{
-								corev1.ResourceMemory: resource.MustParse(m.Spec.DatabaseMemoryRequest),
+								corev1.ResourceMemory: resource.MustParse(getDatabaseMemoryRequest(m,serviceInstance)),
 							},
 						},
 						TerminationMessagePath: "/dev/termination-log",

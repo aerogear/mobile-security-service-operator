@@ -93,3 +93,32 @@ func (r *ReconcileMobileSecurityServiceDB) getDatabasePasswordEnvVar(m *mobilese
 		Value: m.Spec.DatabasePassword,
 	}
 }
+
+//getDatabaseMemoryLimit return the memory limit that should be used to setup it.
+func getDatabaseMemoryLimit(m *mobilesecurityservicev1alpha1.MobileSecurityServiceDB, serviceInstance *mobilesecurityservicev1alpha1.MobileSecurityService) string {
+	//If the application which will use this database defines an specific value then it should be used.
+	if serviceInstance == nil || serviceInstance.Spec.DatabaseMemoryLimit == "" {
+		return m.Spec.DatabaseMemoryLimit
+	}
+	return serviceInstance.Spec.DatabaseMemoryLimit
+
+}
+
+//getDatabaseMemoryLimit return the memory limit that should be used to setup it.
+func getDatabaseMemoryRequest(m *mobilesecurityservicev1alpha1.MobileSecurityServiceDB, serviceInstance *mobilesecurityservicev1alpha1.MobileSecurityService) string {
+	//If the application which will use this database defines an specific value then it should be used.
+	if  serviceInstance == nil || serviceInstance.Spec.DatabaseMemoryRequest == "" {
+		return m.Spec.DatabaseMemoryRequest
+	}
+	return serviceInstance.Spec.DatabaseMemoryRequest
+}
+
+//getDatabaseStorageRequest return the memory limit that should be used to setup it.
+func getDatabaseStorageRequest(m *mobilesecurityservicev1alpha1.MobileSecurityServiceDB, serviceInstance *mobilesecurityservicev1alpha1.MobileSecurityService) string {
+	//If the application which will use this database defines an specific value then it should be used.
+	if serviceInstance == nil || serviceInstance.Spec.DatabaseStorageRequest == "" {
+		return m.Spec.DatabaseStorageRequest
+	}
+	return serviceInstance.Spec.DatabaseStorageRequest
+
+}

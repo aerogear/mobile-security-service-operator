@@ -9,7 +9,7 @@ import (
 )
 
 //Returns the Deployment object for the Mobile Security Service Database
-func (r *ReconcileMobileSecurityServiceDB) buildPVCForDB(m *mobilesecurityservicev1alpha1.MobileSecurityServiceDB) *corev1.PersistentVolumeClaim {
+func (r *ReconcileMobileSecurityServiceDB) buildPVCForDB(m *mobilesecurityservicev1alpha1.MobileSecurityServiceDB, serviceInstance *mobilesecurityservicev1alpha1.MobileSecurityService) *corev1.PersistentVolumeClaim {
 	ls := getDBLabels(m.Name)
 	pv := &corev1.PersistentVolumeClaim{
 		ObjectMeta: v1.ObjectMeta{
@@ -23,7 +23,7 @@ func (r *ReconcileMobileSecurityServiceDB) buildPVCForDB(m *mobilesecurityservic
 			},
 			Resources: corev1.ResourceRequirements{
 				Requests: corev1.ResourceList{
-					corev1.ResourceStorage: resource.MustParse(m.Spec.DatabaseStorageRequest),
+					corev1.ResourceStorage: resource.MustParse(getDatabaseStorageRequest(m, serviceInstance)),
 				},
 			},
 		},
