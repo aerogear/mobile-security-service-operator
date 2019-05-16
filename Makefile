@@ -87,8 +87,6 @@ delete-all:
 	- kubectl delete -f deploy/cluster_role_binding.yaml
 	- kubectl delete -f deploy/service_account.yaml
 	- kubectl delete -f deploy/operator.yaml
-	- kubectl delete -f deploy/role.yaml
-	- kubectl delete -f deploy/role_binding.yaml
 	- kubectl delete namespace ${NAMESPACE}
 
 .PHONY: create-oper
@@ -100,8 +98,6 @@ create-oper:
 	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml
 	- kubectl create -f deploy/cluster_role.yaml
 	- kubectl create -f deploy/cluster_role_binding.yaml
-	- kubectl create -f deploy/role.yaml
-	- kubectl create -f deploy/role_binding.yaml
 	- kubectl create -f deploy/service_account.yaml
 	- kubectl create -f deploy/operator.yaml
 
@@ -115,8 +111,6 @@ delete-oper:
 	- kubectl delete -f deploy/cluster_role_binding.yaml
 	- kubectl delete -f deploy/service_account.yaml
 	- kubectl delete -f deploy/operator.yaml
-	- kubectl delete -f deploy/role.yaml
-	- kubectl delete -f deploy/role_binding.yaml
 	- kubectl delete namespace ${NAMESPACE}
 
 .PHONY: create-service-and-db

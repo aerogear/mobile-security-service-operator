@@ -157,21 +157,12 @@ NOTE:
 * All values used in the default configuration are sourced from the config-map which is managed and created by the Operator. This config map will be created in the Operator namespace and its name is defined by the attribute `configMapName` in the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService CR].
 * If the name of this ConfigMap is not specified then the name of the Mobile Security Service instance will be used instead.
 
-=== Configure roles for non-privileged users
-
-By executing the following commands you will create the required roles which allow the <user> to create the Mobile Security Service Application and Database in their namespaces so it is not required to be logged in to the system:admin user. However, the Mobile Security Service Operator is cluster scoped and will still only accessible to the system:admin user.
-
-[source,shell]
-----
-$ oc create rolebinding developer-mobile-security-service-operator --role=mobile-security-service-operator --user=<user>
-$ oc create rolebinding developer-mobile-security-service --role=mobile-security-service --user=<user>
-----
-
 === Namespaces for the MobileSecurityServiceCR
 
 This operator will just working with the namespaces which are specified in the environment variable `APP_NAMESPACES` and the link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml[MobileSecurityServiceApp CR] which be applied in a NAMESPACE which was not defined on it will be ignored. See its configuration into the link:./deploy/operator.yaml[operator.yaml] file.
 
-IMPORTANT:The values should be informed split by `;`
+IMPORTANT:The values should be informed split by `;`.
+
 NOTE: To run the project locally export the ENV VAR. E.g `export APP_NAMESPACES=mobile-security-service-apps`
 
 === Database image and parameters
