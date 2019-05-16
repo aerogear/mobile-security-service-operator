@@ -30,9 +30,8 @@ func (r *ReconcileMobileSecurityServiceDB) updateDBStatus(reqLogger logr.Logger,
 
 	// Update Database Status == OK
 	if !reflect.DeepEqual(status, instance.Status.DatabaseStatus) {
-
-		//Get the latest version of the CR
-		instance, err = r.fetchInstance(reqLogger, request)
+		// Get the latest version of the CR in order to try to avoid errors when try to update the CR
+		instance, err := r.fetchInstance(reqLogger, request)
 		if err != nil {
 			return err
 		}
@@ -41,7 +40,7 @@ func (r *ReconcileMobileSecurityServiceDB) updateDBStatus(reqLogger logr.Logger,
 		instance.Status.DatabaseStatus = status
 
 		// Update the CR
-		err := r.client.Status().Update(context.TODO(), instance)
+		err = r.client.Status().Update(context.TODO(), instance)
 		if err != nil {
 			reqLogger.Error(err, "Failed to update Deployment Status for the MobileSecurityService Database")
 			return err
@@ -66,8 +65,8 @@ func (r *ReconcileMobileSecurityServiceDB) updateDeploymentStatus(reqLogger logr
 	}
 	// Update the Deployment Name and Status
 	if deploymentStatus.Name != instance.Status.DeploymentName || !reflect.DeepEqual(deploymentStatus.Status, instance.Status.DeploymentStatus) {
-		// Get the latest version of the instance CR
-		instance, err = r.fetchInstance(reqLogger, request)
+		// Get the latest version of the CR in order to try to avoid errors when try to update the CR
+		instance, err := r.fetchInstance(reqLogger, request)
 		if err != nil {
 			return nil, err
 		}
@@ -77,7 +76,7 @@ func (r *ReconcileMobileSecurityServiceDB) updateDeploymentStatus(reqLogger logr
 		instance.Status.DeploymentStatus = deploymentStatus.Status
 
 		// Update the CR
-		err := r.client.Status().Update(context.TODO(), instance)
+		err = r.client.Status().Update(context.TODO(), instance)
 		if err != nil {
 			reqLogger.Error(err, "Failed to update Deployment Name and Status for the MobileSecurityServiceDB")
 			return deploymentStatus, err
@@ -102,10 +101,9 @@ func (r *ReconcileMobileSecurityServiceDB) updateServiceStatus(reqLogger logr.Lo
 		return serviceStatus, err
 	}
 
-	// Update the Service Name and Status
 	if serviceStatus.Name != instance.Status.ServiceName || !reflect.DeepEqual(serviceStatus.Status, instance.Status.ServiceStatus) {
-		// Get the latest version of the instance CR
-		instance, err = r.fetchInstance(reqLogger, request)
+		// Get the latest version of the CR in order to try to avoid errors when try to update the CR
+		instance, err := r.fetchInstance(reqLogger, request)
 		if err != nil {
 			return nil, err
 		}
@@ -114,7 +112,7 @@ func (r *ReconcileMobileSecurityServiceDB) updateServiceStatus(reqLogger logr.Lo
 		instance.Status.ServiceName = serviceStatus.Name
 
 		// Update the CR
-		err := r.client.Status().Update(context.TODO(), instance)
+		err = r.client.Status().Update(context.TODO(), instance)
 		if err != nil {
 			reqLogger.Error(err, "Failed to update Service Name and Status for the MobileSecurityServiceDB")
 			return serviceStatus, err
@@ -142,8 +140,8 @@ func (r *ReconcileMobileSecurityServiceDB) updatePvcStatus(reqLogger logr.Logger
 
 	// Update CR with PVC name
 	if pvcStatus.Name != instance.Status.PersistentVolumeClaimName {
-		// Get the latest version of the instance CR
-		instance, err = r.fetchInstance(reqLogger, request)
+		// Get the latest version of the CR in order to try to avoid errors when try to update the CR
+		instance, err := r.fetchInstance(reqLogger, request)
 		if err != nil {
 			return nil, err
 		}
@@ -152,7 +150,7 @@ func (r *ReconcileMobileSecurityServiceDB) updatePvcStatus(reqLogger logr.Logger
 		instance.Status.PersistentVolumeClaimName = pvcStatus.Name
 
 		// Update the CR
-		err := r.client.Status().Update(context.TODO(), instance)
+		err = r.client.Status().Update(context.TODO(), instance)
 		if err != nil {
 			reqLogger.Error(err, "Failed to update PersistentVolumeClaim Status for the MobileSecurityServiceDB")
 			return pvcStatus, err

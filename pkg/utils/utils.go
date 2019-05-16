@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
+	routev1 "github.com/openshift/api/route/v1"
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 )
@@ -16,8 +17,14 @@ import (
 const APP_NAMESPACE_ENV_VAR = "APP_NAMESPACES"
 const PROXY_SERVICE_INSTANCE_NAME = "mobile-security-service-proxy"
 const APPLICATION_SERVICE_INSTANCE_NAME = "mobile-security-service-application"
+const ENDPOINT_INIT = "/init"
 
 var log = logf.Log.WithName("mobile-security-service-operator.utils")
+
+//GetPublicServiceAPIURL returns the public service URL API
+func GetPublicServiceAPIURL(route *routev1.Route, serviceInstance *mobilesecurityservicev1alpha1.MobileSecurityService) string {
+	return fmt.Sprintf("%v://%v/%v", serviceInstance.Spec.ClusterProtocol, route.Status.Ingress[0].Host, ENDPOINT_INIT)
+}
 
 //GetRouteName returns an string name with the name of the router
 func GetRouteName(m *mobilesecurityservicev1alpha1.MobileSecurityService) string {

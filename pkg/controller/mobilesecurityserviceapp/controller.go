@@ -2,12 +2,13 @@ package mobilesecurityserviceapp
 
 import (
 	"context"
+	"github.com/aerogear/mobile-security-service-operator/pkg/models"
 
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
-	"github.com/aerogear/mobile-security-service-operator/pkg/models"
 	"github.com/aerogear/mobile-security-service-operator/pkg/service"
 	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"github.com/go-logr/logr"
+	routev1 "github.com/openshift/api/route/v1"
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -70,27 +71,23 @@ type ReconcileMobileSecurityServiceApp struct {
 }
 
 //Build the object, cluster resource, and add the object in the queue to reconcile
-func (r *ReconcileMobileSecurityServiceApp) create(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, kind string, serviceURL string, reqLogger logr.Logger, request reconcile.Request) (reconcile.Result, error) {
-	obj, err := r.buildFactory(reqLogger, instance, kind, serviceURL)
-	if err != nil {
-		return reconcile.Result{}, err
-	}
+func (r *ReconcileMobileSecurityServiceApp) create(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, kind string, serviceURL string, reqLogger logr.Logger, request reconcile.Request) error {
+	obj := r.buildFactory(reqLogger, instance, kind, serviceURL)
 	reqLogger.Info("Creating a new ", "kind", kind, "Instance.Namespace", instance.Namespace, "Instance.Name", instance.Name)
-	err = r.client.Create(context.TODO(), obj)
+	err := r.client.Create(context.TODO(), obj)
 	if err != nil {
 		reqLogger.Error(err, "Failed to create new ", "kind", kind, "Instance.Namespace", instance.Namespace, "Instance.Name", instance.Name)
-		return reconcile.Result{}, err
 	}
 	reqLogger.Info("Created successfully - return and create", "kind", kind, "Instance.Namespace", instance.Namespace, "Instance.Name", instance.Name)
-	return reconcile.Result{Requeue: true}, nil
+	return err
 }
 
 //buildFactory will return the resource according to the kind defined
-func (r *ReconcileMobileSecurityServiceApp) buildFactory(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, kind string, serviceURL string) (runtime.Object, error) {
+func (r *ReconcileMobileSecurityServiceApp) buildFactory(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, kind string, serviceURL string) runtime.Object {
 	reqLogger.Info("Building Object ", "kind", kind, "MobileSecurityServiceApp.Namespace", instance.Namespace, "MobileSecurityServiceApp.Name", instance.Name)
 	switch kind {
 	case CONFIGMAP:
-		return r.buildAppSDKConfigMap(instance, serviceURL), nil
+		return r.buildAppSDKConfigMap(instance, serviceURL)
 	default:
 		msg := "Failed to recognize type of object" + kind + " into the MobileSecurityServiceApp.Namespace " + instance.Namespace
 		panic(msg)
@@ -171,48 +168,72 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 		if err := r.removeFinalizer(serviceAPI, reqLogger, request); err != nil {
 			return reconcile.Result{}, err
 		}
+
+		//Stop the reconcile
 		return reconcile.Result{}, nil
 	}
 
-	//Check specs
 	if !hasMandatorySpecs(instance, mssInstance, reqLogger) {
-		return reconcile.Result{Requeue: true}, nil
+		//Stop reconcile since it has not the mandatory specs
+		return reconcile.Result{}, nil
 	}
 
-	//Add finalizer for this CR
+	// Add finalizer for this CR
 	if err := r.addFinalizer(reqLogger, instance, request); err != nil {
 		return reconcile.Result{}, err
 	}
 
-	//Check if ConfigMap for the app exist, if not create one.
-	if _, err := r.fetchSDKConfigMap(reqLogger, instance); err != nil {
-		return r.create(instance, CONFIGMAP, serviceAPI, reqLogger, request)
-	}
-
-	app, err := fetchBindAppRestServiceByAppID(serviceAPI, instance, reqLogger)
-
-	if err != nil {
-		return reconcile.Result{Requeue: true}, err
-	}
-	//if no error found, i.e. request completed successfully
-
-	//Check if the app exists, if yes update
-	if app.AppName != "" && app.AppName != instance.Spec.AppName {
-		app.AppName = instance.Spec.AppName
-		//Check if App was update with success
-		//TODO if the app is found but it is soft deleted, we need to remove the soft delete
-		err := service.UpdateAppNameByRestAPI(serviceAPI, app, reqLogger)
-		if err != nil {
-			return reconcile.Result{}, err
-		}
-
-	}
-	//else create the app
-	newApp := models.NewApp(instance.Spec.AppName, instance.Spec.AppId)
-	if err := service.CreateAppByRestAPI(serviceAPI, newApp, reqLogger); err != nil {
+	// Get the route in order to obtain the public Service URL API
+	reqLogger.Info("Checking if the route already exists ...")
+	route := &routev1.Route{}
+	if err := r.client.Get(context.TODO(), types.NamespacedName{Name: utils.GetRouteName(mssInstance), Namespace: operatorNamespace}, route); err != nil {
 		return reconcile.Result{}, err
 	}
-	return reconcile.Result{Requeue: false}, nil
+
+	// Get the Public Service API URL which will be used to build the SDKConfigMap json
+	publicServiceURLAPI := utils.GetPublicServiceAPIURL(route, mssInstance)
+
+	//Check if ConfigMap for the app exist, if not create one.
+	if _, err := r.fetchSDKConfigMap(reqLogger, instance); err != nil {
+		if err := r.create(instance, CONFIGMAP, publicServiceURLAPI, reqLogger, request); err != nil {
+			return reconcile.Result{}, err
+		}
+	}
+
+	// Fetch app
+	app, err := fetchBindAppRestServiceByAppID(serviceAPI, instance, reqLogger)
+	if err != nil {
+		return reconcile.Result{}, err
+	}
+
+	// Bind App in the Service by the REST API
+	// NOTE: If the app was soft deleted before it will make the required job as well
+	if app.ID == "" {
+		newApp := models.NewApp(instance.Spec.AppName, instance.Spec.AppId)
+		if err := service.CreateAppByRestAPI(serviceAPI, newApp, reqLogger); err != nil {
+			return reconcile.Result{}, err
+		}
+	}
+
+	// Update the app name if it was changed.
+	if app.AppName != instance.Spec.AppName {
+
+		// Re-fetch the app to get the app.ID since now it was created in the Service
+		if app.ID == "" {
+			app, err = fetchBindAppRestServiceByAppID(serviceAPI, instance, reqLogger)
+			if err != nil {
+				return reconcile.Result{}, err
+			}
+		}
+
+		// Update the name by the REST API when exists the app
+		app.AppName = instance.Spec.AppName
+
+		//Check if App was update with success
+		if err := service.UpdateAppNameByRestAPI(serviceAPI, app, reqLogger); err != nil {
+			return reconcile.Result{}, err
+		}
+	}
 
 	//Update status for SDKConfigMap
 	SDKConfigMapStatus, err := r.updateSDKConfigMapStatus(reqLogger, request)
