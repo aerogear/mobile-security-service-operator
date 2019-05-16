@@ -1,6 +1,7 @@
 # IDEA Golang files
 .idea/*
-
+# Dependencies
+vendor/
 # Temporary Build Files
 build/_output
 build/_test

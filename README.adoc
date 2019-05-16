@@ -71,7 +71,7 @@ $ minishift config set insecure-registry 172.30.0.0/16
 $ minishift start
 ----
 
-=== Installing
+=== Installing Mobile Security Service by Operator
 
 Use the following command to create the Operator, Service and its Database as apply the roles on the cluster.
 
@@ -258,6 +258,15 @@ NOTE: The operator, application and database will be installed in the namespace 
 | `bindStatus` | For this status is expected the value `OK` which means that the app was created in the Rest Service API as its SDKConfigMap.
 | `SDKConfigMapName` | Name of the config map object created for the app with its SDK Config.
 |===
+
+=== Local Setup
+
+Run the following command to setup this project locally.
+
+[source,yaml]
+----
+$ make setup
+----
 
 === Running the operator locally
 
