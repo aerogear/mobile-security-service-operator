@@ -73,13 +73,13 @@ run-local:
 
 .PHONY: create-all
 create-all:
-	@echo Create Mobile Security Service Operator and Service in the namespace "mobile-security-service-operator":
+	@echo Create Mobile Security Service Operator and Service in the namespace ${NAMESPACE}:
 	make create-oper
 	make create-service-and-db
 
 .PHONY: delete-all
 delete-all:
-	@echo Delete Mobile Security Service Operator, Service and namespace "mobile-security-service-operator":
+	@echo Delete Mobile Security Service Operator, Service and namespace ${NAMESPACE}:
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml
@@ -117,7 +117,7 @@ delete-oper:
 	- kubectl delete -f deploy/operator.yaml
 	- kubectl delete -f deploy/role.yaml
 	- kubectl delete -f deploy/role_binding.yaml
-	- kubectl delete namespace mobile-security-service-operator
+	- kubectl delete namespace ${NAMESPACE}
 
 .PHONY: create-service-and-db
 create-service-and-db:
