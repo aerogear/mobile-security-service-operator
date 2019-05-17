@@ -209,7 +209,7 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 	}
 
 	//Update status for Service
-	serviceStatus, err := r.updateServiceStatus(reqLogger,request)
+	serviceStatus, err := r.updateServiceStatus(reqLogger, request)
 	if err != nil {
 		return reconcile.Result{}, err
 	}

@@ -3,12 +3,13 @@ package mobilesecurityservice
 import (
 	"context"
 	"fmt"
+	"reflect"
+
 	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"github.com/go-logr/logr"
 	routev1 "github.com/openshift/api/route/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
-	"reflect"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
@@ -27,7 +28,7 @@ func (r *ReconcileMobileSecurityService) updateStatus(reqLogger logr.Logger, con
 		reqLogger.Error(err, "One of the resources are not created", "MobileSecurityService.Namespace", instance.Namespace, "MobileSecurityService.Name", instance.Name)
 		return err
 	}
-	status:= "OK"
+	status := "OK"
 
 	// Update CR with the AppStatus == OK
 	if !reflect.DeepEqual(status, instance.Status.AppStatus) {
@@ -205,4 +206,3 @@ func (r *ReconcileMobileSecurityService) updateRouteStatus(reqLogger logr.Logger
 	}
 	return route, nil
 }
-
