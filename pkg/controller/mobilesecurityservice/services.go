@@ -22,7 +22,6 @@ func (r *ReconcileMobileSecurityService) buildProxyService(m *mobilesecurityserv
 		},
 		Spec: corev1.ServiceSpec{
 			Selector: ls,
-			Type:     corev1.ServiceTypeClusterIP,
 			Ports: []corev1.ServicePort{
 				{
 					TargetPort: targetPort,

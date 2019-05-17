@@ -31,7 +31,7 @@ var (
 			MemoryRequest:           "512Mi",
 			ClusterProtocol:         "http",
 			ConfigMapName:           "mss-config",
-			RouteName:               "mss-route",
+			RouteName:               "route",
 			SkipNamespaceValidation: true,
 		},
 	}
@@ -47,7 +47,7 @@ var (
 			MemoryRequest:           "512Mi",
 			ClusterProtocol:         "http",
 			ConfigMapName:           "mss-config",
-			RouteName:               "mss-route",
+			RouteName:               "route",
 			SkipNamespaceValidation: true,
 		},
 	}
@@ -238,14 +238,25 @@ func TestReconcileMobileSecurityService_buildFactory(t *testing.T) {
 			},
 		},
 		{
-			name: "should create a Service",
+			name: "should create the proxy Service",
 			fields: fields{
 				scheme: scheme.Scheme,
 			},
 			want: reflect.TypeOf(&corev1.Service{}),
 			args: args{
 				instance: &instanceOne,
-				kind:     SERVICE,
+				kind:     PROXY_SERVICE,
+			},
+		},
+		{
+			name: "should create the application Service",
+			fields: fields{
+				scheme: scheme.Scheme,
+			},
+			want: reflect.TypeOf(&corev1.Service{}),
+			args: args{
+				instance: &instanceOne,
+				kind:     APPLICATION_SERVICE,
 			},
 		},
 		{
@@ -358,8 +369,31 @@ func TestReconcileMobileSecurityService_Reconcile(t *testing.T) {
 
 	// check if the service has been created
 	service := &corev1.Service{}
-	err = r.client.Get(context.TODO(), req.NamespacedName, service)
+
+	err = r.client.Get(context.TODO(), types.NamespacedName{
+		Name:      utils.PROXY_SERVICE_INSTANCE_NAME,
+		Namespace: instanceOne.Namespace,
+	}, service)
 	if err != nil {
+		t.Fatalf(err.Error())
+		t.Fatalf("get service: (%v)", service)
+	}
+
+	res, err = r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+
+	if !res.Requeue {
+		t.Error("reconcile did not requeue request as expected")
+	}
+
+	err = r.client.Get(context.TODO(), types.NamespacedName{
+		Name:      utils.APPLICATION_SERVICE_INSTANCE_NAME,
+		Namespace: instanceOne.Namespace,
+	}, service)
+	if err != nil {
+		t.Fatalf(err.Error())
 		t.Fatalf("get service: (%v)", service)
 	}
 
