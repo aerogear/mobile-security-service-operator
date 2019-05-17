@@ -14,7 +14,8 @@ import (
 // which is the namespace where the APP CR can applied.
 // The namespaces should be informed split by ";".
 const APP_NAMESPACE_ENV_VAR = "APP_NAMESPACES"
-const SERVICE_INSTANCE_NAME = "mobile-security-service"
+const PROXY_SERVICE_INSTANCE_NAME = "mobile-security-service-proxy"
+const APPLICATION_SERVICE_INSTANCE_NAME = "mobile-security-service-application"
 
 var log = logf.Log.WithName("mobile-security-service-operator.utils")
 

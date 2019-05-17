@@ -2,13 +2,14 @@ package mobilesecurityserviceapp
 
 import (
 	"encoding/json"
+
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/models"
 	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"github.com/go-logr/logr"
 )
 
-const SDK  = "-sdk"
+const SDK = "-sdk"
 const FINALIZER = "finalizer.mobile-security-service.aerogear.com"
 
 // Returns an string map with the labels which wil be associated to the kubernetes/openshift objects
@@ -18,7 +19,7 @@ func getAppLabels(name string) map[string]string {
 }
 
 //To transform the object into a string with its json
-func getSdkConfigStringJsonFormat(sdk *models.SDKConfig) string{
+func getSdkConfigStringJsonFormat(sdk *models.SDKConfig) string {
 	jsonSdk, _ := json.MarshalIndent(sdk, "", "\t")
 	return string(jsonSdk)
 }

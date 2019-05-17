@@ -24,11 +24,12 @@ func TestReconcileMobileSecurityService_updateStatus(t *testing.T) {
 		scheme   *runtime.Scheme
 	}
 	type args struct {
-		request    reconcile.Request
-		configMap  *corev1.ConfigMap
-		deployment *v1beta1.Deployment
-		service    *corev1.Service
-		route      *routev1.Route
+		request            reconcile.Request
+		configMap          *corev1.ConfigMap
+		deployment         *v1beta1.Deployment
+		proxyService       *corev1.Service
+		applicationService *corev1.Service
+		route              *routev1.Route
 	}
 	tests := []struct {
 		name    string
@@ -68,7 +69,13 @@ func TestReconcileMobileSecurityService_updateStatus(t *testing.T) {
 						Kind:       "Deployment",
 					},
 				},
-				service: &corev1.Service{
+				proxyService: &corev1.Service{
+					TypeMeta: metav1.TypeMeta{
+						APIVersion: "v1",
+						Kind:       "Service",
+					},
+				},
+				applicationService: &corev1.Service{
 					TypeMeta: metav1.TypeMeta{
 						APIVersion: "v1",
 						Kind:       "Service",
@@ -92,7 +99,7 @@ func TestReconcileMobileSecurityService_updateStatus(t *testing.T) {
 
 			reqLogger := log.WithValues("Request.Namespace", tt.args.request.Namespace, "Request.Name", tt.args.request.Name)
 
-			if err := r.updateStatus(reqLogger, tt.args.configMap, tt.args.deployment, tt.args.service, tt.args.route, tt.args.request); (err != nil) != tt.wantErr {
+			if err := r.updateStatus(reqLogger, tt.args.configMap, tt.args.deployment, tt.args.proxyService, tt.args.applicationService, tt.args.route, tt.args.request); (err != nil) != tt.wantErr {
 				t.Errorf("ReconcileMobileSecurityService.updateStatus() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
