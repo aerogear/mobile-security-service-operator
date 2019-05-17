@@ -324,8 +324,7 @@ func TestReconcileMobileSecurityService_Reconcile(t *testing.T) {
 		Namespace: mssInstance.Namespace,
 	}, service)
 	if err != nil {
-		t.Fatalf(err.Error())
-		t.Fatalf("get app service: (%v)", service)
+		t.Fatalf("get application service: (%v)", err)
 	}
 
 	res, err = r.Reconcile(req)
@@ -341,8 +340,7 @@ func TestReconcileMobileSecurityService_Reconcile(t *testing.T) {
 		Namespace: mssInstance.Namespace,
 	}, proxyService)
 	if err != nil {
-		t.Fatalf(err.Error())
-		t.Fatalf("get proxy service: (%v)", proxyService)
+		t.Fatalf("get proxy service: (%v)", err)
 	}
 
 	res, err = r.Reconcile(req)
@@ -361,35 +359,6 @@ func TestReconcileMobileSecurityService_Reconcile(t *testing.T) {
 		t.Fatalf("reconcile: (%v)", err)
 	}
 
-}
-
-func TestReconcileMobileSecurityService_Reconcile_InvalidInstance(t *testing.T) {
-	invalidInstance := &mssInstance
-	invalidInstance.Spec.ClusterProtocol = "https"
-
-	// objects to track in the fake client
-	objs := []runtime.Object{
-		&mssInstance,
-	}
-
-	r := buildReconcileWithFakeClientWithMocks(objs, t)
-
-	// mock request to simulate Reconcile() being called on an event for a watched resource
-	req := reconcile.Request{
-		NamespacedName: types.NamespacedName{
-			Name:      mssInstance.Name,
-			Namespace: mssInstance.Namespace,
-		},
-	}
-
-	res, err := r.Reconcile(req)
-	if err != nil {
-		t.Fatalf("reconcile: (%v)", err)
-	}
-
-	if !res.Requeue {
-		t.Error("reconcile did not requeue request as expected")
-	}
 }
 
 func TestReconcileMobileSecurityService_Reconcile_InvalidSpec(t *testing.T) {
