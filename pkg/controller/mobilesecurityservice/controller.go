@@ -18,11 +18,11 @@ import (
 )
 
 const (
-	CONFIGMAP     = "ConfigMap"
-	DEEPLOYMENT   = "Deployment"
-	SERVICE       = "Service"
-	ROUTE         = "Route"
-	SERVERSERVICE = "Server Service"
+	CONFIGMAP           = "ConfigMap"
+	DEEPLOYMENT         = "Deployment"
+	PROXY_SERVICE       = "Proxy Service"
+	ROUTE               = "Route"
+	APPLICATION_SERVICE = "Application Service"
 )
 
 var log = logf.Log.WithName("controller_mobilesecurityservice")
@@ -115,22 +115,22 @@ func (r *ReconcileMobileSecurityService) create(instance *mobilesecurityservicev
 	return reconcile.Result{Requeue: true}, nil
 }
 
-// buildFactory will return the resource according to the kind defined
-func (r *ReconcileMobileSecurityService) buildFactory(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityService, kind string) (runtime.Object, error) {
-	reqLogger.Info("Check "+kind, "into the namespace", instance.Namespace)
-	switch kind {
+// buildFactory will return the resource according to the resource defined
+func (r *ReconcileMobileSecurityService) buildFactory(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityService, resource string) (runtime.Object, error) {
+	reqLogger.Info("Check "+resource, "into the namespace", instance.Namespace)
+	switch resource {
 	case CONFIGMAP:
 		return r.buildConfigMap(instance), nil
 	case DEEPLOYMENT:
 		return r.buildDeployment(instance), nil
-	case SERVICE:
-		return r.buildService(instance), nil
-	case SERVERSERVICE:
-		return r.buildServerService(instance), nil
+	case PROXY_SERVICE:
+		return r.buildProxyService(instance), nil
+	case APPLICATION_SERVICE:
+		return r.buildApplicationService(instance), nil
 	case ROUTE:
 		return r.buildRoute(instance), nil
 	default:
-		msg := "Failed to recognize type of object" + kind + " into the Namespace " + instance.Namespace
+		msg := "Failed to recognize type of object" + resource + " into the Namespace " + instance.Namespace
 		panic(msg)
 	}
 }
@@ -190,13 +190,13 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 	}
 
 	//Check if Service for the app exist, if not create one
-	if _, err := r.fetchService(reqLogger, instance); err != nil {
-		return r.create(instance, reqLogger, SERVICE)
+	if _, err := r.fetchService(reqLogger, instance, utils.PROXY_SERVICE_INSTANCE_NAME); err != nil {
+		return r.create(instance, reqLogger, PROXY_SERVICE)
 	}
 
 	//Check if Service for the app exist, if not create one
-	if _, err := r.fetchServerService(reqLogger, instance); err != nil {
-		return r.create(instance, reqLogger, SERVERSERVICE)
+	if _, err := r.fetchService(reqLogger, instance, utils.APPLICATION_SERVICE_INSTANCE_NAME); err != nil {
+		return r.create(instance, reqLogger, APPLICATION_SERVICE)
 	}
 
 	//Check if Route for the Service exist, if not create one
@@ -216,14 +216,13 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 		return reconcile.Result{}, err
 	}
 
-	//Update status for Service
-	serviceStatus, err := r.updateServiceStatus(reqLogger, request)
-
+	//Update status for Proxy Service
+	proxyServiceStatus, err := r.updateServiceStatus(reqLogger, request, utils.PROXY_SERVICE_INSTANCE_NAME)
 	if err != nil {
 		return reconcile.Result{}, err
 	}
 
-	serverServiceStatus, err := r.updateServiceStatus(reqLogger, request)
+	applicationServiceStatus, err := r.updateServiceStatus(reqLogger, request, utils.APPLICATION_SERVICE_INSTANCE_NAME)
 	if err != nil {
 		return reconcile.Result{}, err
 	}
@@ -235,7 +234,7 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 	}
 
 	//Update status for App
-	if err := r.updateStatus(reqLogger, configMapStatus, deploymentStatus, serviceStatus, serverServiceStatus, routeStatus, request); err != nil {
+	if err := r.updateStatus(reqLogger, configMapStatus, deploymentStatus, proxyServiceStatus, applicationServiceStatus, routeStatus, request); err != nil {
 
 		return reconcile.Result{}, err
 	}

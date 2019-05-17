@@ -30,19 +30,11 @@ func (r *ReconcileMobileSecurityService) fetchRoute(reqLogger logr.Logger, insta
 	return route, err
 }
 
-//fetchService returns the service resource created for this instance
-func (r *ReconcileMobileSecurityService) fetchService(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityService) (*corev1.Service, error) {
+//fetchServerService returns the application service resource created for this instance
+func (r *ReconcileMobileSecurityService) fetchService(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityService, name string) (*corev1.Service, error) {
 	reqLogger.Info("Checking if the service already exists")
 	service := &corev1.Service{}
-	err := r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, service)
-	return service, err
-}
-
-//fetchServerService returns the service resource created for this instance
-func (r *ReconcileMobileSecurityService) fetchServerService(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityService) (*corev1.Service, error) {
-	reqLogger.Info("Checking if the service already exists")
-	service := &corev1.Service{}
-	err := r.client.Get(context.TODO(), types.NamespacedName{Name: utils.SERVER_SERVICE_INSTANCE_NAME, Namespace: instance.Namespace}, service)
+	err := r.client.Get(context.TODO(), types.NamespacedName{Name: name, Namespace: instance.Namespace}, service)
 	return service, err
 }
 

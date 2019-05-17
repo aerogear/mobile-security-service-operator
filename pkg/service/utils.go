@@ -10,6 +10,6 @@ import (
 const ENDPOINT_API = "/api"
 
 //Return REST Service API
-func GetServiceAPIURL(serviceInstance *mobilesecurityservicev1alpha1.MobileSecurityService) string {
-	return serviceInstance.Spec.ClusterProtocol + "://" + utils.SERVER_SERVICE_INSTANCE_NAME + ":" + fmt.Sprint(serviceInstance.Spec.Port) + ENDPOINT_API
+func GetServiceAPIURL(mssInstance *mobilesecurityservicev1alpha1.MobileSecurityService) string {
+	return mssInstance.Spec.ClusterProtocol + "://" + utils.APPLICATION_SERVICE_INSTANCE_NAME + ":" + fmt.Sprint(mssInstance.Spec.Port) + ENDPOINT_API
 }

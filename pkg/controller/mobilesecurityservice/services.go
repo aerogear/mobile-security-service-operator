@@ -11,12 +11,12 @@ import (
 )
 
 //buildService returns the service resource
-func (r *ReconcileMobileSecurityService) buildService(m *mobilesecurityservicev1alpha1.MobileSecurityService) *corev1.Service {
+func (r *ReconcileMobileSecurityService) buildProxyService(m *mobilesecurityservicev1alpha1.MobileSecurityService) *corev1.Service {
 	ls := getAppLabels(m.Name)
 	targetPort := intstr.FromInt(int(m.Spec.OAuthPort))
 	ser := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      m.Name,
+			Name:      utils.PROXY_SERVICE_INSTANCE_NAME,
 			Namespace: m.Namespace,
 			Labels:    ls,
 		},
@@ -27,11 +27,9 @@ func (r *ReconcileMobileSecurityService) buildService(m *mobilesecurityservicev1
 				{
 					TargetPort: targetPort,
 					Port:       80,
-					Protocol:   "TCP",
 					Name:       "web",
 				},
 			},
-			SessionAffinity: "None",
 		},
 	}
 	// Set MobileSecurityService instance as the owner and controller
@@ -39,29 +37,22 @@ func (r *ReconcileMobileSecurityService) buildService(m *mobilesecurityservicev1
 	return ser
 }
 
-func (r *ReconcileMobileSecurityService) buildServerService(m *mobilesecurityservicev1alpha1.MobileSecurityService) *corev1.Service {
+func (r *ReconcileMobileSecurityService) buildApplicationService(m *mobilesecurityservicev1alpha1.MobileSecurityService) *corev1.Service {
 	ls := getAppLabels(m.Name)
 	ser := &corev1.Service{
-		TypeMeta: metav1.TypeMeta{
-			APIVersion: "v1",
-			Kind:       "Service",
-		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      utils.SERVER_SERVICE_INSTANCE_NAME,
+			Name:      utils.APPLICATION_SERVICE_INSTANCE_NAME,
 			Namespace: m.Namespace,
 			Labels:    ls,
 		},
 		Spec: corev1.ServiceSpec{
 			Selector: ls,
-			Type:     corev1.ServiceTypeClusterIP,
 			Ports: []corev1.ServicePort{
 				{
-					Port:     m.Spec.Port,
-					Protocol: "TCP",
-					Name:     "server",
+					Port: m.Spec.Port,
+					Name: "server",
 				},
 			},
-			SessionAffinity: "None",
 		},
 	}
 	// Set MobileSecurityService instance as the owner and controller

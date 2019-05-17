@@ -173,7 +173,7 @@ func (r *ReconcileMobileSecurityServiceDB) Reconcile(request reconcile.Request) 
 		// if the Instance cannot be found and/or its configMap was not created than the default values specified in its CR will be used
 		reqLogger.Info("Checking for service instance ...")
 		serviceInstance := &mobilesecurityservicev1alpha1.MobileSecurityService{}
-		r.client.Get(context.TODO(), types.NamespacedName{Name: utils.SERVICE_INSTANCE_NAME, Namespace: operatorNamespace}, serviceInstance)
+		r.client.Get(context.TODO(), types.NamespacedName{Name: "mobile-security-service", Namespace: operatorNamespace}, serviceInstance)
 		return r.create(instance, serviceInstance, DEEPLOYMENT, reqLogger)
 	}
 

@@ -22,7 +22,7 @@ func (r *ReconcileMobileSecurityService) buildRoute(m *mobilesecurityservicev1al
 		Spec: routev1.RouteSpec{
 			To: routev1.RouteTargetReference{
 				Kind: "Service",
-				Name: m.Name,
+				Name: utils.PROXY_SERVICE_INSTANCE_NAME,
 			},
 			Port: &routev1.RoutePort{
 				TargetPort: intstr.FromString("web"),

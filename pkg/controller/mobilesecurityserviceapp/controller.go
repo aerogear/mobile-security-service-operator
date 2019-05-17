@@ -135,16 +135,17 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 	reqLogger.Info("Valid namespace for MobileSecurityServiceApp", "Namespace", request.Namespace)
 
 	reqLogger.Info("Checking for service instance ...")
-	serviceInstance := &mobilesecurityservicev1alpha1.MobileSecurityService{}
+	mssInstance := &mobilesecurityservicev1alpha1.MobileSecurityService{}
 	operatorNamespace, _ := k8sutil.GetOperatorNamespace()
-	if err := r.client.Get(context.TODO(), types.NamespacedName{Name: utils.SERVICE_INSTANCE_NAME, Namespace: operatorNamespace}, serviceInstance); err != nil {
+
+	if err := r.client.Get(context.TODO(), types.NamespacedName{Name: "mobile-security-service", Namespace: operatorNamespace}, mssInstance); err != nil {
 		// Return and don't create
-		reqLogger.Info("Mobile Security Service instance resource not found. Ignoring since object must be deleted")
+		reqLogger.Info("Mobile Security Service instance resource not found. Mobile Security Service Application is required to create the application")
 		return reconcile.Result{}, nil
 	}
 
 	//Get the REST Service Endpoint
-	serviceAPI := service.GetServiceAPIURL(serviceInstance)
+	serviceAPI := service.GetServiceAPIURL(mssInstance)
 
 	//Check if the APP CR was marked to be deleted
 	isAppMarkedToBeDeleted := instance.GetDeletionTimestamp() != nil
@@ -174,7 +175,7 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 	}
 
 	//Check specs
-	if !hasMandatorySpecs(instance, serviceInstance, reqLogger) {
+	if !hasMandatorySpecs(instance, mssInstance, reqLogger) {
 		return reconcile.Result{Requeue: true}, nil
 	}
 
@@ -188,28 +189,30 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 		return r.create(instance, CONFIGMAP, serviceAPI, reqLogger, request)
 	}
 
-	//Check if App is Bind in the REST Service, if not then bind it
-	if app, err := fetchBindAppRestServiceByAppID(serviceAPI, instance, reqLogger); err == nil {
-		//Update the name by the REST API
-		if app.AppName != instance.Spec.AppName {
-			app.AppName = instance.Spec.AppName
-			//Check if App was update with success
+	app, err := fetchBindAppRestServiceByAppID(serviceAPI, instance, reqLogger)
 
-			if err := service.UpdateAppNameByRestAPI(serviceAPI, app, reqLogger); err != nil {
-				return reconcile.Result{}, err
-			}
-			return reconcile.Result{Requeue: true}, nil
-		}
-		// Bind App in the Service by the REST API
-		if app.ID == "" {
-			newApp := models.NewApp(instance.Spec.AppName, instance.Spec.AppId)
-			if err := service.CreateAppByRestAPI(serviceAPI, newApp, reqLogger); err != nil {
-				return reconcile.Result{}, err
-			}
-			return reconcile.Result{Requeue: true}, nil
-		}
-		return reconcile.Result{Requeue: true}, nil
+	if err != nil {
+		return reconcile.Result{Requeue: true}, err
 	}
+	//if no error found, i.e. request completed successfully
+
+	//Check if the app exists, if yes update
+	if app.AppName != "" && app.AppName != instance.Spec.AppName {
+		app.AppName = instance.Spec.AppName
+		//Check if App was update with success
+		//TODO if the app is found but it is soft deleted, we need to remove the soft delete
+		err := service.UpdateAppNameByRestAPI(serviceAPI, app, reqLogger)
+		if err != nil {
+			return reconcile.Result{}, err
+		}
+
+	}
+	//else create the app
+	newApp := models.NewApp(instance.Spec.AppName, instance.Spec.AppId)
+	if err := service.CreateAppByRestAPI(serviceAPI, newApp, reqLogger); err != nil {
+		return reconcile.Result{}, err
+	}
+	return reconcile.Result{Requeue: false}, nil
 
 	//Update status for SDKConfigMap
 	SDKConfigMapStatus, err := r.updateSDKConfigMapStatus(reqLogger, request)
