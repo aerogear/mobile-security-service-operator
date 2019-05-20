@@ -13,12 +13,12 @@ import (
 
 func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
 	return map[string]common.OpenAPIDefinition{
-		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityService":             schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityService(ref),
-		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceDB":           schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceDB(ref),
-		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceDBSpec":       schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceDBSpec(ref),
-		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceDBStatus":     schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceDBStatus(ref),
-		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceSpec":         schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceSpec(ref),
-		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceStatus":       schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceStatus(ref),
+		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityService":         schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityService(ref),
+		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceDB":       schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceDB(ref),
+		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceDBSpec":   schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceDBSpec(ref),
+		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceDBStatus": schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceDBStatus(ref),
+		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceSpec":     schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceSpec(ref),
+		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceStatus":   schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceStatus(ref),
 	}
 }
 

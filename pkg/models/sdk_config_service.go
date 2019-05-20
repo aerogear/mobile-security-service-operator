@@ -5,17 +5,17 @@ import (
 )
 
 const (
-	ID = "security"
+	ID   = "security"
 	Name = "security"
 	Type = "security"
 )
 
-type SDKConfigService struct{
-	ID					  string     `json:"id"`
-	Name                  string     `json:"name"`
-	Type                  string     `json:"type"`
-	URL             	  string     `json:"url"`
-	ConfigService         ConfigService `json:"config,omitempty"`
+type SDKConfigService struct {
+	ID            string        `json:"id"`
+	Name          string        `json:"name"`
+	Type          string        `json:"type"`
+	URL           string        `json:"url"`
+	ConfigService ConfigService `json:"config,omitempty"`
 }
 
 func NewSDKConfigServices(m *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, serviceUrl string) *SDKConfigService {
@@ -27,8 +27,3 @@ func NewSDKConfigServices(m *mobilesecurityservicev1alpha1.MobileSecurityService
 	service.ConfigService = *NewConfigService(service.URL)
 	return service
 }
-
-
-
-
-

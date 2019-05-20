@@ -17,4 +17,3 @@ func watchConfigMap(c controller.Controller) error {
 	})
 	return err
 }
-

@@ -26,8 +26,7 @@ func (r *ReconcileMobileSecurityServiceDB) updateDBStatus(reqLogger logr.Logger,
 		reqLogger.Error(err, "One of the resources are not created", "MobileSecurityServiceDB.Namespace", instance.Namespace, "MobileSecurityServiceDB.Name", instance.Name)
 		return err
 	}
-	status:= "OK"
-
+	status := "OK"
 
 	// Update Database Status == OK
 	if !reflect.DeepEqual(status, instance.Status.DatabaseStatus) {
@@ -52,7 +51,7 @@ func (r *ReconcileMobileSecurityServiceDB) updateDBStatus(reqLogger logr.Logger,
 }
 
 //updateDeploymentStatus returns error when status regards the Deployment resource could not be updated
-func (r *ReconcileMobileSecurityServiceDB) updateDeploymentStatus(reqLogger logr.Logger,request reconcile.Request) (*v1beta1.Deployment, error) {
+func (r *ReconcileMobileSecurityServiceDB) updateDeploymentStatus(reqLogger logr.Logger, request reconcile.Request) (*v1beta1.Deployment, error) {
 	reqLogger.Info("Updating Deployment Status for the MobileSecurityServiceDB")
 	// Get the latest version of the instance CR
 	instance, err := r.fetchInstance(reqLogger, request)
@@ -66,7 +65,7 @@ func (r *ReconcileMobileSecurityServiceDB) updateDeploymentStatus(reqLogger logr
 		return deploymentStatus, err
 	}
 	// Update the Deployment Name and Status
-	if deploymentStatus.Name != instance.Status.DeploymentName || !reflect.DeepEqual(deploymentStatus.Status, instance.Status.DeploymentStatus){
+	if deploymentStatus.Name != instance.Status.DeploymentName || !reflect.DeepEqual(deploymentStatus.Status, instance.Status.DeploymentStatus) {
 		// Get the latest version of the instance CR
 		instance, err = r.fetchInstance(reqLogger, request)
 		if err != nil {
@@ -104,7 +103,7 @@ func (r *ReconcileMobileSecurityServiceDB) updateServiceStatus(reqLogger logr.Lo
 	}
 
 	// Update the Service Name and Status
-	if serviceStatus.Name != instance.Status.ServiceName || !reflect.DeepEqual(serviceStatus.Status, instance.Status.ServiceStatus)  {
+	if serviceStatus.Name != instance.Status.ServiceName || !reflect.DeepEqual(serviceStatus.Status, instance.Status.ServiceStatus) {
 		// Get the latest version of the instance CR
 		instance, err = r.fetchInstance(reqLogger, request)
 		if err != nil {
