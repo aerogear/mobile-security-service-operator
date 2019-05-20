@@ -142,6 +142,22 @@ $ make delete-all
 
 == Configuration and Options
 
+=== Metrics
+
+The application-monitoring stack provisioned by the
+https://github.com/integr8ly/application-monitoring-operator[application-monitoring-operator]
+can be used to gather metrics from the operator here.  Once you have
+provisioned that (or the ServiceMonitor CRD at a minimum), it is configured by default with `make create-all` 
+you can run the following commands to configure it manually:
+
+[source,shell]
+----
+kubectl label namespace mobile-security-service monitoring-key=middleware
+kubectl create -f deploy/service_monitor.yaml
+kubectl create -f deploy/operator_service.yaml namespace mobile-security-service
+----
+
+
 === Oauth Configuration
 
 An Oauth Proxy container and the required configuration will be setup by default by the operator to provide authentication to the Mobile Security Service.

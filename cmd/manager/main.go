@@ -7,6 +7,7 @@ import (
 	"github.com/aerogear/mobile-security-service-operator/pkg/apis"
 	"github.com/aerogear/mobile-security-service-operator/pkg/controller"
 	routev1 "github.com/openshift/api/route/v1"
+	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	"github.com/operator-framework/operator-sdk/pkg/leader"
 	"github.com/operator-framework/operator-sdk/pkg/log/zap"
 	"github.com/operator-framework/operator-sdk/pkg/metrics"
@@ -72,6 +73,13 @@ func main() {
 		log.Error(err, "")
 		os.Exit(1)
 	}
+	
+	// Get the Namespace
+	namespace, err := k8sutil.GetWatchNamespace()
+	if err != nil {
+		log.Error(err, "Failed to get watch namespace")
+		os.Exit(1)
+	}
 
 	//Create cmd Manager
 	//FIXME: We should not watch/cache all namespaces. However, the current version do not allow us pass the List of Namespaces.
@@ -79,6 +87,7 @@ func main() {
 	// See the PR which we are working on to update the deps and have this feature: https://github.com/operator-framework/operator-sdk/pull/1388
 	mgr, err := manager.New(cfg, manager.Options{
 		Namespace: "",
+		MetricsBindAddress: fmt.Sprintf("%s:%d", metricsHost, metricsPort), 
 	})
 	if err != nil {
 		log.Error(err, "")
