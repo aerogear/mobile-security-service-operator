@@ -7,7 +7,6 @@ import (
 	"github.com/aerogear/mobile-security-service-operator/pkg/apis"
 	"github.com/aerogear/mobile-security-service-operator/pkg/controller"
 	routev1 "github.com/openshift/api/route/v1"
-	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	"github.com/operator-framework/operator-sdk/pkg/leader"
 	"github.com/operator-framework/operator-sdk/pkg/log/zap"
 	"github.com/operator-framework/operator-sdk/pkg/metrics"
@@ -74,13 +73,6 @@ func main() {
 		os.Exit(1)
 	}
 	
-	// Get the Namespace
-	namespace, err := k8sutil.GetWatchNamespace()
-	if err != nil {
-		log.Error(err, "Failed to get watch namespace")
-		os.Exit(1)
-	}
-
 	//Create cmd Manager
 	//FIXME: We should not watch/cache all namespaces. However, the current version do not allow us pass the List of Namespaces.
 	// The impl to allow do it is done and merged in the master branch of the lib but not released in an stable version.
