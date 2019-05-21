@@ -23,7 +23,7 @@ var log = logf.Log.WithName("mobile-security-service-operator.utils")
 
 //GetPublicServiceAPIURL returns the public service URL API
 func GetPublicServiceAPIURL(route *routev1.Route, serviceInstance *mobilesecurityservicev1alpha1.MobileSecurityService) string {
-	return fmt.Sprintf("%v://%v/%v", serviceInstance.Spec.ClusterProtocol, route.Status.Ingress[0].Host, ENDPOINT_INIT)
+	return fmt.Sprintf("%v://%v%v", serviceInstance.Spec.ClusterProtocol, route.Status.Ingress[0].Host, ENDPOINT_INIT)
 }
 
 //GetRouteName returns an string name with the name of the router
