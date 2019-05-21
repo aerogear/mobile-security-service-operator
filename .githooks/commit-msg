@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 ./scripts/commit-filter-check.sh && rc=$? || rc=$?
 echo return code : $rc
