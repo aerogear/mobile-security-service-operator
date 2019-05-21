@@ -61,9 +61,8 @@ func TestReconcileMobileSecurityService_updateStatus(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			objs := []runtime.Object{tt.fields.instance}
 
-			r := buildReconcileWithFakeClientWithMocks(objs, t)
+			r := buildReconcileWithFakeClientWithMocks(tt.fields.objs, t)
 
 			reqLogger := log.WithValues("Request.Namespace", tt.args.request.Namespace, "Request.Name", tt.args.request.Name)
 
