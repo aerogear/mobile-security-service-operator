@@ -40,11 +40,7 @@ setup: setup-githooks
 .PHONY: test
 test:
 	@echo Running tests:
-	@if [ -z $(TEST_PKGS) ]; then \
-	  echo No test files found to test; \
-	else \
-	  GOCACHE=off go test -cover $(TEST_PKGS); \
-	fi
+	GOCACHE=off go test -cover $(TEST_PKGS)
 
 .PHONY: test-integration-cover
 test-integration-cover:
