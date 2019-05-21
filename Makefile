@@ -25,8 +25,16 @@ BINARY_LINUX_64 = ./dist/linux_amd64/$(BINARY)
 
 LDFLAGS=-ldflags "-w -s -X main.Version=${TAG}"
 
+
+.PHONY: setup-githooks
+setup-githooks:
+	@echo Installing errcheck dependence:
+	go get -u github.com/kisielk/errcheck
+	@echo Setting up Git hooks:
+	ln -sf $$PWD/.githooks/* $$PWD/.git/hooks/
+
 .PHONY: setup
-setup:
+setup: setup-githooks
 	dep ensure
 
 .PHONY: test
