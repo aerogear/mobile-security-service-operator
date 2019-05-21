@@ -12,7 +12,7 @@ import (
 
 // Request object not found, could have been deleted after reconcile request.
 // Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
-func (r *ReconcileMobileSecurityServiceDB) fetchInstance( reqLogger logr.Logger, request reconcile.Request) (*mobilesecurityservicev1alpha1.MobileSecurityServiceDB, error) {
+func (r *ReconcileMobileSecurityServiceDB) fetchInstance(reqLogger logr.Logger, request reconcile.Request) (*mobilesecurityservicev1alpha1.MobileSecurityServiceDB, error) {
 	instance := &mobilesecurityservicev1alpha1.MobileSecurityServiceDB{}
 	//Fetch the MobileSecurityServiceDB instance
 	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
@@ -42,5 +42,3 @@ func (r *ReconcileMobileSecurityServiceDB) fetchDBPersistentVolumeClaim(reqLogge
 	err := r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, pvc)
 	return pvc, err
 }
-
-

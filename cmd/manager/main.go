@@ -78,7 +78,7 @@ func main() {
 	// The impl to allow do it is done and merged in the master branch of the lib but not released in an stable version.
 	// See the PR which we are working on to update the deps and have this feature: https://github.com/operator-framework/operator-sdk/pull/1388
 	mgr, err := manager.New(cfg, manager.Options{
-		Namespace: "", 
+		Namespace: "",
 	})
 	if err != nil {
 		log.Error(err, "")

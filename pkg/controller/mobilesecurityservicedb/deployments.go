@@ -69,12 +69,11 @@ func (r *ReconcileMobileSecurityServiceDB) buildDBDeployment(m *mobilesecurityse
 									},
 								},
 							},
-							FailureThreshold: 3,
+							FailureThreshold:    3,
 							InitialDelaySeconds: 120,
-							PeriodSeconds: 10,
+							PeriodSeconds:       10,
 							TimeoutSeconds:      10,
-							SuccessThreshold: 1,
-
+							SuccessThreshold:    1,
 						},
 						ReadinessProbe: &corev1.Probe{
 							Handler: corev1.Handler{
@@ -84,12 +83,11 @@ func (r *ReconcileMobileSecurityServiceDB) buildDBDeployment(m *mobilesecurityse
 									},
 								},
 							},
-							FailureThreshold: 3,
+							FailureThreshold:    3,
 							InitialDelaySeconds: 5,
-							PeriodSeconds: 10,
+							PeriodSeconds:       10,
 							TimeoutSeconds:      1,
-							SuccessThreshold: 1,
-
+							SuccessThreshold:    1,
 						},
 						Resources: corev1.ResourceRequirements{
 							Limits: corev1.ResourceList{
