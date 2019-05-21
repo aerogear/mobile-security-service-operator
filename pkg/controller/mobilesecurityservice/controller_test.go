@@ -108,7 +108,7 @@ func TestReconcileMobileSecurityService_create(t *testing.T) {
 			},
 			args: args{
 				instance: &mssInstance,
-				kind:     DEEPLOYMENT,
+				kind:     DEPLOYMENT,
 			},
 			want:    reconcile.Result{Requeue: true},
 			wantErr: false,
@@ -178,7 +178,7 @@ func TestReconcileMobileSecurityService_buildFactory(t *testing.T) {
 			want: reflect.TypeOf(&v1beta1.Deployment{}),
 			args: args{
 				instance: &mssInstance,
-				kind:     DEEPLOYMENT,
+				kind:     DEPLOYMENT,
 			},
 		},
 		{
@@ -223,6 +223,17 @@ func TestReconcileMobileSecurityService_buildFactory(t *testing.T) {
 			args: args{
 				instance: &mssInstance,
 				kind:     ROUTE,
+			},
+		},
+		{
+			name: "should create the Service Account",
+			fields: fields{
+				scheme: scheme.Scheme,
+			},
+			want: reflect.TypeOf(&corev1.ServiceAccount{}),
+			args: args{
+				instance: &mssInstance,
+				kind:     SERVICEACCOUNT,
 			},
 		},
 		{
@@ -358,7 +369,16 @@ func TestReconcileMobileSecurityService_Reconcile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("reconcile: (%v)", err)
 	}
+	serviceAccount := &corev1.ServiceAccount{}
+	err = r.client.Get(context.TODO(), req.NamespacedName, serviceAccount)
+	if err != nil {
+		t.Fatalf("get service account: (%v)", err)
+	}
 
+	res, err = r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
 }
 
 func TestReconcileMobileSecurityService_Reconcile_InvalidSpec(t *testing.T) {

@@ -34,7 +34,7 @@ func (r *ReconcileMobileSecurityService) buildDeployment(m *mobilesecurityservic
 					Labels: ls,
 				},
 				Spec: corev1.PodSpec{
-					ServiceAccountName: "mobile-security-service-operator",
+					ServiceAccountName: m.Name,
 					Containers:         getDeploymentContainers(m),
 				},
 			},
