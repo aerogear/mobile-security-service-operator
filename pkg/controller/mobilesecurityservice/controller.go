@@ -88,47 +88,42 @@ type ReconcileMobileSecurityService struct {
 }
 
 //Update the factory object and requeue
-func (r *ReconcileMobileSecurityService) update(obj runtime.Object, reqLogger logr.Logger) (reconcile.Result, error) {
+func (r *ReconcileMobileSecurityService) update(obj runtime.Object, reqLogger logr.Logger) error {
 	err := r.client.Update(context.TODO(), obj)
 	if err != nil {
 		reqLogger.Error(err, "Failed to update Spec")
-		return reconcile.Result{}, err
+		return err
 	}
 	reqLogger.Info("Spec updated - return and create")
-	return reconcile.Result{Requeue: true}, nil
+	return nil
 }
 
 //Create the factory object and requeue
-func (r *ReconcileMobileSecurityService) create(instance *mobilesecurityservicev1alpha1.MobileSecurityService, reqLogger logr.Logger, kind string) (reconcile.Result, error) {
-	obj, err := r.buildFactory(reqLogger, instance, kind)
-	if err != nil {
-		return reconcile.Result{}, err
-	}
-
+func (r *ReconcileMobileSecurityService) create(instance *mobilesecurityservicev1alpha1.MobileSecurityService, reqLogger logr.Logger, kind string) error {
+	obj := r.buildFactory(reqLogger, instance, kind)
 	reqLogger.Info("Creating a new ", "kind", kind, "Namespace", instance.Namespace)
-	err = r.client.Create(context.TODO(), obj)
+	err := r.client.Create(context.TODO(), obj)
 	if err != nil {
 		reqLogger.Error(err, "Failed to create new ", "kind", kind, "Namespace", instance.Namespace)
-		return reconcile.Result{}, err
 	}
 	reqLogger.Info("Created successfully - return and create", "kind", kind, "Namespace", instance.Namespace)
-	return reconcile.Result{Requeue: true}, nil
+	return err
 }
 
 // buildFactory will return the resource according to the resource defined
-func (r *ReconcileMobileSecurityService) buildFactory(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityService, resource string) (runtime.Object, error) {
+func (r *ReconcileMobileSecurityService) buildFactory(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityService, resource string) runtime.Object {
 	reqLogger.Info("Check "+resource, "into the namespace", instance.Namespace)
 	switch resource {
 	case CONFIGMAP:
-		return r.buildConfigMap(instance), nil
+		return r.buildConfigMap(instance)
 	case DEEPLOYMENT:
-		return r.buildDeployment(instance), nil
+		return r.buildDeployment(instance)
 	case PROXY_SERVICE:
-		return r.buildProxyService(instance), nil
+		return r.buildProxyService(instance)
 	case APPLICATION_SERVICE:
-		return r.buildApplicationService(instance), nil
+		return r.buildApplicationService(instance)
 	case ROUTE:
-		return r.buildRoute(instance), nil
+		return r.buildRoute(instance)
 	default:
 		msg := "Failed to recognize type of object" + resource + " into the Namespace " + instance.Namespace
 		panic(msg)
@@ -168,40 +163,55 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 
 	//Check specs
 	if !hasMandatorySpecs(instance, reqLogger) {
-		return reconcile.Result{Requeue: true}, nil
+		//Stop to reconcile since has not the mandatory specs
+		return reconcile.Result{}, nil
 	}
 
 	//Check if ConfigMap for the app exist, if not create one.
 	if _, err := r.fetchConfigMap(reqLogger, instance); err != nil {
-		return r.create(instance, reqLogger, CONFIGMAP)
+		if err := r.create(instance, reqLogger, CONFIGMAP); err != nil {
+			return reconcile.Result{}, err
+		}
 	}
 
 	//Check if Deployment for the app exist, if not create one
 	deployment, err := r.fetchDeployment(reqLogger, instance)
 	if err != nil {
-		return r.create(instance, reqLogger, DEEPLOYMENT)
+		if err := r.create(instance, reqLogger, DEEPLOYMENT); err != nil {
+			return reconcile.Result{}, err
+		}
+		return reconcile.Result{Requeue: true}, nil
 	}
 
 	reqLogger.Info("Ensuring the Mobile Security Service deployment size is the same as the spec")
 	size := instance.Spec.Size
 	if *deployment.Spec.Replicas != size {
+		//Set size of the deployment spec
 		deployment.Spec.Replicas = &size
-		return r.update(deployment, reqLogger)
-	}
-
-	//Check if Service for the app exist, if not create one
-	if _, err := r.fetchService(reqLogger, instance, utils.PROXY_SERVICE_INSTANCE_NAME); err != nil {
-		return r.create(instance, reqLogger, PROXY_SERVICE)
+		if err := r.update(deployment, reqLogger); err != nil {
+			return reconcile.Result{}, err
+		}
 	}
 
 	//Check if Service for the app exist, if not create one
 	if _, err := r.fetchService(reqLogger, instance, utils.APPLICATION_SERVICE_INSTANCE_NAME); err != nil {
-		return r.create(instance, reqLogger, APPLICATION_SERVICE)
+		if err := r.create(instance, reqLogger, APPLICATION_SERVICE); err != nil {
+			return reconcile.Result{}, err
+		}
+	}
+
+	//Check if Proxy Service for the app exist, if not create one
+	if _, err := r.fetchService(reqLogger, instance, utils.PROXY_SERVICE_INSTANCE_NAME); err != nil {
+		if err := r.create(instance, reqLogger, PROXY_SERVICE); err != nil {
+			return reconcile.Result{}, err
+		}
 	}
 
 	//Check if Route for the Service exist, if not create one
 	if _, err := r.fetchRoute(reqLogger, instance); err != nil {
-		return r.create(instance, reqLogger, ROUTE)
+		if err := r.create(instance, reqLogger, ROUTE); err != nil {
+			return reconcile.Result{}, err
+		}
 	}
 
 	//Update status for ConfigMap
@@ -217,12 +227,12 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 	}
 
 	//Update status for Proxy Service
-	proxyServiceStatus, err := r.updateServiceStatus(reqLogger, request, utils.PROXY_SERVICE_INSTANCE_NAME)
+	proxyServiceStatus, err := r.updateProxyServiceStatus(reqLogger, request)
 	if err != nil {
 		return reconcile.Result{}, err
 	}
 
-	applicationServiceStatus, err := r.updateServiceStatus(reqLogger, request, utils.APPLICATION_SERVICE_INSTANCE_NAME)
+	applicationServiceStatus, err := r.updateAppServiceStatus(reqLogger, request)
 	if err != nil {
 		return reconcile.Result{}, err
 	}
@@ -235,7 +245,6 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 
 	//Update status for App
 	if err := r.updateStatus(reqLogger, configMapStatus, deploymentStatus, proxyServiceStatus, applicationServiceStatus, routeStatus, request); err != nil {
-
 		return reconcile.Result{}, err
 	}
 

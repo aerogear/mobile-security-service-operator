@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Do a check to see if the user is on MacOS or Linux
 if [[ "$OSTYPE" == "darwin"* ]] || [[ "$OSTYPE" == "freebsd"* ]]; then

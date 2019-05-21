@@ -49,14 +49,16 @@ type MobileSecurityServiceStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
-	ConfigMapName    string                   `json:"configMapName"`
-	DeploymentName   string                   `json:"deploymentName"`
-	DeploymentStatus v1beta1.DeploymentStatus `json:"deploymentStatus"`
-	ServiceName      string                   `json:"serviceName"`
-	ServiceStatus    v1.ServiceStatus         `json:"serviceStatus"`
-	RouteName        string                   `json:"routeName"`
-	RouteStatus      routev1.RouteStatus      `json:"routeStatus"`
-	AppStatus        string                   `json:"appStatus"`
+	ConfigMapName      string                   `json:"configMapName"`
+	DeploymentName     string                   `json:"deploymentName"`
+	DeploymentStatus   v1beta1.DeploymentStatus `json:"deploymentStatus"`
+	ServiceName        string                   `json:"serviceName"`
+	ServiceStatus      v1.ServiceStatus         `json:"serviceStatus"`
+	ProxyServiceName   string                   `json:"proxyServiceName"`
+	ProxyServiceStatus v1.ServiceStatus         `json:"proxyServiceStatus"`
+	RouteName          string                   `json:"routeName"`
+	RouteStatus        routev1.RouteStatus      `json:"routeStatus"`
+	AppStatus          string                   `json:"appStatus"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

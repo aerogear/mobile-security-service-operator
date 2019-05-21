@@ -10,7 +10,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes/scheme"
@@ -40,53 +39,22 @@ func TestReconcileMobileSecurityService_updateStatus(t *testing.T) {
 		{
 			name: "Should return error as the resources have not been created",
 			fields: fields{
-				instance: &instanceOne,
-				objs:     []runtime.Object{&instanceOne},
+				instance: &mssInstance,
+				objs:     []runtime.Object{&mssInstance},
 				scheme:   scheme.Scheme,
 			},
 			args: args{
 				request: reconcile.Request{
 					NamespacedName: types.NamespacedName{
-						Name:      instanceOne.Name,
-						Namespace: instanceOne.Namespace,
+						Name:      mssInstance.Name,
+						Namespace: mssInstance.Namespace,
 					},
 				},
-				configMap: &corev1.ConfigMap{
-					TypeMeta: metav1.TypeMeta{
-						APIVersion: "v1",
-						Kind:       "ConfigMap",
-					},
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      utils.GetConfigMapName(&instanceOne),
-						Namespace: instanceOne.Namespace,
-						Labels:    getAppLabels(instanceOne.Name),
-					},
-					Data: getAppEnvVarsMap(&instanceOne),
-				},
-				deployment: &v1beta1.Deployment{
-					TypeMeta: metav1.TypeMeta{
-						APIVersion: "extensions/v1beta1",
-						Kind:       "Deployment",
-					},
-				},
-				proxyService: &corev1.Service{
-					TypeMeta: metav1.TypeMeta{
-						APIVersion: "v1",
-						Kind:       "Service",
-					},
-				},
-				applicationService: &corev1.Service{
-					TypeMeta: metav1.TypeMeta{
-						APIVersion: "v1",
-						Kind:       "Service",
-					},
-				},
-				route: &routev1.Route{
-					TypeMeta: v1.TypeMeta{
-						APIVersion: "v1",
-						Kind:       "Route",
-					},
-				},
+				configMap:          &configMap,
+				deployment:         &v1beta1.Deployment{},
+				proxyService:       &corev1.Service{},
+				applicationService: &corev1.Service{},
+				route:              &routev1.Route{},
 			},
 			wantErr: true,
 		},
@@ -95,7 +63,7 @@ func TestReconcileMobileSecurityService_updateStatus(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			objs := []runtime.Object{tt.fields.instance}
 
-			r := getReconciler(objs)
+			r := buildReconcileWithFakeClientWithMocks(objs, t)
 
 			reqLogger := log.WithValues("Request.Namespace", tt.args.request.Namespace, "Request.Name", tt.args.request.Name)
 
@@ -107,6 +75,7 @@ func TestReconcileMobileSecurityService_updateStatus(t *testing.T) {
 }
 
 func TestReconcileMobileSecurityService_updateConfigMapStatus(t *testing.T) {
+
 	type fields struct {
 		instance *mobilesecurityservicev1alpha1.MobileSecurityService
 		scheme   *runtime.Scheme
@@ -125,45 +94,34 @@ func TestReconcileMobileSecurityService_updateConfigMapStatus(t *testing.T) {
 		{
 			name: "should fail to find the ConfigMap",
 			fields: fields{
-				instance: &instanceOne,
+				instance: &mssInstance,
 				scheme:   scheme.Scheme,
 			},
-			args: args{
-				request: reconcile.Request{
-					NamespacedName: types.NamespacedName{
-						Name:      instanceOne.Name,
-						Namespace: instanceOne.Namespace,
-					},
-				},
-			},
+			args:    args{},
 			want:    nil,
 			wantErr: true,
 		},
 		{
 			name: "should update the ConfigMap status",
 			fields: fields{
-				instance: &instanceOne,
+				instance: &mssInstance,
 				scheme:   scheme.Scheme,
 			},
 			args: args{
 				request: reconcile.Request{
 					NamespacedName: types.NamespacedName{
-						Name:      instanceOne.Name,
-						Namespace: instanceOne.Namespace,
+						Name:      mssInstance.Name,
+						Namespace: mssInstance.Namespace,
 					},
 				},
 			},
 			want: &corev1.ConfigMap{
-				TypeMeta: metav1.TypeMeta{
-					APIVersion: "v1",
-					Kind:       "ConfigMap",
-				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      utils.GetConfigMapName(&instanceOne),
-					Namespace: instanceOne.Namespace,
-					Labels:    getAppLabels(instanceOne.Name),
+					Name:      utils.GetConfigMapName(&mssInstance),
+					Namespace: mssInstance.Namespace,
+					Labels:    getAppLabels(mssInstance.Name),
 				},
-				Data: getAppEnvVarsMap(&instanceOne),
+				Data: getAppEnvVarsMap(&mssInstance),
 			},
 			shouldCreate: true,
 			wantErr:      false,
@@ -173,12 +131,12 @@ func TestReconcileMobileSecurityService_updateConfigMapStatus(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			objs := []runtime.Object{tt.fields.instance}
 
-			r := getReconciler(objs)
+			r := buildReconcileWithFakeClientWithMocks(objs, t)
 
 			reqLogger := log.WithValues("Request.Namespace", tt.args.request.Namespace, "Request.Name", tt.args.request.Name)
 
 			if tt.shouldCreate {
-				r.create(&instanceOne, reqLogger, CONFIGMAP)
+				r.create(&mssInstance, reqLogger, CONFIGMAP)
 			}
 
 			got, err := r.updateConfigMapStatus(reqLogger, tt.args.request)
@@ -187,6 +145,7 @@ func TestReconcileMobileSecurityService_updateConfigMapStatus(t *testing.T) {
 				t.Errorf("ReconcileMobileSecurityService.updateConfigMapStatus() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+
 			if (got != nil && tt.want != nil) && !reflect.DeepEqual(got.Name, tt.want.Name) {
 				t.Errorf("ReconcileMobileSecurityService.updateConfigMapStatus() = %v, want %v", got.Name, tt.want.Name)
 			}

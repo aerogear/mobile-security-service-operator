@@ -75,8 +75,7 @@ func (r *ReconcileMobileSecurityServiceApp) updateBindStatus(serviceURL string, 
 
 	//Update Bind CR Status with OK
 	if !reflect.DeepEqual(status, instance.Status.BindStatus) {
-
-		// Get the latest version of CR
+		// Get the latest version of the CR in order to try to avoid errors when try to update the CR
 		instance, err := r.fetchInstance(reqLogger, request)
 		if err != nil {
 			return err

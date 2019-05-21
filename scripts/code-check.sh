@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Run some pre commit checks on the Go source code. Prevent the commit if any errors are found
 

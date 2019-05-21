@@ -25,8 +25,16 @@ BINARY_LINUX_64 = ./dist/linux_amd64/$(BINARY)
 
 LDFLAGS=-ldflags "-w -s -X main.Version=${TAG}"
 
+
+.PHONY: setup-githooks
+setup-githooks:
+	@echo Installing errcheck dependence:
+	go get -u github.com/kisielk/errcheck
+	@echo Setting up Git hooks:
+	ln -sf $$PWD/.githooks/* $$PWD/.git/hooks/
+
 .PHONY: setup
-setup:
+setup: setup-githooks
 	dep ensure
 
 .PHONY: test
@@ -62,14 +70,14 @@ create-app:
 delete-app:
 	kubectl delete -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml
 
-#fixme: The exports in the make file are not working see AEROGEAR-9156. Until it be fixed, run this commands manually.
 .PHONY: run-local
 run-local:
-	@echo Installing the operator in a cluster and run it locally:
-	- export OPERATOR_NAME=mobile-security-service-operator
-	- export APP_NAMESPACES=${APP_NAMESPACES}
+	@echo Exporting env vars to run operator locally:
+	- . ./scripts/export_local_envvars.sh
+	@echo Installing ...
 	- make create-all
-	- operator-sdk up local --namespace=${NAMESPACE}
+	@echo Starting ...
+	- operator-sdk up local
 
 .PHONY: create-all
 create-all:

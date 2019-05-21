@@ -278,6 +278,7 @@ func (in *MobileSecurityServiceStatus) DeepCopyInto(out *MobileSecurityServiceSt
 	*out = *in
 	in.DeploymentStatus.DeepCopyInto(&out.DeploymentStatus)
 	in.ServiceStatus.DeepCopyInto(&out.ServiceStatus)
+	in.ProxyServiceStatus.DeepCopyInto(&out.ProxyServiceStatus)
 	in.RouteStatus.DeepCopyInto(&out.RouteStatus)
 	return
 }
