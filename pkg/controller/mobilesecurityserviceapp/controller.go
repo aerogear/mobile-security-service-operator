@@ -122,10 +122,10 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 	// We should not checked if the namespace is valid or not. It is an workaround since currently is not possible watch/cache a List of Namespaces
 	// The impl to allow do it is done and merged in the master branch of the lib but not released in an stable version. It should be removed when this feature be impl.
 	// See the PR which we are working on to update the deps and have this feature: https://github.com/operator-framework/operator-sdk/pull/1388
-	if isValidNamespace, err := utils.IsValidAppNamespace(request.Namespace); err != nil || isValidNamespace == false {
+	if isValidNamespace, err := utils.IsValidAppNamespace(instance.Namespace); err != nil || isValidNamespace == false {
 		// Stop reconcile
 		envVar, _ := utils.GetAppNamespaces()
-		reqLogger.Error(err, "Unable to reconcile Mobile Security Service App", "Request.Namespace", request.Namespace, "isValidNamespace", isValidNamespace, "EnvVar.APP_NAMESPACES", envVar)
+		reqLogger.Error(err, "Unable to reconcile Mobile Security Service App", "instance.Namespace", instance.Namespace, "isValidNamespace", isValidNamespace, "EnvVar.APP_NAMESPACES", envVar)
 		return reconcile.Result{}, nil
 	}
 
@@ -133,7 +133,12 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 
 	reqLogger.Info("Checking for service instance ...")
 	mssInstance := &mobilesecurityservicev1alpha1.MobileSecurityService{}
-	operatorNamespace, _ := k8sutil.GetOperatorNamespace()
+	operatorNamespace, err := k8sutil.GetOperatorNamespace()
+
+	// Check if it is a local env or an unit test
+	if err == k8sutil.ErrNoNamespace {
+		operatorNamespace = utils.OPERATOR_NAMESPACE_FOR_LOCAL_ENV
+	}
 
 	if err := r.client.Get(context.TODO(), types.NamespacedName{Name: "mobile-security-service", Namespace: operatorNamespace}, mssInstance); err != nil {
 		// Return and don't create

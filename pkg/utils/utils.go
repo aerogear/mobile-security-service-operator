@@ -15,6 +15,9 @@ import (
 // which is the namespace where the APP CR can applied.
 // The namespaces should be informed split by ";".
 const APP_NAMESPACE_ENV_VAR = "APP_NAMESPACES"
+
+// OPERATOR_NAMESPACE_FOR_LOCAL_ENV is valid and used just in the local env and for the tests.
+const OPERATOR_NAMESPACE_FOR_LOCAL_ENV = "mobile-security-service-proxy"
 const PROXY_SERVICE_INSTANCE_NAME = "mobile-security-service-proxy"
 const APPLICATION_SERVICE_INSTANCE_NAME = "mobile-security-service-application"
 const ENDPOINT_INIT = "/init"
@@ -56,6 +59,18 @@ func IsValidAppNamespace(namespace string) (bool, error) {
 	appNamespacesEnvVar, err := GetAppNamespaces()
 	if err != nil {
 		log.Error(err, "Unable to check if is app namespace %s is valid", namespace)
+
+		// To skip when it is local env or a unit test
+		_, err := k8sutil.GetOperatorNamespace()
+		if err != nil {
+			//Return true for the local env and for the unit tests
+			if err == k8sutil.ErrNoNamespace { //
+				log.Info("Allow to continue because it is outside of the cluster")
+				return true, nil
+			}
+			return false, err
+		}
+
 		return false, err
 	}
 	for _, ns := range strings.Split(appNamespacesEnvVar, ";") {
@@ -68,15 +83,15 @@ func IsValidAppNamespace(namespace string) (bool, error) {
 }
 
 // IsValidOperatorNamespace return true when the namespace informed is declared in the ENV VAR APP_NAMESPACES
-func IsValidOperatorNamespace(namespace string, skipCheck bool) (bool, error) {
+func IsValidOperatorNamespace(namespace string) (bool, error) {
 	//FIXME: this check is used to bypass validation of namespace.
-	// This is a workaround and should be removed in the future.
-	if skipCheck {
-		return true, nil
-	}
-
 	ns, err := k8sutil.GetOperatorNamespace()
 	if err != nil {
+		//Return true for the local env and for the unit tests
+		if err == k8sutil.ErrNoNamespace {
+			log.Info("Allow to continue because it is outside of the cluster")
+			return true, nil
+		}
 		return false, err
 	}
 	if ns == namespace {

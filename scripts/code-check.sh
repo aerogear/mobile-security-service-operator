@@ -6,7 +6,7 @@
 check_code_format (){
     gofmt -l . | grep -v vendor/ >/dev/null 2>&1
     if [ $? -ne 1 ]; then
-       printf "\nErrors found in your code, please use 'go fmt' to format your code."
+       printf "\nErrors found in your code, please use 'make fmt' to format your code."
        exit 1
     else
        exit 0

@@ -186,12 +186,12 @@ func TestIsValidAppNamespace(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "Should return an error if no namespace is set",
+			name: "Should return local namespace with no name is set",
 			args: args{
-				namespace: "apps-namespace",
+				namespace: OPERATOR_NAMESPACE_FOR_LOCAL_ENV,
 			},
-			want:    false,
-			wantErr: true,
+			want:    true,
+			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
@@ -219,7 +219,6 @@ func TestIsValidAppNamespace(t *testing.T) {
 func TestIsValidOperatorNamespace(t *testing.T) {
 	type args struct {
 		namespace string
-		skipCheck bool
 	}
 	tests := []struct {
 		name    string
@@ -228,27 +227,16 @@ func TestIsValidOperatorNamespace(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "should skip the check and return true",
+			name: "should check and return true",
 			args: args{
-				namespace: "mobile-security-service-operator",
-				skipCheck: true,
+				namespace: "mobile-security-service",
 			},
-			want:    true,
-			wantErr: false,
-		},
-		{
-			name: "should return false as cannot read from the file system",
-			args: args{
-				namespace: "mobile-security-service-operator",
-				skipCheck: false,
-			},
-			want:    false,
-			wantErr: true,
+			want: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := IsValidOperatorNamespace(tt.args.namespace, tt.args.skipCheck)
+			got, err := IsValidOperatorNamespace(tt.args.namespace)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("IsValidOperatorNamespace() error = %v, wantErr %v", err, tt.wantErr)
 				return

@@ -15,13 +15,12 @@ var (
 			Namespace: "mobile-security-service-operator",
 		},
 		Spec: mobilesecurityservicev1alpha1.MobileSecurityServiceSpec{
-			Size:                    1,
-			MemoryLimit:             "512Mi",
-			MemoryRequest:           "512Mi",
-			ClusterProtocol:         "http",
-			ConfigMapName:           "mss-config",
-			RouteName:               "route",
-			SkipNamespaceValidation: true,
+			Size:            1,
+			MemoryLimit:     "512Mi",
+			MemoryRequest:   "512Mi",
+			ClusterProtocol: "http",
+			ConfigMapName:   "mss-config",
+			RouteName:       "route",
 		},
 	}
 
@@ -31,13 +30,12 @@ var (
 			Namespace: "mobile-security-service-operator-2",
 		},
 		Spec: mobilesecurityservicev1alpha1.MobileSecurityServiceSpec{
-			Size:                    1,
-			MemoryLimit:             "512Mi",
-			MemoryRequest:           "512Mi",
-			ClusterProtocol:         "http",
-			ConfigMapName:           "mss-config",
-			RouteName:               "route",
-			SkipNamespaceValidation: true,
+			Size:            1,
+			MemoryLimit:     "512Mi",
+			MemoryRequest:   "512Mi",
+			ClusterProtocol: "http",
+			ConfigMapName:   "mss-config",
+			RouteName:       "route",
 		},
 	}
 

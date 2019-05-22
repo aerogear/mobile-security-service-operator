@@ -160,10 +160,10 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 	// We should not checked if the namespace is valid or not. It is an workaround since currently is not possible watch/cache a List of Namespaces
 	// The impl to allow do it is done and merged in the master branch of the lib but not released in an stable version. It should be removed when this feature be impl.
 	// See the PR which we are working on to update the deps and have this feature: https://github.com/operator-framework/operator-sdk/pull/1388
-	if isValidNamespace, err := utils.IsValidOperatorNamespace(request.Namespace, instance.Spec.SkipNamespaceValidation); err != nil || isValidNamespace == false {
+	if isValidNamespace, err := utils.IsValidOperatorNamespace(instance.Namespace); err != nil || isValidNamespace == false {
 		// Stop reconcile
 		operatorNamespace, _ := k8sutil.GetOperatorNamespace()
-		reqLogger.Error(err, "Unable to reconcile Mobile Security Service", "Request.Namespace", request.Namespace, "isValidNamespace", isValidNamespace, "Operator.Namespace", operatorNamespace)
+		reqLogger.Error(err, "Unable to reconcile Mobile Security Service", "instance.Namespace", instance.Namespace, "isValidNamespace", isValidNamespace, "Operator.Namespace", operatorNamespace)
 		return reconcile.Result{}, nil
 	}
 
