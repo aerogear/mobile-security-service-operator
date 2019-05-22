@@ -85,9 +85,9 @@ create-all:
 delete-all:
 	@echo Delete Mobile Security Service Operator, Service and namespace ${NAMESPACE}:
 	- kubectl delete -f deploy/service_monitor.yaml
+	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
-	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml
 	- kubectl delete -f deploy/cluster_role.yaml
 	- kubectl delete -f deploy/cluster_role_binding.yaml
 	- kubectl delete -f deploy/service_account.yaml
