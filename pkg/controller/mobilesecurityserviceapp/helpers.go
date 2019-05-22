@@ -6,7 +6,7 @@ import (
 	"github.com/aerogear/mobile-security-service-operator/pkg/models"
 )
 
-const SDK = "-sdk"
+const SDK = "-security"
 const FINALIZER = "finalizer.mobile-security-service.aerogear.com"
 
 // Returns an string map with the labels which wil be associated to the kubernetes/openshift objects

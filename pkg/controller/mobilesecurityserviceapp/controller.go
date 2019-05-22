@@ -133,6 +133,7 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 
 	reqLogger.Info("Checking for service instance ...")
 	mssInstance := &mobilesecurityservicev1alpha1.MobileSecurityService{}
+
 	operatorNamespace, err := k8sutil.GetOperatorNamespace()
 
 	// Check if it is a local env or an unit test
@@ -140,11 +141,8 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 		operatorNamespace = utils.OPERATOR_NAMESPACE_FOR_LOCAL_ENV
 	}
 
-	if err := r.client.Get(context.TODO(), types.NamespacedName{Name: "mobile-security-service", Namespace: operatorNamespace}, mssInstance); err != nil {
-		// Return and don't create
-		reqLogger.Info("Mobile Security Service instance resource not found. Mobile Security Service Application is required to create the application")
-		return reconcile.Result{}, nil
-	}
+	// GET MSS CR
+	r.client.Get(context.TODO(), types.NamespacedName{Name: "mobile-security-service", Namespace: operatorNamespace}, mssInstance)
 
 	//Get the REST Service Endpoint
 	serviceAPI := service.GetServiceAPIURL(mssInstance)
@@ -152,6 +150,25 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 	//Check if the APP CR was marked to be deleted
 	isAppMarkedToBeDeleted := instance.GetDeletionTimestamp() != nil
 	if isAppMarkedToBeDeleted {
+
+		// If the Service was deleted and/or marked to be deleted
+		if err := r.client.Get(context.TODO(), types.NamespacedName{Name: "mobile-security-service", Namespace: operatorNamespace}, mssInstance); err != nil || mssInstance.GetDeletionTimestamp() != nil {
+			reqLogger.Info("Mobile Security Service instance resource not found. Mobile Security Service Application is required to create the application")
+
+			//Remove finalizer
+			instance.SetFinalizers(nil)
+
+			//Update CR
+			err := r.client.Update(context.TODO(), instance)
+			if err != nil {
+				reqLogger.Error(err, "Failed to update MobileSecurityService App CR with finalizer")
+				return reconcile.Result{}, err
+			}
+
+			//Stop the reconcile
+			return reconcile.Result{}, nil
+		}
+
 		//If the CR was marked to be deleted before it finalizes the app need to be deleted from the Service
 		//Do request to get the app.ID to delete app
 		app, err := fetchBindAppRestServiceByAppID(serviceAPI, instance, reqLogger)

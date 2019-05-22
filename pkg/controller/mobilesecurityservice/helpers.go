@@ -11,7 +11,6 @@ import (
 
 const LETTER_BYTES = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-
 //getAppLabels returns an string map with the labels which wil be associated to the kubernetes/ocp resource which will be created and managed by this operator
 func getAppLabels(name string) map[string]string {
 	return map[string]string{"app": "mobilesecurityservice", "mobilesecurityservice_cr": name}
@@ -69,23 +68,11 @@ func getOAuthArgsMap(m *mobilesecurityservicev1alpha1.MobileSecurityService) []s
 	}
 }
 
-
-//Check if the mandatory specs are filled
-func hasMandatorySpecs(serviceInstance *mobilesecurityservicev1alpha1.MobileSecurityService, reqLogger logr.Logger) bool {
-//Check the values defined for the ClusterProtocol in the MobileSecurityService CR
-if res := utils.CheckClusterProtocol(serviceInstance, reqLogger); res != true {
-return false
-}
-
-return true
-}
-
-
 // RandStringBytes will return a string of n random bytes
 func RandStringBytes(n int) string {
-b := make([]byte, n)
-for i := range b {
-b[i] = LETTER_BYTES[rand.Intn(len(LETTER_BYTES))]
-}
-return string(b)
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = LETTER_BYTES[rand.Intn(len(LETTER_BYTES))]
+	}
+	return string(b)
 }
