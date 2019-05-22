@@ -2,6 +2,7 @@ package mobilesecurityservice
 
 import (
 	"fmt"
+	"math/rand"
 
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
@@ -57,7 +58,7 @@ func getOAuthArgsMap(m *mobilesecurityservicev1alpha1.MobileSecurityService) []s
 		fmt.Sprintf("--openshift-service-account=%s", m.Name),
 		"--upstream=http://localhost:3000",
 		"--cookie-secure=true",
-		"--cookie-secret=SECRET",
+		fmt.Sprintf("--cookie-secret=%s", RandStringBytes(16)),
 		"--cookie-httponly=false",
 		"--bypass-auth-for=/api/init",
 		"--bypass-auth-for=/api/healthz",
@@ -74,4 +75,15 @@ func hasMandatorySpecs(serviceInstance *mobilesecurityservicev1alpha1.MobileSecu
 	}
 
 	return true
+}
+
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+// RandStringBytes will return a string of n random bytes
+func RandStringBytes(n int) string {
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = letterBytes[rand.Intn(len(letterBytes))]
+	}
+	return string(b)
 }
