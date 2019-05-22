@@ -1,4 +1,4 @@
-package utils
+package mobilesecurityservice
 
 import (
 	"testing"
@@ -50,7 +50,7 @@ func TestCheckClusterProtocol(t *testing.T) {
 
 			reqLogger := log.WithValues("Validations Test")
 
-			if got := CheckClusterProtocol(tt.args.serviceInstance, reqLogger); got != tt.want {
+			if got := checkClusterProtocol(tt.args.serviceInstance, reqLogger); got != tt.want {
 				t.Errorf("CheckClusterProtocol() = %v, want %v", got, tt.want)
 			}
 		})

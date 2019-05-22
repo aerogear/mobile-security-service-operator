@@ -2,11 +2,8 @@ package mobilesecurityserviceapp
 
 import (
 	"encoding/json"
-
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/models"
-	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
-	"github.com/go-logr/logr"
 )
 
 const SDK = "-sdk"
@@ -35,26 +32,4 @@ func getConfigMapSDKForMobileSecurityService(m *mobilesecurityservicev1alpha1.Mo
 // return properties for the response SDK
 func getSDKConfigMapName(m *mobilesecurityservicev1alpha1.MobileSecurityServiceApp) string {
 	return m.Spec.AppName + SDK
-}
-
-//Check if the mandatory specs are filled
-func hasMandatorySpecs(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, serviceInstance *mobilesecurityservicev1alpha1.MobileSecurityService, reqLogger logr.Logger) bool {
-	//Check if the appId was added in the CR
-	if len(instance.Spec.AppId) < 1 {
-		reqLogger.Info("AppID was not found. Check the App CR configuration.")
-		return false
-	}
-
-	//Check if the appId was added in the CR
-	if len(instance.Spec.AppId) < 1 {
-		reqLogger.Info("AppName was not found. Check the App CR configuration.")
-		return false
-	}
-
-	//Check the values defined for the ClusterProtocol in the MobileSecurityService CR
-	if res := utils.CheckClusterProtocol(serviceInstance, reqLogger); res != true {
-		return false
-	}
-
-	return true
 }
