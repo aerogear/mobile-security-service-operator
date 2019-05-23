@@ -39,7 +39,7 @@ func DeleteAppFromServiceByRestAPI(serviceAPI string, id string, reqLogger logr.
 }
 
 //CreateAppByRestAPI create the app object in the service
-func CreateAppByRestAPI(serviceAPI string, app models.App, reqLogger logr.Logger) error {
+var CreateAppByRestAPI = func(serviceAPI string, app models.App, reqLogger logr.Logger) error {
 	reqLogger.Info("Calling Service to POST app", "serviceAPI", serviceAPI, "App", app)
 
 	// Create the object and parse for JSON
