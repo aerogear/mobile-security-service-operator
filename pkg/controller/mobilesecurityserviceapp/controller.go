@@ -149,7 +149,7 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 
 	//Check if the APP CR was marked to be deleted
 	isAppMarkedToBeDeleted := instance.GetDeletionTimestamp() != nil
-	if isAppMarkedToBeDeleted {
+	if isAppMarkedToBeDeleted && len(instance.GetFinalizers()) > 0 {
 
 		// If the Service was deleted and/or marked to be deleted
 		if err := r.client.Get(context.TODO(), types.NamespacedName{Name: utils.MobileSecurityServiceCRName, Namespace: operatorNamespace}, mssInstance); err != nil || mssInstance.GetDeletionTimestamp() != nil {

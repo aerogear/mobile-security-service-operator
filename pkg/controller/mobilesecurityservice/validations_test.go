@@ -56,3 +56,43 @@ func TestCheckClusterProtocol(t *testing.T) {
 		})
 	}
 }
+
+func TestCheckHasMandatorySpecs(t *testing.T) {
+	type args struct {
+		serviceInstance *mobilesecurityservicev1alpha1.MobileSecurityService
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "should return false when has not the Mandatory Specs",
+			args: args{
+				serviceInstance: &mobilesecurityservicev1alpha1.MobileSecurityService{},
+			},
+			want: false,
+		},
+		{
+			name: "should return true when all mandatory specs are defined in the CR",
+			args: args{
+				serviceInstance: &mobilesecurityservicev1alpha1.MobileSecurityService{
+					Spec: mobilesecurityservicev1alpha1.MobileSecurityServiceSpec{
+						ClusterProtocol: "https",
+					},
+				},
+			},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			reqLogger := log.WithValues("Validations Test")
+
+			if got := hasMandatorySpecs(tt.args.serviceInstance, reqLogger); got != tt.want {
+				t.Errorf("MandatorySpecs() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

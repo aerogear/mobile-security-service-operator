@@ -9,7 +9,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-const LetterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 //getAppLabels returns an string map with the labels which wil be associated to the kubernetes/ocp resource which will be created and managed by this operator
 func getAppLabels(name string) map[string]string {
@@ -72,7 +72,7 @@ func getOAuthArgsMap(m *mobilesecurityservicev1alpha1.MobileSecurityService) []s
 func RandStringBytes(n int) string {
 	b := make([]byte, n)
 	for i := range b {
-		b[i] = LetterBytes[rand.Intn(len(LetterBytes))]
+		b[i] = letterBytes[rand.Intn(len(letterBytes))]
 	}
 	return string(b)
 }

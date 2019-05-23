@@ -17,11 +17,12 @@ const (
 	// The namespaces should be informed split by ";".
 	AppNamespaceEnvVar = "APP_NAMESPACES"
 	// OperatorNamespaceForLocalEnv is valid and used just in the local env and for the tests.
-	OperatorNamespaceForLocalEnv = "mobile-security-service-proxy"
-	ProxyServiceInstanceName = "mobile-security-service-proxy"
+	OperatorNamespaceForLocalEnv   = "mobile-security-service-proxy"
+	ProxyServiceInstanceName       = "mobile-security-service-proxy"
 	ApplicationServiceInstanceName = "mobile-security-service-application"
-	InitEndpoint = "/init"
+	InitEndpoint                   = "/init"
 )
+
 // The MobileSecurityServiceCRName has the name of the CR which should not be changed.
 const MobileSecurityServiceCRName = "mobile-security-service"
 

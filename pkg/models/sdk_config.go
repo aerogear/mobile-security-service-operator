@@ -6,6 +6,6 @@ type SDKConfig struct {
 
 func NewSDKConfig(serviceUrl string) *SDKConfig {
 	return &SDKConfig{
-		URL:           serviceUrl,
+		URL: serviceUrl,
 	}
 }
