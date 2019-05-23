@@ -13,7 +13,7 @@ func (r *ReconcileMobileSecurityServiceApp) buildAppSDKConfigMap(m *mobilesecuri
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      getSDKConfigMapName(m),
 			Namespace: m.Namespace,
-			Labels:    getAppLabels(m.Name),
+			Labels:    getSDKAppLabels(m.Name, m.Spec.AppName),
 		},
 		Data: getConfigMapSDKForMobileSecurityService(m, serviceURL),
 	}

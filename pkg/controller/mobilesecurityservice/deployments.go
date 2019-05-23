@@ -47,7 +47,6 @@ func (r *ReconcileMobileSecurityService) buildDeployment(m *mobilesecurityservic
 }
 
 func getDeploymentContainers(m *mobilesecurityservicev1alpha1.MobileSecurityService) []corev1.Container {
-
 	var containers []corev1.Container
 	containers = append(containers, buildOAuthContainer(m))
 	containers = append(containers, buildApplicationContainer(m))

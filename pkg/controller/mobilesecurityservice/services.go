@@ -16,7 +16,7 @@ func (r *ReconcileMobileSecurityService) buildProxyService(m *mobilesecurityserv
 	targetPort := intstr.FromInt(int(m.Spec.OAuthPort))
 	ser := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      utils.PROXY_SERVICE_INSTANCE_NAME,
+			Name:      utils.ProxyServiceInstanceName,
 			Namespace: m.Namespace,
 			Labels:    ls,
 		},
@@ -40,7 +40,7 @@ func (r *ReconcileMobileSecurityService) buildApplicationService(m *mobilesecuri
 	ls := getAppLabels(m.Name)
 	ser := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      utils.APPLICATION_SERVICE_INSTANCE_NAME,
+			Name:      utils.ApplicationServiceInstanceName,
 			Namespace: m.Namespace,
 			Labels:    ls,
 		},

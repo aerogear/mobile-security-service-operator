@@ -16,7 +16,7 @@ spec:
       containers:
         - name: mobile-security-service-operator
           # Replace this with the built image name
-          image: quay.io/aerogear/mobile-security-service-operator:master
+          image: docker.io/cmacedo/mobile-security-service-operator:SDK-CONFIG
           command:
           - mobile-security-service-operator
           imagePullPolicy: Always

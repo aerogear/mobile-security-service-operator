@@ -23,9 +23,9 @@ import (
 var log = logf.Log.WithName("controller_mobilesecurityservicedb")
 
 const (
-	DEEPLOYMENT = "Deployment"
-	PVC         = "PersistentVolumeClaim"
-	SERVICE     = "Service"
+	Deployment = "Deployment"
+	PVC        = "PersistentVolumeClaim"
+	Service    = "Service"
 )
 
 // Add creates a new MobileSecurityServiceDB Controller and adds it to the Manager. The Manager will set fields on the Controller
@@ -112,9 +112,9 @@ func (r *ReconcileMobileSecurityServiceDB) buildFactory(instance *mobilesecurity
 	switch kind {
 	case PVC:
 		return r.buildPVCForDB(instance)
-	case DEEPLOYMENT:
+	case Deployment:
 		return r.buildDBDeployment(instance, serviceInstance)
-	case SERVICE:
+	case Service:
 		return r.buildDBService(instance)
 	default:
 		msg := "Failed to recognize type of object" + kind + " into the Namespace " + instance.Namespace
@@ -169,10 +169,10 @@ func (r *ReconcileMobileSecurityServiceDB) Reconcile(request reconcile.Request) 
 		// if the Instance cannot be found and/or its configMap was not created than the default values specified in its CR will be used
 		reqLogger.Info("Checking for service instance ...")
 		serviceInstance := &mobilesecurityservicev1alpha1.MobileSecurityService{}
-		r.client.Get(context.TODO(), types.NamespacedName{Name: "mobile-security-service", Namespace: instance.Namespace}, serviceInstance)
+		r.client.Get(context.TODO(), types.NamespacedName{Name: utils.MobileSecurityServiceCRName, Namespace: instance.Namespace}, serviceInstance)
 
 		// Create the deployment
-		if err := r.create(instance, serviceInstance, DEEPLOYMENT, reqLogger); err != nil {
+		if err := r.create(instance, serviceInstance, Deployment, reqLogger); err != nil {
 			return reconcile.Result{}, err
 		}
 		return reconcile.Result{Requeue: true}, nil
@@ -180,7 +180,7 @@ func (r *ReconcileMobileSecurityServiceDB) Reconcile(request reconcile.Request) 
 
 	//Check if Service for the app exist, if not create one
 	if _, err := r.fetchDBService(reqLogger, instance); err != nil {
-		if err := r.create(instance, nil, SERVICE, reqLogger); err != nil {
+		if err := r.create(instance, nil, Service, reqLogger); err != nil {
 			return reconcile.Result{}, err
 		}
 	}

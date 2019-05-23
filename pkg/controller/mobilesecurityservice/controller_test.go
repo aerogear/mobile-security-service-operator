@@ -108,7 +108,7 @@ func TestReconcileMobileSecurityService_create(t *testing.T) {
 			},
 			args: args{
 				instance: &mssInstance,
-				kind:     DEPLOYMENT,
+				kind:     Deployment,
 			},
 			want:    reconcile.Result{Requeue: true},
 			wantErr: false,
@@ -178,7 +178,7 @@ func TestReconcileMobileSecurityService_buildFactory(t *testing.T) {
 			want: reflect.TypeOf(&v1beta1.Deployment{}),
 			args: args{
 				instance: &mssInstance,
-				kind:     DEPLOYMENT,
+				kind:     Deployment,
 			},
 		},
 		{
@@ -189,7 +189,7 @@ func TestReconcileMobileSecurityService_buildFactory(t *testing.T) {
 			want: reflect.TypeOf(&corev1.ConfigMap{}),
 			args: args{
 				instance: &mssInstance,
-				kind:     CONFIGMAP,
+				kind:     ConfigMap,
 			},
 		},
 		{
@@ -200,7 +200,7 @@ func TestReconcileMobileSecurityService_buildFactory(t *testing.T) {
 			want: reflect.TypeOf(&corev1.Service{}),
 			args: args{
 				instance: &mssInstance,
-				kind:     PROXY_SERVICE,
+				kind:     ProxyService,
 			},
 		},
 		{
@@ -211,7 +211,7 @@ func TestReconcileMobileSecurityService_buildFactory(t *testing.T) {
 			want: reflect.TypeOf(&corev1.Service{}),
 			args: args{
 				instance: &mssInstance,
-				kind:     APPLICATION_SERVICE,
+				kind:     ApplicationService,
 			},
 		},
 		{
@@ -222,7 +222,7 @@ func TestReconcileMobileSecurityService_buildFactory(t *testing.T) {
 			want: reflect.TypeOf(&routev1.Route{}),
 			args: args{
 				instance: &mssInstance,
-				kind:     ROUTE,
+				kind:     Route,
 			},
 		},
 		{
@@ -233,7 +233,7 @@ func TestReconcileMobileSecurityService_buildFactory(t *testing.T) {
 			want: reflect.TypeOf(&corev1.ServiceAccount{}),
 			args: args{
 				instance: &mssInstance,
-				kind:     SERVICEACCOUNT,
+				kind:     ServiceAccount,
 			},
 		},
 		{
@@ -331,7 +331,7 @@ func TestReconcileMobileSecurityService_Reconcile(t *testing.T) {
 
 	service := &corev1.Service{}
 	err = r.client.Get(context.TODO(), types.NamespacedName{
-		Name:      utils.APPLICATION_SERVICE_INSTANCE_NAME,
+		Name:      utils.ApplicationServiceInstanceName,
 		Namespace: mssInstance.Namespace,
 	}, service)
 	if err != nil {
@@ -347,7 +347,7 @@ func TestReconcileMobileSecurityService_Reconcile(t *testing.T) {
 	proxyService := &corev1.Service{}
 
 	err = r.client.Get(context.TODO(), types.NamespacedName{
-		Name:      utils.PROXY_SERVICE_INSTANCE_NAME,
+		Name:      utils.ProxyServiceInstanceName,
 		Namespace: mssInstance.Namespace,
 	}, proxyService)
 	if err != nil {

@@ -135,7 +135,7 @@ func TestReconcileMobileSecurityService_updateConfigMapStatus(t *testing.T) {
 			reqLogger := log.WithValues("Request.Namespace", tt.args.request.Namespace, "Request.Name", tt.args.request.Name)
 
 			if tt.shouldCreate {
-				r.create(&mssInstance, reqLogger, CONFIGMAP)
+				r.create(&mssInstance, reqLogger, ConfigMap)
 			}
 
 			got, err := r.updateConfigMapStatus(reqLogger, tt.args.request)

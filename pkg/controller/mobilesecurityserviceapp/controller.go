@@ -24,7 +24,7 @@ import (
 
 var log = logf.Log.WithName("controller_mobilesecurityserviceapp")
 
-const CONFIGMAP = "ConfigMap"
+const ConfigMap = "ConfigMap"
 
 // Add creates a new MobileSecurityServiceApp Controller and adds it to the Manager. The Manager will set fields on the Controller
 // and Start it when the Manager is Started.
@@ -86,7 +86,7 @@ func (r *ReconcileMobileSecurityServiceApp) create(instance *mobilesecurityservi
 func (r *ReconcileMobileSecurityServiceApp) buildFactory(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, kind string, serviceURL string) runtime.Object {
 	reqLogger.Info("Building Object ", "kind", kind, "MobileSecurityServiceApp.Namespace", instance.Namespace, "MobileSecurityServiceApp.Name", instance.Name)
 	switch kind {
-	case CONFIGMAP:
+	case ConfigMap:
 		return r.buildAppSDKConfigMap(instance, serviceURL)
 	default:
 		msg := "Failed to recognize type of object" + kind + " into the MobileSecurityServiceApp.Namespace " + instance.Namespace
@@ -138,11 +138,11 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 
 	// Check if it is a local env or an unit test
 	if err == k8sutil.ErrNoNamespace {
-		operatorNamespace = utils.OPERATOR_NAMESPACE_FOR_LOCAL_ENV
+		operatorNamespace = utils.OperatorNamespaceForLocalEnv
 	}
 
 	// GET MSS CR
-	r.client.Get(context.TODO(), types.NamespacedName{Name: "mobile-security-service", Namespace: operatorNamespace}, mssInstance)
+	r.client.Get(context.TODO(), types.NamespacedName{Name: utils.MobileSecurityServiceCRName, Namespace: operatorNamespace}, mssInstance)
 
 	//Get the REST Service Endpoint
 	serviceAPI := service.GetServiceAPIURL(mssInstance)
@@ -152,7 +152,7 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 	if isAppMarkedToBeDeleted {
 
 		// If the Service was deleted and/or marked to be deleted
-		if err := r.client.Get(context.TODO(), types.NamespacedName{Name: "mobile-security-service", Namespace: operatorNamespace}, mssInstance); err != nil || mssInstance.GetDeletionTimestamp() != nil {
+		if err := r.client.Get(context.TODO(), types.NamespacedName{Name: utils.MobileSecurityServiceCRName, Namespace: operatorNamespace}, mssInstance); err != nil || mssInstance.GetDeletionTimestamp() != nil {
 			reqLogger.Info("Mobile Security Service instance resource not found. Mobile Security Service Application is required to create the application")
 
 			//Remove finalizer
@@ -217,7 +217,7 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 
 	//Check if ConfigMap for the app exist, if not create one.
 	if _, err := r.fetchSDKConfigMap(reqLogger, instance); err != nil {
-		if err := r.create(instance, CONFIGMAP, publicServiceURLAPI, reqLogger, request); err != nil {
+		if err := r.create(instance, ConfigMap, publicServiceURLAPI, reqLogger, request); err != nil {
 			return reconcile.Result{}, err
 		}
 	}
