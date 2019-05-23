@@ -1,11 +1,22 @@
-package utils
+package mobilesecurityservice
 
 import (
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/go-logr/logr"
 )
 
-func CheckClusterProtocol(serviceInstance *mobilesecurityservicev1alpha1.MobileSecurityService, reqLogger logr.Logger) bool {
+//Check if the mandatory specs are filled
+func hasMandatorySpecs(serviceInstance *mobilesecurityservicev1alpha1.MobileSecurityService, reqLogger logr.Logger) bool {
+	//Check the values defined for the ClusterProtocol in the MobileSecurityService CR
+	if res := checkClusterProtocol(serviceInstance, reqLogger); res != true {
+		return false
+	}
+
+	return true
+}
+
+// CheckClusterProtocol will return true if the cluster protocol was added correctly.
+func checkClusterProtocol(serviceInstance *mobilesecurityservicev1alpha1.MobileSecurityService, reqLogger logr.Logger) bool {
 	//Check if the cluster protocol was defined
 	if len(serviceInstance.Spec.ClusterProtocol) < 1 {
 		reqLogger.Info("Unable to get the config of the ClusterProtocol setup for the service. Check its property in the MobileSecurityService CR")

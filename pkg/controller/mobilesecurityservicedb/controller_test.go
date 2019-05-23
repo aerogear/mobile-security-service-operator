@@ -86,7 +86,7 @@ func TestReconcileMobileSecurityServiceDB_create(t *testing.T) {
 			args: args{
 				instance:        &instanceOne,
 				serviceInstance: &serviceInstance,
-				kind:            DEEPLOYMENT,
+				kind:            Deployment,
 			},
 			wantErr: false,
 		},
@@ -153,7 +153,7 @@ func TestReconcileMobileSecurityServiceDB_buildFactory(t *testing.T) {
 			args: args{
 				instance:        &instanceOne,
 				serviceInstance: &serviceInstance,
-				kind:            DEEPLOYMENT,
+				kind:            Deployment,
 			},
 			want: reflect.TypeOf(&v1beta1.Deployment{}),
 		},
@@ -177,7 +177,7 @@ func TestReconcileMobileSecurityServiceDB_buildFactory(t *testing.T) {
 			args: args{
 				instance:        &instanceOne,
 				serviceInstance: &serviceInstance,
-				kind:            SERVICE,
+				kind:            Service,
 			},
 			want: reflect.TypeOf(&corev1.Service{}),
 		},

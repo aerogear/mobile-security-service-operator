@@ -11,22 +11,26 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 )
 
-// APP_NAMESPACE_ENV_VAR is the constant for env variable APP_NAMESPACES
-// which is the namespace where the APP CR can applied.
-// The namespaces should be informed split by ";".
-const APP_NAMESPACE_ENV_VAR = "APP_NAMESPACES"
+const (
+	// AppNamespaceEnvVar is the constant for env variable AppNamespaceEnvVar
+	// which is the namespace where the APP CR can applied.
+	// The namespaces should be informed split by ";".
+	AppNamespaceEnvVar = "APP_NAMESPACES"
+	// OperatorNamespaceForLocalEnv is valid and used just in the local env and for the tests.
+	OperatorNamespaceForLocalEnv   = "mobile-security-service-proxy"
+	ProxyServiceInstanceName       = "mobile-security-service-proxy"
+	ApplicationServiceInstanceName = "mobile-security-service-application"
+	InitEndpoint                   = "/init"
+)
 
-// OPERATOR_NAMESPACE_FOR_LOCAL_ENV is valid and used just in the local env and for the tests.
-const OPERATOR_NAMESPACE_FOR_LOCAL_ENV = "mobile-security-service-proxy"
-const PROXY_SERVICE_INSTANCE_NAME = "mobile-security-service-proxy"
-const APPLICATION_SERVICE_INSTANCE_NAME = "mobile-security-service-application"
-const ENDPOINT_INIT = "/init"
+// The MobileSecurityServiceCRName has the name of the CR which should not be changed.
+const MobileSecurityServiceCRName = "mobile-security-service"
 
 var log = logf.Log.WithName("mobile-security-service-operator.utils")
 
 //GetPublicServiceAPIURL returns the public service URL API
 func GetPublicServiceAPIURL(route *routev1.Route, serviceInstance *mobilesecurityservicev1alpha1.MobileSecurityService) string {
-	return fmt.Sprintf("%v://%v%v", serviceInstance.Spec.ClusterProtocol, route.Status.Ingress[0].Host, ENDPOINT_INIT)
+	return fmt.Sprintf("%v://%v%v", serviceInstance.Spec.ClusterProtocol, route.Status.Ingress[0].Host, InitEndpoint)
 }
 
 //GetRouteName returns an string name with the name of the router
@@ -47,9 +51,9 @@ func GetConfigMapName(m *mobilesecurityservicev1alpha1.MobileSecurityService) st
 
 // GetAppNamespaces returns the namespace the operator should be watching for changes
 func GetAppNamespaces() (string, error) {
-	ns, found := os.LookupEnv(APP_NAMESPACE_ENV_VAR)
+	ns, found := os.LookupEnv(AppNamespaceEnvVar)
 	if !found {
-		return "", fmt.Errorf("%s must be set", APP_NAMESPACE_ENV_VAR)
+		return "", fmt.Errorf("%s must be set", AppNamespaceEnvVar)
 	}
 	return ns, nil
 }

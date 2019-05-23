@@ -130,7 +130,7 @@ func (r *ReconcileMobileSecurityService) updateAppServiceStatus(reqLogger logr.L
 		return nil, err
 	}
 	// Get the Service Object
-	serviceStatus, err := r.fetchService(reqLogger, instance, utils.APPLICATION_SERVICE_INSTANCE_NAME)
+	serviceStatus, err := r.fetchService(reqLogger, instance, utils.ApplicationServiceInstanceName)
 	if err != nil {
 		reqLogger.Error(err, "Failed to get App Service for Status", "MobileSecurityService.Namespace", instance.Namespace, "MobileSecurityService.Name", instance.Name)
 		return serviceStatus, err
@@ -168,7 +168,7 @@ func (r *ReconcileMobileSecurityService) updateProxyServiceStatus(reqLogger logr
 		return nil, err
 	}
 	// Get the Service Object
-	serviceStatus, err := r.fetchService(reqLogger, instance, utils.PROXY_SERVICE_INSTANCE_NAME)
+	serviceStatus, err := r.fetchService(reqLogger, instance, utils.ProxyServiceInstanceName)
 	if err != nil {
 		reqLogger.Error(err, "Failed to get Proxy Service for Status", "MobileSecurityService.Namespace", instance.Namespace, "MobileSecurityService.Name", instance.Name)
 		return serviceStatus, err

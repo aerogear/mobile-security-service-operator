@@ -72,14 +72,14 @@ func main() {
 		log.Error(err, "")
 		os.Exit(1)
 	}
-	
+
 	//Create cmd Manager
 	//FIXME: We should not watch/cache all namespaces. However, the current version do not allow us pass the List of Namespaces.
 	// The impl to allow do it is done and merged in the master branch of the lib but not released in an stable version.
 	// See the PR which we are working on to update the deps and have this feature: https://github.com/operator-framework/operator-sdk/pull/1388
 	mgr, err := manager.New(cfg, manager.Options{
-		Namespace: "",
-		MetricsBindAddress: fmt.Sprintf("%s:%d", metricsHost, metricsPort), 
+		Namespace:          "",
+		MetricsBindAddress: fmt.Sprintf("%s:%d", metricsHost, metricsPort),
 	})
 	if err != nil {
 		log.Error(err, "")

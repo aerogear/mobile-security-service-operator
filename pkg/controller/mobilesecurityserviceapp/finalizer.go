@@ -21,7 +21,7 @@ func (r *ReconcileMobileSecurityServiceApp) addFinalizer(reqLogger logr.Logger, 
 		}
 
 		//Set finalizer string/metadata
-		instance.SetFinalizers([]string{FINALIZER})
+		instance.SetFinalizers([]string{FinalizerMetadata})
 
 		//Update CR
 		err = r.client.Update(context.TODO(), instance)

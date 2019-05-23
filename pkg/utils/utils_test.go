@@ -122,10 +122,10 @@ func TestGetAppNamespaces(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 
 			// first, unset any env that may be lying around from the previous case
-			os.Unsetenv(APP_NAMESPACE_ENV_VAR)
+			os.Unsetenv(AppNamespaceEnvVar)
 
 			if tt.fields.envVar != "" {
-				os.Setenv(APP_NAMESPACE_ENV_VAR, tt.fields.envVar)
+				os.Setenv(AppNamespaceEnvVar, tt.fields.envVar)
 			}
 
 			got, err := GetAppNamespaces()
@@ -188,7 +188,7 @@ func TestIsValidAppNamespace(t *testing.T) {
 		{
 			name: "Should return local namespace with no name is set",
 			args: args{
-				namespace: OPERATOR_NAMESPACE_FOR_LOCAL_ENV,
+				namespace: OperatorNamespaceForLocalEnv,
 			},
 			want:    true,
 			wantErr: false,
@@ -198,10 +198,10 @@ func TestIsValidAppNamespace(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 
 			// clear old env var
-			os.Unsetenv(APP_NAMESPACE_ENV_VAR)
+			os.Unsetenv(AppNamespaceEnvVar)
 
 			if tt.fields.envVar != "" {
-				os.Setenv(APP_NAMESPACE_ENV_VAR, tt.fields.envVar)
+				os.Setenv(AppNamespaceEnvVar, tt.fields.envVar)
 			}
 
 			got, err := IsValidAppNamespace(tt.args.namespace)
