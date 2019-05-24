@@ -154,6 +154,12 @@ func (r *ReconcileMobileSecurityServiceDB) Reconcile(request reconcile.Request) 
 	if isValidNamespace, err := utils.IsValidOperatorNamespace(instance.Namespace); err != nil || isValidNamespace == false {
 		// Stop reconcile
 		reqLogger.Error(err, "Unable to reconcile Mobile Security Service Database", "instance.Namespace", instance.Namespace, "isValidNamespace", isValidNamespace, "Operator.Namespace", operatorNamespace)
+
+		//Update status with Invalid Namespace
+		if err := r.updateStatusWithInvalidNamespace(reqLogger, request); err != nil {
+			return reconcile.Result{}, err
+		}
+
 		return reconcile.Result{}, nil
 	}
 

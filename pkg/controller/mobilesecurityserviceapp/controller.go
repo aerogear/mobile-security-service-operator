@@ -126,6 +126,12 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 		// Stop reconcile
 		envVar, _ := utils.GetAppNamespaces()
 		reqLogger.Error(err, "Unable to reconcile Mobile Security Service App", "instance.Namespace", instance.Namespace, "isValidNamespace", isValidNamespace, "EnvVar.APP_NAMESPACES", envVar)
+
+		//Update status with Invalid Namespace
+		if err := r.updateBindStatusWithInvalidNamespace(reqLogger, request); err != nil {
+			return reconcile.Result{}, err
+		}
+
 		return reconcile.Result{}, nil
 	}
 

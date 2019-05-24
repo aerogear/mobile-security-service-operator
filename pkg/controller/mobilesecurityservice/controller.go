@@ -164,6 +164,12 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 		// Stop reconcile
 		operatorNamespace, _ := k8sutil.GetOperatorNamespace()
 		reqLogger.Error(err, "Unable to reconcile Mobile Security Service", "instance.Namespace", instance.Namespace, "isValidNamespace", isValidNamespace, "Operator.Namespace", operatorNamespace)
+
+		//Update status with Invalid Namespace
+		if err := r.updateStatusWithInvalidNamespace(reqLogger, request); err != nil {
+			return reconcile.Result{}, err
+		}
+
 		return reconcile.Result{}, nil
 	}
 
