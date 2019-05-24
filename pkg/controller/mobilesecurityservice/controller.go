@@ -97,10 +97,10 @@ type ReconcileMobileSecurityService struct {
 func (r *ReconcileMobileSecurityService) update(obj runtime.Object, reqLogger logr.Logger) error {
 	err := r.client.Update(context.TODO(), obj)
 	if err != nil {
-		reqLogger.Error(err, "Failed to update Spec")
+		reqLogger.Error(err, "Failed to update Object", "obj:", obj)
 		return err
 	}
-	reqLogger.Info("Spec updated - return and create")
+	reqLogger.Info("Updated successfully", "obj:", obj)
 	return nil
 }
 
@@ -112,7 +112,7 @@ func (r *ReconcileMobileSecurityService) create(instance *mobilesecurityservicev
 	if err != nil {
 		reqLogger.Error(err, "Failed to create new ", "kind", kind, "Namespace", instance.Namespace)
 	}
-	reqLogger.Info("Created successfully - return and create", "kind", kind, "Namespace", instance.Namespace)
+	reqLogger.Info("Created successfully", "kind", kind, "Namespace", instance.Namespace)
 	return err
 }
 

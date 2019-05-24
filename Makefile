@@ -60,7 +60,7 @@ create-app-ns:
 
 .PHONY: create-app
 create-app:
-	kubectl create -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml
+	kubectl apply -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml
 
 .PHONY: delete-app
 delete-app:

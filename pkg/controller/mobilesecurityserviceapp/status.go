@@ -21,7 +21,7 @@ func (r *ReconcileMobileSecurityServiceApp) updateSDKConfigMapStatus(reqLogger l
 	}
 
 	// Get SDKConfigMap object
-	SDKConfigMapStatus, err := r.fetchSDKConfigMap(reqLogger, instance)
+	SDKConfigMapStatus, err := r.fetchConfigMap(reqLogger, instance)
 	if err != nil {
 		reqLogger.Error(err, "Failed to get SDKConfigMap for Status", "MobileSecurityServiceApp.Namespace", instance.Namespace, "MobileSecurityServiceApp.Name", instance.Name)
 		return SDKConfigMapStatus, err

@@ -2,6 +2,7 @@ package mobilesecurityserviceapp
 
 import (
 	"context"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/models"
@@ -21,12 +22,23 @@ func (r *ReconcileMobileSecurityServiceApp) fetchInstance(reqLogger logr.Logger,
 	return instance, err
 }
 
-//fetchSDKConfigMap returns the config map resource created for this instance
-func (r *ReconcileMobileSecurityServiceApp) fetchSDKConfigMap(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp) (*corev1.ConfigMap, error) {
+//fetchConfigMap returns the config map resource created for this instance
+func (r *ReconcileMobileSecurityServiceApp) fetchConfigMap(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp) (*corev1.ConfigMap, error) {
 	reqLogger.Info("Checking if the ConfigMap already exists")
 	configMap := &corev1.ConfigMap{}
 	err := r.client.Get(context.TODO(), types.NamespacedName{Name: getSDKConfigMapName(instance), Namespace: instance.Namespace}, configMap)
 	return configMap, err
+}
+
+//fetchConfigMapListByLabels returns a list of config map resource created for this instance instance with all labels less the namein order to check if the name was changed
+func (r *ReconcileMobileSecurityServiceApp) fetchConfigMapListByLabels(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp) (*corev1.ConfigMapList, error) {
+	reqLogger.Info("Checking if the ConfigMap already exists")
+	configMapList := &corev1.ConfigMapList{}
+	listOps := &client.ListOptions{}
+	listOps.InNamespace(instance.Namespace)
+	listOps.MatchingLabels(getLabelsToFetch(instance))
+	err := r.client.List(context.TODO(), listOps, configMapList)
+	return configMapList, err
 }
 
 //fetchBindAppRestServiceByAppID return app struct from Mobile Security Service Project/REST API or error
