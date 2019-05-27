@@ -2,14 +2,13 @@ package mobilesecurityserviceapp
 
 import (
 	errs "errors"
-	"reflect"
-	"testing"
-
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
-
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"reflect"
+	"testing"
+	"time"
 
 	routev1 "github.com/openshift/api/route/v1"
 
@@ -43,7 +42,18 @@ var (
 		},
 	}
 
-	instanceTwo = mobilesecurityservicev1alpha1.MobileSecurityServiceApp{
+	instanceInvalidName = mobilesecurityservicev1alpha1.MobileSecurityServiceApp{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "invalid",
+			Namespace: "mobile-security-service",
+		},
+		Spec: mobilesecurityservicev1alpha1.MobileSecurityServiceAppSpec{
+			AppName: "test-app",
+			AppId:   "test-app-id",
+		},
+	}
+
+	instanceInvalidNameSpace = mobilesecurityservicev1alpha1.MobileSecurityServiceApp{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "mobile-security-service",
 			Namespace: "invalid",
@@ -53,6 +63,20 @@ var (
 			AppId:   "test-app-id",
 		},
 	}
+
+	instanceForDeletion = mobilesecurityservicev1alpha1.MobileSecurityServiceApp{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "mobile-security-service",
+			Namespace: "mobile-security-service",
+			DeletionTimestamp: &metav1.Time{time.Now()},
+		},
+		Spec: mobilesecurityservicev1alpha1.MobileSecurityServiceAppSpec{
+			AppName: "test-app",
+			AppId:   "test-app-id",
+		},
+	}
+
+
 
 	mssInstance = mobilesecurityservicev1alpha1.MobileSecurityService{
 		ObjectMeta: metav1.ObjectMeta{
@@ -139,7 +163,6 @@ func TestReconcileMobileSecurityServiceApp_create(t *testing.T) {
 
 			objs := []runtime.Object{
 				&instance,
-				&instanceTwo,
 				&mssInstance,
 				&route,
 			}
@@ -211,7 +234,7 @@ func TestReconcileMobileSecurityServiceApp_buildFactory(t *testing.T) {
 
 			objs := []runtime.Object{
 				&instance,
-				&instanceTwo,
+				&instanceInvalidNameSpace,
 				&mssInstance,
 				&route,
 			}
@@ -247,7 +270,7 @@ func TestReconcileMobileSecurityServiceApp_buildFactory(t *testing.T) {
 func TestReconcileMobileSecurityServiceApp_Reconcile_FetchInstance(t *testing.T) {
 
 	objs := []runtime.Object{
-		&instanceTwo,
+		&instanceInvalidName,
 		&mssInstance,
 		&route,
 	}
@@ -265,11 +288,47 @@ func TestReconcileMobileSecurityServiceApp_Reconcile_FetchInstance(t *testing.T)
 	res, err := r.Reconcile(req)
 	// should return without error or requeueing request if App is not found
 	if (res.Requeue == true) || (err != nil) {
-		t.Fatalf("get configmap: (%v)", err)
+		t.Fatalf("returned unexpectedly after attempting to fetch instance")
 	}
 }
 
+func TestReconcileMobileSecurityServiceApp_Reconcile_Deletion(t *testing.T) {
+	// required to test validity of namespace as namespace check won't be hit after
+	// fetch instance call beforehand in reconcile loop
+	objs := []runtime.Object{
+		&instanceForDeletion,
+		&mssInstance,
+		&route,
+	}
 
+	r := getReconciler(objs)
+
+	// mock request to simulate Reconcile() being called on an event for a watched resource
+	req := reconcile.Request{
+		NamespacedName: types.NamespacedName{
+			Name:      instance.Name,
+			Namespace: instance.Namespace,
+		},
+	}
+
+	// mock fetchBindAppRestServiceByAppID http call
+	fetchBindAppRestServiceByAppID = func(serviceURL string, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, reqLogger logr.Logger) (*models.App, error) {
+		app := models.App{ID: "1234", AppName: "test", AppID: "test-app-id"}
+		return &app, nil
+	}
+
+	service.DeleteAppFromServiceByRestAPI = func(serviceAPI string, id string, reqLogger logr.Logger) error {
+		return nil
+	}
+
+	res, err := r.Reconcile(req)
+	// should return without error or requeueing request if App is deleted
+	if (res.Requeue == true) || (err != nil) {
+		t.Fatalf("returned unexpectedly after attempting to delete app")
+	}
+
+
+}
 
 func TestReconcileMobileSecurityServiceApp_Reconcile(t *testing.T) {
 	// objects to track in the fake client
@@ -291,12 +350,17 @@ func TestReconcileMobileSecurityServiceApp_Reconcile(t *testing.T) {
 
 	// mock fetchBindAppRestServiceByAppID http call
 	fetchBindAppRestServiceByAppID = func(serviceURL string, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, reqLogger logr.Logger) (*models.App, error) {
-		app := models.App{AppName: "test-app", AppID: "test-app-id"}
+		app := models.App{AppName: "test-app-22222", AppID: "test-app-id"}
 		return &app, nil
 	}
 
 	// mock CreateAppByRestAPI http call
 	service.CreateAppByRestAPI = func(serviceAPI string, app models.App, reqLogger logr.Logger) error {
+		return nil
+	}
+
+	// mock UpdateAppNameByRestAPI http call
+	service.UpdateAppNameByRestAPI = func(serviceAPI string, app *models.App, reqLogger logr.Logger) error {
 		return nil
 	}
 

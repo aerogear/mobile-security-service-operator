@@ -12,7 +12,7 @@ import (
 )
 
 //DeleteAppFromServiceByRestAPI delete the app object in the service
-func DeleteAppFromServiceByRestAPI(serviceAPI string, id string, reqLogger logr.Logger) error {
+var DeleteAppFromServiceByRestAPI = func(serviceAPI string, id string, reqLogger logr.Logger) error {
 	reqLogger.Info("Calling REST Service to DELETE app", "serviceAPI", serviceAPI, "App.id", id)
 	//Create the DELETE request
 	url := serviceAPI + "/apps/" + id
@@ -123,7 +123,7 @@ func GetAppFromServiceByRestApi(serviceAPI string, appId string, reqLogger logr.
 }
 
 //UpdateAppNameByRestAPI will update name of the APP in the Service
-func UpdateAppNameByRestAPI(serviceAPI string, app *models.App, reqLogger logr.Logger) error {
+var UpdateAppNameByRestAPI = func(serviceAPI string, app *models.App, reqLogger logr.Logger) error {
 
 	//Create the DELETE request
 	url := serviceAPI + "/apps/" + app.ID
