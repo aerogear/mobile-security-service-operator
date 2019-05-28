@@ -13,8 +13,8 @@ func hasMandatorySpecs(instance *mobilesecurityservicev1alpha1.MobileSecuritySer
 		return false
 	}
 
-	//Check if the appId was added in the CR
-	if len(instance.Spec.AppId) < 1 {
+	//Check if the appName was added in the CR
+	if len(instance.Spec.AppName) < 1 {
 		reqLogger.Info("AppName was not found. Check the App CR configuration.")
 		return false
 	}
