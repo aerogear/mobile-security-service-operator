@@ -69,7 +69,7 @@ func (r *ReconcileMobileSecurityServiceApp) delete(obj runtime.Object, reqLogger
 		reqLogger.Error(err, "Failed to delete obj", "obj:", obj)
 		return err
 	}
-	reqLogger.Info("Deleted successfully","obj:", obj)
+	reqLogger.Info("Deleted successfully", "obj:", obj)
 	return nil
 }
 
@@ -161,11 +161,15 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 	r.client.Get(context.TODO(), types.NamespacedName{Name: utils.MobileSecurityServiceCRName, Namespace: operatorNamespace}, mssInstance)
 
 	//Get the REST Service Endpoint
-	serviceAPI := service.GetServiceAPIURL(mssInstance)
+	serviceAPI := utils.GetServiceAPIURL(mssInstance)
 
 	//Check if the APP CR was marked to be deleted
 	isAppMarkedToBeDeleted := instance.GetDeletionTimestamp() != nil
-	if isAppMarkedToBeDeleted && len(instance.GetFinalizers()) > 0 {
+
+	// If the Service instance was not found and/or is marked to be deleted
+	// OR
+	// if the APP CR was marked to be deleted
+	if (isAppMarkedToBeDeleted && len(instance.GetFinalizers()) > 0) || mssInstance == nil || mssInstance.GetDeletionTimestamp() != nil {
 
 		// If the Service was deleted and/or marked to be deleted
 		if err := r.client.Get(context.TODO(), types.NamespacedName{Name: utils.MobileSecurityServiceCRName, Namespace: operatorNamespace}, mssInstance); err != nil || mssInstance.GetDeletionTimestamp() != nil {
@@ -211,7 +215,7 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 		return reconcile.Result{}, nil
 	}
 
-	if !hasMandatorySpecs(instance, mssInstance, reqLogger) {
+	if !hasMandatorySpecs(instance, reqLogger) {
 		//Stop reconcile since it has not the mandatory specs
 		return reconcile.Result{}, nil
 	}
@@ -229,7 +233,7 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 	}
 
 	// Get the Public Service API URL which will be used to build the SDKConfigMap json
-	publicServiceURLAPI := utils.GetPublicServiceAPIURL(route, mssInstance)
+	publicServiceURLAPI := utils.GetInitPublicURL(route, mssInstance)
 
 	reqLogger.Info("Checking if the configMap already exists ...")
 	// Check if ConfigMap for the app exist, if not create one.
@@ -304,7 +308,7 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 	}
 
 	//Update status for SDKConfigMap
-	SDKConfigMapStatus, err := r.updateSDKConfigMapStatus(reqLogger, request)
+	SDKConfigMapStatus, err := r.updateConfigMapStatus(reqLogger, request)
 	if err != nil {
 		return reconcile.Result{}, err
 	}

@@ -1,6 +1,7 @@
 package mobilesecurityservicedb
 
 import (
+	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"reflect"
 	"testing"
 
@@ -76,7 +77,7 @@ func TestReconcileMobileSecurityServiceDB_updateDBStatus(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			r := newReconcilerWithFakeClient(tt.fields.objs)
+			r := buildReconcileWithFakeClientWithMocks(tt.fields.objs, t)
 
 			reqLogger := log.WithValues("Request.Namespace", tt.args.request.Namespace, "Request.Name", tt.args.request.Name)
 
@@ -140,7 +141,7 @@ func TestReconcileMobileSecurityServiceDB_updateDeploymentStatus(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			r := newReconcilerWithFakeClient(tt.fields.objs)
+			r := buildReconcileWithFakeClientWithMocks(tt.fields.objs, t)
 
 			reqLogger := log.WithValues("Request.Namespace", tt.args.request.Namespace, "Request.Name", tt.args.request.Name)
 
@@ -151,6 +152,49 @@ func TestReconcileMobileSecurityServiceDB_updateDeploymentStatus(t *testing.T) {
 			}
 			if gotType := reflect.TypeOf(got); !reflect.DeepEqual(gotType, tt.want) {
 				t.Errorf("ReconcileMobileSecurityServiceDB.updateDeploymentStatus() = %v, want %v", gotType, tt.want)
+			}
+		})
+	}
+}
+
+func TestReconcileMobileSecurityServiceDB_updateBindStatusWithInvalidNamespace(t *testing.T) {
+	type args struct {
+		instance *mobilesecurityservicev1alpha1.MobileSecurityServiceDB
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "should return without an error when updating status",
+			args: args{
+				instance: &instanceOne,
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			objs := []runtime.Object{
+				tt.args.instance,
+			}
+
+			r := buildReconcileWithFakeClientWithMocks(objs, t)
+
+			reqLogger := log.WithValues("Request.Namespace", tt.args.instance.Namespace, "Request.Name", tt.args.instance.Name)
+
+			// mock request to simulate Reconcile() being called on an event for a watched resource
+			req := reconcile.Request{
+				NamespacedName: types.NamespacedName{
+					Name:      instanceOne.Name,
+					Namespace: instanceOne.Namespace,
+				},
+			}
+
+			if err := r.updateStatusWithInvalidNamespace(reqLogger, req); (err != nil) != tt.wantErr {
+				t.Errorf("ReconcileMobileSecurityServiceApp.updateBindStatusWithInvalidNamespace() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

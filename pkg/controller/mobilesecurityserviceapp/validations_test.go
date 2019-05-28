@@ -1,9 +1,8 @@
 package mobilesecurityserviceapp
 
 import (
-	"testing"
-
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
+	"testing"
 )
 
 func Test_hasMandatorySpecs(t *testing.T) {
@@ -19,33 +18,30 @@ func Test_hasMandatorySpecs(t *testing.T) {
 		{
 			name: "should return true when instance has an AppId and AppName",
 			args: args{
-				instance:     		&instance,
-				serviceInstance:  	&mssInstance,
+				instance: &instance,
 			},
-			want:    true,
+			want: true,
 		},
 		{
 			name: "should return false when instance has no AppId",
 			args: args{
-				instance:     		&instanceNoAppName,
-				serviceInstance:  	&mssInstance,
+				instance: &instanceNoAppName,
 			},
-			want:    false,
+			want: false,
 		},
 		{
 			name: "should return false when instance has no AppName",
 			args: args{
-				instance:     		&instanceNoAppId,
-				serviceInstance:  	&mssInstance,
+				instance: &instanceNoAppId,
 			},
-			want:    false,
+			want: false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			reqLogger := log.WithValues("Request.Namespace", &instance.Namespace, "Request.Name", &instance.Name)
 
-			if got := hasMandatorySpecs(tt.args.instance, tt.args.serviceInstance, reqLogger); got != tt.want {
+			if got := hasMandatorySpecs(tt.args.instance, reqLogger); got != tt.want {
 				t.Errorf("hasMandatorySpecs() = %v, want %v", got, tt.want)
 			}
 		})

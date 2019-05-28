@@ -11,7 +11,7 @@ const FinalizerMetadata = "finalizer.mobile-security-service.aerogear.com"
 
 // Returns an string map with the labels which wil be associated to the kubernetes/openshift objects
 // which will be created and managed by this operator
-func getLabels(m *mobilesecurityservicev1alpha1.MobileSecurityServiceApp) map[string]string {
+func getSDKAppLabels(m *mobilesecurityservicev1alpha1.MobileSecurityServiceApp) map[string]string {
 	return map[string]string{"app": "mobilesecurityservice", "mobilesecurityserviceapp_cr": m.Name, "appname": m.Spec.AppName, "appid": m.Spec.AppId}
 }
 

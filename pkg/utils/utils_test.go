@@ -5,12 +5,45 @@ import (
 	"testing"
 
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
+	routev1 "github.com/openshift/api/route/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+)
+
+var (
+	mssInstance = mobilesecurityservicev1alpha1.MobileSecurityService{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "mobile-security-service",
+			Namespace: "mobile-security-service-operator",
+		},
+		Spec: mobilesecurityservicev1alpha1.MobileSecurityServiceSpec{
+			Size:            1,
+			MemoryLimit:     "512Mi",
+			MemoryRequest:   "512Mi",
+			ClusterProtocol: "http",
+			ConfigMapName:   "mss-config",
+			RouteName:       "route",
+		},
+	}
+
+	route = routev1.Route{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      GetRouteName(&mssInstance),
+			Namespace: mssInstance.Namespace,
+			Labels:    map[string]string{"app": "mobilesecurityservice", "mobilesecurityservice_cr": mssInstance.Name},
+		},
+		Status: routev1.RouteStatus{
+			Ingress: []routev1.RouteIngress{
+				{
+					Host: "testhost",
+				},
+			},
+		},
+	}
 )
 
 func TestGetRouteName(t *testing.T) {
 	type args struct {
-		m *mobilesecurityservicev1alpha1.MobileSecurityService
+		instance *mobilesecurityservicev1alpha1.MobileSecurityService
 	}
 	tests := []struct {
 		name string
@@ -20,32 +53,26 @@ func TestGetRouteName(t *testing.T) {
 		{
 			name: "should use RouteName",
 			args: args{
-				m: &mobilesecurityservicev1alpha1.MobileSecurityService{
-					ObjectMeta: metav1.ObjectMeta{
-						Name: "mss-operator",
-					},
-					Spec: mobilesecurityservicev1alpha1.MobileSecurityServiceSpec{
-						RouteName: "mss-route",
-					},
-				},
+				instance: &mssInstance,
 			},
-			want: "mss-route",
+			want: "route",
 		},
 		{
 			name: "should use Instance name",
 			args: args{
-				m: &mobilesecurityservicev1alpha1.MobileSecurityService{
+				instance: &mobilesecurityservicev1alpha1.MobileSecurityService{
 					ObjectMeta: metav1.ObjectMeta{
-						Name: "mss-operator",
+						Name:      "mobile-security-service",
+						Namespace: "mobile-security-service-operator",
 					},
 				},
 			},
-			want: "mss-operator",
+			want: "mobile-security-service",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := GetRouteName(tt.args.m); got != tt.want {
+			if got := GetRouteName(tt.args.instance); got != tt.want {
 				t.Errorf("GetRouteName() = %v, want %v", got, tt.want)
 			}
 		})
@@ -54,7 +81,7 @@ func TestGetRouteName(t *testing.T) {
 
 func TestGetConfigMapName(t *testing.T) {
 	type args struct {
-		m *mobilesecurityservicev1alpha1.MobileSecurityService
+		instance *mobilesecurityservicev1alpha1.MobileSecurityService
 	}
 	tests := []struct {
 		name string
@@ -64,32 +91,26 @@ func TestGetConfigMapName(t *testing.T) {
 		{
 			name: "should use ConfigMapName",
 			args: args{
-				m: &mobilesecurityservicev1alpha1.MobileSecurityService{
-					ObjectMeta: metav1.ObjectMeta{
-						Name: "mss-operator",
-					},
-					Spec: mobilesecurityservicev1alpha1.MobileSecurityServiceSpec{
-						ConfigMapName: "mss-config",
-					},
-				},
+				instance: &mssInstance,
 			},
 			want: "mss-config",
 		},
 		{
 			name: "should use Instance name",
 			args: args{
-				m: &mobilesecurityservicev1alpha1.MobileSecurityService{
+				instance: &mobilesecurityservicev1alpha1.MobileSecurityService{
 					ObjectMeta: metav1.ObjectMeta{
-						Name: "mss-operator",
+						Name:      "mobile-security-service",
+						Namespace: "mobile-security-service-operator",
 					},
 				},
 			},
-			want: "mss-operator",
+			want: "mobile-security-service",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := GetConfigMapName(tt.args.m); got != tt.want {
+			if got := GetConfigMapName(tt.args.instance); got != tt.want {
 				t.Errorf("GetConfigMapName() = %v, want %v", got, tt.want)
 			}
 		})
@@ -243,6 +264,62 @@ func TestIsValidOperatorNamespace(t *testing.T) {
 			}
 			if got != tt.want {
 				t.Errorf("IsValidOperatorNamespace() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestGetInitPublicURL(t *testing.T) {
+	type args struct {
+		instance *mobilesecurityservicev1alpha1.MobileSecurityService
+		route    *routev1.Route
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: "should check and return true",
+			args: args{
+				instance: &mssInstance,
+				route:    &route,
+			},
+			want: "http://testhost/init",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := GetInitPublicURL(tt.args.route, tt.args.instance)
+			if got != tt.want {
+				t.Errorf("TestGetInitPublicURL() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestGetServiceAPIURL(t *testing.T) {
+	type args struct {
+		instance *mobilesecurityservicev1alpha1.MobileSecurityService
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: "should check and return true",
+			args: args{
+				instance: &mssInstance,
+			},
+			want: "http://mobile-security-service-application:0/api",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := GetServiceAPIURL(tt.args.instance)
+			if got != tt.want {
+				t.Errorf("TestGetServiceAPIURL() = %v, want %v", got, tt.want)
 			}
 		})
 	}

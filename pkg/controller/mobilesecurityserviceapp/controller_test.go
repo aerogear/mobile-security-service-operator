@@ -1,39 +1,33 @@
 package mobilesecurityserviceapp
 
 import (
-	errs "errors"
-	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
+	"context"
+	"github.com/aerogear/mobile-security-service-operator/pkg/service"
+	"github.com/go-logr/logr"
 	"reflect"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"testing"
 
-	corev1 "k8s.io/api/core/v1"
-
-	"github.com/go-logr/logr"
-	"k8s.io/apimachinery/pkg/api/errors"
-
+	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/models"
-
-	"github.com/aerogear/mobile-security-service-operator/pkg/service"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-
 	"k8s.io/apimachinery/pkg/types"
-
 	"k8s.io/client-go/kubernetes/scheme"
-	"sigs.k8s.io/controller-runtime/pkg/client"
+	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
 func TestReconcileMobileSecurityServiceApp_create(t *testing.T) {
 	type fields struct {
-		client client.Client
 		scheme *runtime.Scheme
 	}
 	type args struct {
 		instance   *mobilesecurityservicev1alpha1.MobileSecurityServiceApp
 		kind       string
 		serviceURL string
-		request reconcile.Request
-		err     error
+		request    reconcile.Request
+		err        error
 	}
 	tests := []struct {
 		name      string
@@ -49,8 +43,7 @@ func TestReconcileMobileSecurityServiceApp_create(t *testing.T) {
 				scheme: scheme.Scheme,
 			},
 			args: args{
-				kind:     ConfigMap,
-				err:      errors.NewInternalError(errs.New("Internal Server Error")),
+				kind: ConfigMap,
 			},
 			want:    reconcile.Result{Requeue: true},
 			wantErr: false,
@@ -61,8 +54,7 @@ func TestReconcileMobileSecurityServiceApp_create(t *testing.T) {
 				scheme: scheme.Scheme,
 			},
 			args: args{
-				kind:     "WRONG_KIND",
-				err:      errors.NewInternalError(errs.New("Internal Server Error")),
+				kind: "WRONG_KIND",
 			},
 			want:      reconcile.Result{},
 			wantErr:   true,
@@ -101,7 +93,6 @@ func TestReconcileMobileSecurityServiceApp_create(t *testing.T) {
 
 func TestReconcileMobileSecurityServiceApp_buildFactory(t *testing.T) {
 	type fields struct {
-		client client.Client
 		scheme *runtime.Scheme
 	}
 	type args struct {
@@ -221,7 +212,7 @@ func TestReconcileMobileSecurityServiceApp_Reconcile_Deletion(t *testing.T) {
 
 	// mock fetchBindAppRestServiceByAppID http call
 	fetchBindAppRestServiceByAppID = func(serviceURL string, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, reqLogger logr.Logger) (*models.App, error) {
-		app := models.App{ID: "1234", AppName: "test", AppID: "test-app-id"}
+		app := models.App{ID: "1234", AppName: instance.Spec.AppName, AppID: instance.Spec.AppId}
 		return &app, nil
 	}
 
@@ -235,14 +226,14 @@ func TestReconcileMobileSecurityServiceApp_Reconcile_Deletion(t *testing.T) {
 		t.Fatalf("returned unexpectedly after attempting to delete app")
 	}
 
-
 }
 
 func TestReconcileMobileSecurityServiceApp_Reconcile(t *testing.T) {
+
 	// objects to track in the fake client
 	objs := []runtime.Object{
-		&instance,
 		&mssInstance,
+		&instance,
 		&route,
 	}
 
@@ -256,9 +247,18 @@ func TestReconcileMobileSecurityServiceApp_Reconcile(t *testing.T) {
 		},
 	}
 
+	res, err := r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+
+	if res.Requeue {
+		t.Error("reconcile requeue request which is not expected")
+	}
+
 	// mock fetchBindAppRestServiceByAppID http call
 	fetchBindAppRestServiceByAppID = func(serviceURL string, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, reqLogger logr.Logger) (*models.App, error) {
-		app := models.App{AppName: "test-app-22222", AppID: "test-app-id"}
+		app := models.App{AppName: instance.Spec.AppName, AppID: instance.Spec.AppId}
 		return &app, nil
 	}
 
@@ -272,34 +272,226 @@ func TestReconcileMobileSecurityServiceApp_Reconcile(t *testing.T) {
 		return nil
 	}
 
-	// Initial call to reconciler
-	_, err := r.Reconcile(req)
+	configMap := &corev1.ConfigMap{}
+	err = r.client.Get(context.TODO(), types.NamespacedName{Name: getSDKConfigMapName(&instance), Namespace: instance.Namespace}, configMap)
+	if err != nil {
+		t.Fatalf("get configMap: (%v)", err)
+	}
+
+	res, err = r.Reconcile(req)
 	if err == nil {
 		t.Error("expected an error when trying to update bind status")
 	}
 
-	// check configmap create 
-	reqLogger := log.WithValues("Request.Namespace", &req.NamespacedName.Namespace, "Request.Name", &req.NamespacedName.Name)
-	_, err = r.fetchSDKConfigMap(reqLogger, &instance)
-	// configmap was not created properly
-	if err != nil {
-		t.Fatalf("get configmap: (%v)", err)
+	// Check the result of reconciliation to make sure it has the desired state
+	if res.Requeue {
+		t.Error("reconcile Requeue unexpected")
 	}
 
-	SDKConfigMapStatus, err := r.updateSDKConfigMapStatus(reqLogger, req)
-	// configmap was not updated properly
+	// Check if has more than one configMap with the same Id
+	configMapList := &corev1.ConfigMapList{}
+	listOps := &client.ListOptions{}
+	listOps.InNamespace(instance.Namespace)
+	listOps.MatchingLabels(getLabelsToFetch(&instance))
+	err = r.client.List(context.TODO(), listOps, configMapList)
 	if err != nil {
-		t.Fatalf("update configmap: (%v)", err)
+		t.Fatalf("error to get a list of configMaps: (%v)", err)
 	}
 
-	// mock UID so bind status can be updated successfully
-	SDKConfigMapStatus.UID = "1234"
+	if len(configMapList.Items) > 1 {
+		t.Fatalf("more than one configmap was found which is not expected: (%v)", err)
+	}
 
-	err = r.updateBindStatus("http://mobile-security-service-application:1234/api", reqLogger, SDKConfigMapStatus, req)
-	if err != nil {
-		// bindStatus was not updated properly
-		t.Fatalf("update bind status: (%v)", err)
+	res, err = r.Reconcile(req)
+	if err == nil {
+		t.Error("expected an error when trying to update bind status")
+	}
+
+	// Check the result of reconciliation to make sure it has the desired state
+	if res.Requeue {
+		t.Error("reconcile Requeue unexpected")
 	}
 
 }
 
+func TestReconcileMobileSecurityServiceApp_Reconcile_AppDeleteCR(t *testing.T) {
+
+	// objects to track in the fake client
+	objs := []runtime.Object{
+		&mssInstance,
+		&instanceForDeletion,
+		&route,
+	}
+
+	r := buildReconcileWithFakeClientWithMocks(objs, t)
+
+	// mock request to simulate Reconcile() being called on an event for a watched resource
+	req := reconcile.Request{
+		NamespacedName: types.NamespacedName{
+			Name:      instance.Name,
+			Namespace: instance.Namespace,
+		},
+	}
+
+	res, err := r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+
+	// Check the result of reconciliation to make sure it has the desired state
+	if res.Requeue {
+		t.Error("reconcile Requeue unexpected")
+	}
+}
+
+func TestReconcileMobileSecurityServiceApp_Reconcile_MSSDeleteCR(t *testing.T) {
+
+	// objects to track in the fake client
+	objs := []runtime.Object{
+		&mssInstanceForDeletion,
+		&instanceWithFinalizer,
+		&route,
+	}
+
+	r := buildReconcileWithFakeClientWithMocks(objs, t)
+
+	// mock request to simulate Reconcile() being called on an event for a watched resource
+	req := reconcile.Request{
+		NamespacedName: types.NamespacedName{
+			Name:      instance.Name,
+			Namespace: instance.Namespace,
+		},
+	}
+
+	res, err := r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+	// Check the result of reconciliation to make sure it has the desired state
+	if res.Requeue {
+		t.Error("reconcile Requeue unexpected")
+	}
+}
+
+func TestReconcileMobileSecurityServiceApp_Reconcile_UpdateName(t *testing.T) {
+
+	// objects to track in the fake client
+	objs := []runtime.Object{
+		&mssInstance,
+		&instance,
+		&route,
+	}
+
+	r := buildReconcileWithFakeClientWithMocks(objs, t)
+
+	// mock request to simulate Reconcile() being called on an event for a watched resource
+	req := reconcile.Request{
+		NamespacedName: types.NamespacedName{
+			Name:      instance.Name,
+			Namespace: instance.Namespace,
+		},
+	}
+
+	res, err := r.Reconcile(req)
+
+	if res.Requeue {
+		t.Error("reconcile requeue request which is not expected")
+	}
+
+	// mock fetchBindAppRestServiceByAppID http call
+	fetchBindAppRestServiceByAppID = func(serviceURL string, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, reqLogger logr.Logger) (*models.App, error) {
+		app := models.App{AppName: "oldName", AppID: instance.Spec.AppId}
+		return &app, nil
+	}
+
+	// mock CreateAppByRestAPI http call
+	service.CreateAppByRestAPI = func(serviceAPI string, app models.App, reqLogger logr.Logger) error {
+		return nil
+	}
+
+	// mock UpdateAppNameByRestAPI http call
+	service.UpdateAppNameByRestAPI = func(serviceAPI string, app *models.App, reqLogger logr.Logger) error {
+		return nil
+	}
+
+	res, err = r.Reconcile(req)
+
+	if res.Requeue {
+		t.Error("reconcile requeue request which is not expected")
+	}
+
+	configMap := &corev1.ConfigMap{}
+	err = r.client.Get(context.TODO(), types.NamespacedName{Name: getSDKConfigMapName(&instance), Namespace: instance.Namespace}, configMap)
+	if err != nil {
+		t.Fatalf("get configMap: (%v)", err)
+	}
+
+	res, err = r.Reconcile(req)
+	if err == nil {
+		t.Error("expected an error when trying to update bind status")
+	}
+
+	// Check the result of reconciliation to make sure it has the desired state
+	if res.Requeue {
+		t.Error("reconcile Requeue unexpected")
+	}
+
+	// Check if has more than one configMap with the same Id
+	configMapList := &corev1.ConfigMapList{}
+	listOps := &client.ListOptions{}
+	listOps.InNamespace(instance.Namespace)
+	listOps.MatchingLabels(getLabelsToFetch(&instance))
+	err = r.client.List(context.TODO(), listOps, configMapList)
+	if err != nil {
+		t.Fatalf("error to get a list of configMaps: (%v)", err)
+	}
+
+	if len(configMapList.Items) > 1 {
+		t.Fatalf("more than one configmap was found which is not expected: (%v)", err)
+	}
+
+	res, err = r.Reconcile(req)
+	if err == nil {
+		t.Error("expected an error when trying to update bind status")
+	}
+
+	// Check the result of reconciliation to make sure it has the desired state
+	if res.Requeue {
+		t.Error("reconcile Requeue unexpected")
+	}
+}
+
+func TestReconcileMobileSecurityServiceApp_Reconcile_InvalidAppNamespace(t *testing.T) {
+
+	// objects to track in the fake client
+	objs := []runtime.Object{
+		&mssInstance,
+		&instanceInvalidNameSpace,
+		&route,
+	}
+
+	r := buildReconcileWithFakeClientWithMocks(objs, t)
+
+	// mock request to simulate Reconcile() being called on an event for a watched resource
+	req := reconcile.Request{
+		NamespacedName: types.NamespacedName{
+			Name:      instance.Name,
+			Namespace: instance.Namespace,
+		},
+	}
+
+	res, err := r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+
+	if res.Requeue {
+		t.Error("reconcile requeue request which is not expected")
+	}
+
+	configMap := &corev1.ConfigMap{}
+	err = r.client.Get(context.TODO(), types.NamespacedName{Name: getSDKConfigMapName(&instanceInvalidNameSpace), Namespace: instanceInvalidNameSpace.Namespace}, configMap)
+	if err == nil {
+		t.Error("Should not found the ConfigMap")
+	}
+}

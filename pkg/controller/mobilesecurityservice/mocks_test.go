@@ -11,8 +11,8 @@ import (
 var (
 	mssInstance = mobilesecurityservicev1alpha1.MobileSecurityService{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "mobile-security-service-app",
-			Namespace: "mobile-security-service-operator",
+			Name:      utils.MobileSecurityServiceCRName,
+			Namespace: utils.OperatorNamespaceForLocalEnv,
 		},
 		Spec: mobilesecurityservicev1alpha1.MobileSecurityServiceSpec{
 			Size:            1,
@@ -26,8 +26,8 @@ var (
 
 	mssInstance2 = mobilesecurityservicev1alpha1.MobileSecurityService{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "mobile-security-service-app",
-			Namespace: "mobile-security-service-operator-2",
+			Name:      utils.MobileSecurityServiceCRName,
+			Namespace: utils.OperatorNamespaceForLocalEnv + "2",
 		},
 		Spec: mobilesecurityservicev1alpha1.MobileSecurityServiceSpec{
 			Size:            1,

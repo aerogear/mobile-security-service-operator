@@ -10,8 +10,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
-//updateSDKConfigMapStatus returns error when status regards the ConfigMap resource could not be updated
-func (r *ReconcileMobileSecurityServiceApp) updateSDKConfigMapStatus(reqLogger logr.Logger, request reconcile.Request) (*corev1.ConfigMap, error) {
+//updateConfigMapStatus returns error when status regards the ConfigMap resource could not be updated
+func (r *ReconcileMobileSecurityServiceApp) updateConfigMapStatus(reqLogger logr.Logger, request reconcile.Request) (*corev1.ConfigMap, error) {
 	reqLogger.Info("Updating SDKConfigMap Status for the MobileSecurityServiceApp")
 
 	// Get the latest version of CR

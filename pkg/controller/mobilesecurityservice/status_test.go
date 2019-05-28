@@ -151,3 +151,46 @@ func TestReconcileMobileSecurityService_updateConfigMapStatus(t *testing.T) {
 		})
 	}
 }
+
+func TestReconcileMobileSecurityService_updateBindStatusWithInvalidNamespace(t *testing.T) {
+	type args struct {
+		instance *mobilesecurityservicev1alpha1.MobileSecurityService
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "should return without an error when updating status",
+			args: args{
+				instance: &mssInstance,
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			objs := []runtime.Object{
+				tt.args.instance,
+			}
+
+			r := buildReconcileWithFakeClientWithMocks(objs, t)
+
+			reqLogger := log.WithValues("Request.Namespace", tt.args.instance.Namespace, "Request.Name", tt.args.instance.Name)
+
+			// mock request to simulate Reconcile() being called on an event for a watched resource
+			req := reconcile.Request{
+				NamespacedName: types.NamespacedName{
+					Name:      mssInstance.Name,
+					Namespace: mssInstance.Namespace,
+				},
+			}
+
+			if err := r.updateStatusWithInvalidNamespace(reqLogger, req); (err != nil) != tt.wantErr {
+				t.Errorf("ReconcileMobileSecurityServiceApp.updateBindStatusWithInvalidNamespace() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}

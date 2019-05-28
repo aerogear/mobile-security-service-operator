@@ -89,7 +89,7 @@ func (r *ReconcileMobileSecurityServiceDB) update(obj runtime.Object, reqLogger 
 		reqLogger.Error(err, "Failed to update Object", "obj:", obj)
 		return err
 	}
-	reqLogger.Info("Object updated","obj:", obj)
+	reqLogger.Info("Object updated", "obj:", obj)
 	return nil
 }
 

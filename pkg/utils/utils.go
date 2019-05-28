@@ -21,15 +21,21 @@ const (
 	ProxyServiceInstanceName       = "mobile-security-service-proxy"
 	ApplicationServiceInstanceName = "mobile-security-service-application"
 	InitEndpoint                   = "/init"
+	ApiEndpoint                    = "/api"
 	// The MobileSecurityServiceCRName has the name of the CR which should not be changed.
 	MobileSecurityServiceCRName = "mobile-security-service"
 )
 
 var log = logf.Log.WithName("mobile-security-service-operator.utils")
 
-//GetPublicServiceAPIURL returns the public service URL API
-func GetPublicServiceAPIURL(route *routev1.Route, serviceInstance *mobilesecurityservicev1alpha1.MobileSecurityService) string {
+//GetInitPublicURL returns the public service init endpoint URL for the Rest Service
+func GetInitPublicURL(route *routev1.Route, serviceInstance *mobilesecurityservicev1alpha1.MobileSecurityService) string {
 	return fmt.Sprintf("%v://%v%v", serviceInstance.Spec.ClusterProtocol, route.Status.Ingress[0].Host, InitEndpoint)
+}
+
+//Return REST Service API
+func GetServiceAPIURL(mssInstance *mobilesecurityservicev1alpha1.MobileSecurityService) string {
+	return mssInstance.Spec.ClusterProtocol + "://" + ApplicationServiceInstanceName + ":" + fmt.Sprint(mssInstance.Spec.Port) + ApiEndpoint
 }
 
 //GetRouteName returns an string name with the name of the router

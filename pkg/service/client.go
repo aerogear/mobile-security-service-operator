@@ -12,7 +12,7 @@ import (
 )
 
 //DeleteAppFromServiceByRestAPI delete the app object in the service
-//var function declaration to allow for local test mocking 
+//var function declaration to allow for local test mocking
 var DeleteAppFromServiceByRestAPI = func(serviceAPI string, id string, reqLogger logr.Logger) error {
 	reqLogger.Info("Calling REST Service to DELETE app", "serviceAPI", serviceAPI, "App.id", id)
 	//Create the DELETE request
@@ -40,7 +40,7 @@ var DeleteAppFromServiceByRestAPI = func(serviceAPI string, id string, reqLogger
 }
 
 //CreateAppByRestAPI create the app object in the service
-//var function declaration to allow for local test mocking 
+//var function declaration to allow for local test mocking
 var CreateAppByRestAPI = func(serviceAPI string, app models.App, reqLogger logr.Logger) error {
 	reqLogger.Info("Calling Service to POST app", "serviceAPI", serviceAPI, "App", app)
 
@@ -125,7 +125,7 @@ func GetAppFromServiceByRestApi(serviceAPI string, appId string, reqLogger logr.
 }
 
 //UpdateAppNameByRestAPI will update name of the APP in the Service
-//var function declaration to allow for local test mocking 
+//var function declaration to allow for local test mocking
 var UpdateAppNameByRestAPI = func(serviceAPI string, app *models.App, reqLogger logr.Logger) error {
 
 	//Create the DELETE request
