@@ -21,6 +21,28 @@ var (
 		},
 	}
 
+	instanceNoAppName = mobilesecurityservicev1alpha1.MobileSecurityServiceApp{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "mobile-security-service",
+			Namespace: "mobile-security-service",
+		},
+		Spec: mobilesecurityservicev1alpha1.MobileSecurityServiceAppSpec{
+			AppName: "",
+			AppId:   "test-app-id",
+		},
+	}
+
+	instanceNoAppId = mobilesecurityservicev1alpha1.MobileSecurityServiceApp{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "mobile-security-service",
+			Namespace: "mobile-security-service",
+		},
+		Spec: mobilesecurityservicev1alpha1.MobileSecurityServiceAppSpec{
+			AppName: "test-app",
+			AppId:   "",
+		},
+	}
+
 	instanceInvalidName = mobilesecurityservicev1alpha1.MobileSecurityServiceApp{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "invalid",
