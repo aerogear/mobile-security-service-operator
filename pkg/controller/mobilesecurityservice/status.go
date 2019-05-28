@@ -45,6 +45,40 @@ func (r *ReconcileMobileSecurityService) updateStatus(reqLogger logr.Logger, con
 	return nil
 }
 
+// updateBindStatusWithInvalidNamespace returns error when status regards the all required resources could not be updated
+// DEPRECATED
+func (r *ReconcileMobileSecurityService) updateStatusWithInvalidNamespace(reqLogger logr.Logger, request reconcile.Request) error {
+	reqLogger.Info("Updating Bind App Status for the MobileSecurityServiceApp")
+
+	// Get the latest version of CR
+	instance, err := r.fetchInstance(reqLogger, request)
+	if err != nil {
+		return err
+	}
+
+	status := "Invalid Namespace"
+
+	//Update Bind CR Status with OK
+	if !reflect.DeepEqual(status, instance.Status.AppStatus) {
+		// Get the latest version of the CR in order to try to avoid errors when try to update the CR
+		instance, err := r.fetchInstance(reqLogger, request)
+		if err != nil {
+			return err
+		}
+
+		// Set the data
+		instance.Status.AppStatus = status
+
+		// Update the CR
+		err = r.client.Status().Update(context.TODO(), instance)
+		if err != nil {
+			reqLogger.Error(err, "Failed to update Status for the MobileSecurityService Bind")
+			return err
+		}
+	}
+	return nil
+}
+
 //updateConfigMapStatus returns error when status regards the ConfigMap resource could not be updated
 func (r *ReconcileMobileSecurityService) updateConfigMapStatus(reqLogger logr.Logger, request reconcile.Request) (*corev1.ConfigMap, error) {
 	reqLogger.Info("Updating ConfigMap Status for the MobileSecurityService")
