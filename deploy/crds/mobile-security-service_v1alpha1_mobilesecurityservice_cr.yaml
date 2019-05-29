@@ -1,3 +1,4 @@
+# This CR defines the specs of the Mobile Security Service which will be installed/managed by the Operator
 apiVersion: mobile-security-service.aerogear.com/v1alpha1
 kind: MobileSecurityService
 metadata:
@@ -10,9 +11,10 @@ spec:
   # The following properties will define the resources for the Mobile Security Service App deployment
   memoryLimit: "512Mi"
   memoryRequest: "512Mi"
+  # The clusterProtocol is required and used to generated the Public Host URL
   clusterProtocol: "http" # Options [http or https]
-  # The following values will be used to create the ConfigMap with the Environment Variables
-  # which will be used by thee Mobile Security Service App and Database
+  # The following values are used to create the ConfigMap and the Environment Variables which will use these values
+  # These values are used for both the Mobile Security Service and its Database
   databaseName: "mobile_security_service"
   databasePassword: "postgres"
   databaseUser: "postgresql"

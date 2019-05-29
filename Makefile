@@ -77,6 +77,8 @@ run-local:
 
 .PHONY: create-all
 create-all:
+	@echo Create Mobile Security Service Operator namespace ${NAMESPACE}:
+	- oc new-project ${NAMESPACE}
 	@echo Create Mobile Security Service Operator and Service in the namespace ${NAMESPACE}:
 	make create-oper
 	make create-service-and-db
@@ -91,8 +93,6 @@ delete-all:
 	- kubectl delete -f deploy/cluster_role_binding.yaml
 	- kubectl delete -f deploy/service_account.yaml
 	- kubectl delete -f deploy/operator.yaml
-	@echo Call command to uninstall the Monitor Service in the case of it be installed:
-	- make uninstall-service-monitor
 	- kubectl delete namespace ${NAMESPACE}
 
 .PHONY: create-oper
@@ -151,20 +151,20 @@ delete-db-only:
 	@echo Deleting Mobile Security Service Database only:
 	kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
 
-.PHONY: install-service-monitor
-install-service-monitor:
-	@echo Installing service monitor for integr8ly in ${NAMESPACE} :
-	- oc new-project ${NAMESPACE}
+.PHONY: install-monitoring
+install-monitoring:
+	@echo Installing service monitor in ${NAMESPACE} :
+	- oc project ${NAMESPACE}
 	- kubectl label namespace ${NAMESPACE} monitoring-key=middleware
 	- kubectl create -f deploy/monitor/service_monitor.yaml
 	- kubectl create -f deploy/monitor/operator_service.yaml
 	- kubectl create -f deploy/monitor/prometheus-rule.yaml
 	- kubectl create -f deploy/monitor/grafana-dashboard.yaml
 
-.PHONY: uninstall-service-monitor
-uninstall-service-monitor:
-	@echo Uninstalling monitor service for integr8ly from ${NAMESPACE} :
-	- oc new-project ${NAMESPACE}
+.PHONY: uninstall-monitoring
+uninstall-monitoring:
+	@echo Uninstalling monitor service from ${NAMESPACE} :
+	- oc project ${NAMESPACE}
 	- kubectl delete -f deploy/monitor/service_monitor.yaml
 	- kubectl delete -f deploy/monitor/operator_service.yaml
 	- kubectl delete -f deploy/monitor/prometheus-rule.yaml

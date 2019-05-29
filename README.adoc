@@ -86,7 +86,7 @@ To verify the installation has been successful run the following
 [source,shell]
 ----
 # check the project exists 
-$ oc project mobile-security-service-operator
+$ oc project mobile-security-service
 # check the pods are deployed
 $ oc get pods
 NAME                                                READY     STATUS    RESTARTS   AGE
@@ -144,8 +144,7 @@ $ make delete-all
 
 === Operator Namespace
 
-By using the make command `make create-all` the default namespace, e.g `mobile-security-service`, will be created and the operator will be installed on it. You are able to install the operator in another namespace as you wish,
-however, you need setup its roles (RCBA) to by applied on the namespace where the operator will be installed. The namespace name need to be changed in the link:./deploy/cluster_role_binding.yaml[Cluster Role Binding] file in the following line.
+By using the make command `make create-all` the default namespace, e.g `mobile-security-service`, will be created and the operator will be installed in it. You are able to install the operator in another namespace as you wish, however, you need setup its roles (RBAC) to by applied on the namespace where the operator will be installed. The namespace name need to be changed in the link:./deploy/cluster_role_binding.yaml[Cluster Role Binding] file in the following line.
 
 [source,yaml]
 ----
@@ -155,11 +154,11 @@ however, you need setup its roles (RCBA) to by applied on the namespace where th
 
 === Namespace to apply MobileSecurityServiceApp
 
-This operator will just working with the namespaces which are specified in the environment variable `APP_NAMESPACES` and the link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml[MobileSecurityServiceApp CR] which be applied in a NAMESPACE which was not defined on it will be ignored. See its configuration into the link:./deploy/operator.yaml[operator.yaml] file.
+Only namespaces specified in the environment variable `APP_NAMESPACES` can be used to apply Apps. If the link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml[MobileSecurityServiceApp CR] is applied to a namespace that is not specified in `APP_NAMESPACES` it will be ignored. Refer to configuration in the link:./deploy/operator.yaml[operator.yaml] file.
 
-IMPORTANT:The values should be informed split by `;`.
+IMPORTANT: The values should be split by `;`. E.g `mobile-security-service-apps;example-namespace-apps`
 
-NOTE: To run the project locally export the ENV VAR. E.g `export APP_NAMESPACES=mobile-security-service-apps`
+NOTE: To run the project locally export the ENV VAR. E.g. `export APP_NAMESPACES=mobile-security-service-apps`
 
 === Oauth Configuration
 
@@ -174,17 +173,19 @@ NOTE:
 * All values used in the default configuration are sourced from the config-map which is managed and created by the Operator. This config map will be created in the Operator namespace and its name is defined by the attribute `configMapName` in the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService CR].
 * If the name of this ConfigMap is not specified then the name of the Mobile Security Service instance will be used instead.
 
-=== Monitor Service (Metrics) for the Integr8ly project
+=== Monitoring Service (Metrics)
 
 The application-monitoring stack provisioned by the
 https://github.com/integr8ly/application-monitoring-operator[application-monitoring-operator] on https://github.com/integr8ly[Integr8ly]
-can be used to gather metrics from this operator. These metrics can be used ONLY by Integr8ly's application monitoring to generate Prometheus metrics, AlertManager alerts and a Grafana dashboard
+can be used to gather metrics from this operator. These metrics can be used by Integr8ly's application monitoring to generate Prometheus metrics, AlertManager alerts and a Grafana dashboard.
 
-Run the following commands if this project was installed with the make commands in the default namespace to enable this service.
+It is required that the https://github.com/integr8ly/grafana-operator[integr8ly/Grafana] and https://github.com/coreos/prometheus-operator[Prometheus] operators are installed. For further detail see https://github.com/integr8ly/application-monitoring-operator[integr8ly/application-monitoring-operator].
+
+The following commands will enable the monitoring service where the operator has been installed in the default namespace with the make commands.
 
 [source,shell]
 ----
-make install-service-monitor
+make install-monitoring
 ----
 
 Also, you are allowed to setup it manually as follows.
@@ -192,23 +193,34 @@ Also, you are allowed to setup it manually as follows.
 [source,shell]
 ----
 # Go to the operator namespace
-oc project mobile-security-service
 
-# Installation of ServiceMonitor
-kubectl label namespace mobile-security-service monitoring-key=middleware
-kubectl create -f deploy/monitor/service_monitor.yaml
-kubectl create -f deploy/monitor/operator_service.yaml
-
-# Add AlertManager rules to prometheus
-kubectl create -f deploy/monitor/prometheus-rule.yaml
-
-# Add Grafana dashboard
-kubectl create -f deploy/monitor/grafana-dashboard.yaml
+$ oc project mobile-security-service
 ----
 
-IMPORTANT: The link:./deploy/monitor/service_monitor.yaml[ServiceMonitor], link:./deploy/monitor/prometheus-rule.yaml[Prometheus Rules], link:./deploy/monitor/operator-service.yaml[Operator Service], and link:./deploy/monitor/grafana-dashboard[Grafana Dashboard] needs to be applied in the same namespace where the operator is installed.
+[source,shell]
+----
+# Installation of ServiceMonitor
 
-NOTE: The namespace is setup manually in this files as follows example from the link:./deploy/prometheus-rule.yaml[Prometheus Rules].
+$ kubectl label namespace mobile-security-service monitoring-key=middleware
+$ kubectl create -f deploy/monitor/service_monitor.yaml
+$ kubectl create -f deploy/monitor/operator_service.yaml
+----
+
+[source,shell]
+----
+# Add AlertManager rules to prometheus
+
+$ kubectl create -f deploy/monitor/prometheus-rule.yaml
+----
+
+[source,shell]
+----
+# Add Grafana dashboard
+
+$ kubectl create -f deploy/monitor/grafana-dashboard.yaml
+----
+
+IMPORTANT: The namespaces are setup manually in the files link:./deploy/monitor/service_monitor.yaml[ServiceMonitor], link:./deploy/monitor/prometheus-rule.yaml[Prometheus Rules], link:./deploy/monitor/operator-service.yaml[Operator Service], and link:./deploy/monitor/grafana-dashboard[Grafana Dashboard]. Following an example from the link:./deploy/prometheus-rule.yaml[Prometheus Rules]. You should replace them if the operator is not installed in the default namespace.
 
 [source,yaml]
 ----
@@ -217,6 +229,8 @@ NOTE: The namespace is setup manually in this files as follows example from the 
 
 [source,shell]
 ----
+
+NOTE:  `make uninstall-monitoring` will uninstall the Service.
 
 === Database image and parameters
 
@@ -447,8 +461,8 @@ NOTE: The image/tag used from https://github.com/aerogear/mobile-security-servic
 | `make push-latest`               | Used by CI to push image built by `make build-latest` to https://quay.io/repository/aerogear/mobile-security-service-operator[quay.io registry].
 | `make run-local`                 | Run the operator locally for development purposes.
 | `make debug-setup`               | Setup environment for debug proposes.
-| `make install-service-monitor`   | Install Service Monitor which just work with https://github.com/integr8ly in order to provide metrics
-| `make uninstall-service-monitor` | Uninstall Service Monitor which just work with https://github.com/integr8ly in order to provide metrics
+| `make install-monitoring`        | Install Monitoring Service in order to provide metrics
+| `make uninstall-monitoring`      | Uninstall Monitoring Service in order to provide metrics
 | `make vet`                       | Examines source code and reports suspicious constructs using https://golang.org/cmd/vet/[vet].
 | `make fmt`                       | Formats code using https://golang.org/cmd/gofmt/[gofmt].
 |===
