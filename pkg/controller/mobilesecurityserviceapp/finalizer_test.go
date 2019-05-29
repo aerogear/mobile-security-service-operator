@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
-	"github.com/aerogear/mobile-security-service-operator/pkg/models"
+	"github.com/aerogear/mobile-security-service/pkg/models"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes/scheme"

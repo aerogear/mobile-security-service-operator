@@ -3,12 +3,11 @@ package service
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/aerogear/mobile-security-service/pkg/models"
+	"github.com/go-logr/logr"
 	"io"
 	"net/http"
 	"strings"
-
-	"github.com/aerogear/mobile-security-service-operator/pkg/models"
-	"github.com/go-logr/logr"
 )
 
 //DeleteAppFromServiceByRestAPI delete the app object in the service
@@ -41,7 +40,7 @@ var DeleteAppFromServiceByRestAPI = func(serviceAPI string, id string, reqLogger
 
 //CreateAppByRestAPI create the app object in the service
 //var function declaration to allow for local test mocking
-var CreateAppByRestAPI = func(serviceAPI string, app models.App, reqLogger logr.Logger) error {
+var CreateAppByRestAPI = func(serviceAPI string, app *models.App, reqLogger logr.Logger) error {
 	reqLogger.Info("Calling Service to POST app", "serviceAPI", serviceAPI, "App", app)
 
 	// Create the object and parse for JSON

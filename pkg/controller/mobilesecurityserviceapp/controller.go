@@ -2,7 +2,7 @@ package mobilesecurityserviceapp
 
 import (
 	"context"
-	"github.com/aerogear/mobile-security-service-operator/pkg/models"
+	"github.com/aerogear/mobile-security-service/pkg/models"
 
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/service"
@@ -281,7 +281,7 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 	// Bind App in the Service by the REST API
 	// NOTE: If the app was soft deleted before it will make the required job as well
 	if app.ID == "" {
-		newApp := models.NewApp(instance.Spec.AppName, instance.Spec.AppId)
+		newApp := models.NewAppByNameAndAppID(instance.Spec.AppName, instance.Spec.AppId)
 		if err := service.CreateAppByRestAPI(serviceAPI, newApp, reqLogger); err != nil {
 			return reconcile.Result{}, err
 		}

@@ -6,8 +6,7 @@ import (
 	"testing"
 
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
-	"github.com/aerogear/mobile-security-service-operator/pkg/models"
-
+	"github.com/aerogear/mobile-security-service/pkg/models"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"

@@ -26,6 +26,14 @@
   revision = "de5bf2ad457846296e2031421a34e2568e304e35"
 
 [[projects]]
+  branch = "master"
+  digest = "1:18d64b96d42084bbab1dec49296e6092ff2b1a64e3f97fc111b031645c066da0"
+  name = "github.com/aerogear/mobile-security-service"
+  packages = ["pkg/models"]
+  pruneopts = "NT"
+  revision = "a3c3c7839266fa7ae48954982be0a018d2334423"
+
+[[projects]]
   digest = "1:680b63a131506e668818d630d3ca36123ff290afa0afc9f4be21940adca3f27d"
   name = "github.com/appscode/jsonpatch"
   packages = ["."]
@@ -925,6 +933,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/aerogear/mobile-security-service/pkg/models",
     "github.com/go-logr/logr",
     "github.com/go-openapi/spec",
     "github.com/openshift/api/route/v1",

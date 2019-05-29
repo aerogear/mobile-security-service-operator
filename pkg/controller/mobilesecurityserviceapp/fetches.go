@@ -5,8 +5,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
-	"github.com/aerogear/mobile-security-service-operator/pkg/models"
 	"github.com/aerogear/mobile-security-service-operator/pkg/service"
+	"github.com/aerogear/mobile-security-service/pkg/models"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"

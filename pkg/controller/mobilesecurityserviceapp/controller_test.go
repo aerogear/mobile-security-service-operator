@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
-	"github.com/aerogear/mobile-security-service-operator/pkg/models"
+	"github.com/aerogear/mobile-security-service/pkg/models"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -263,7 +263,7 @@ func TestReconcileMobileSecurityServiceApp_Reconcile(t *testing.T) {
 	}
 
 	// mock CreateAppByRestAPI http call
-	service.CreateAppByRestAPI = func(serviceAPI string, app models.App, reqLogger logr.Logger) error {
+	service.CreateAppByRestAPI = func(serviceAPI string, app *models.App, reqLogger logr.Logger) error {
 		return nil
 	}
 
@@ -405,7 +405,7 @@ func TestReconcileMobileSecurityServiceApp_Reconcile_UpdateName(t *testing.T) {
 	}
 
 	// mock CreateAppByRestAPI http call
-	service.CreateAppByRestAPI = func(serviceAPI string, app models.App, reqLogger logr.Logger) error {
+	service.CreateAppByRestAPI = func(serviceAPI string, app *models.App, reqLogger logr.Logger) error {
 		return nil
 	}
 
