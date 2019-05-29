@@ -156,10 +156,7 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 		return reconcile.Result{}, err
 	}
 
-	// FIXME: Check if is a valid namespace
-	// We should not checked if the namespace is valid or not. It is an workaround since currently is not possible watch/cache a List of Namespaces
-	// The impl to allow do it is done and merged in the master branch of the lib but not released in an stable version. It should be removed when this feature be impl.
-	// See the PR which we are working on to update the deps and have this feature: https://github.com/operator-framework/operator-sdk/pull/1388
+	// Ensure that the Service will be installed just in the same namespace of the operator
 	if isValidNamespace, err := utils.IsValidOperatorNamespace(instance.Namespace); err != nil || isValidNamespace == false {
 		// Stop reconcile
 		operatorNamespace, _ := k8sutil.GetOperatorNamespace()

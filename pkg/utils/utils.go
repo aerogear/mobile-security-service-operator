@@ -64,7 +64,6 @@ func GetAppNamespaces() (string, error) {
 }
 
 // IsValidAppNamespace return true when the namespace informed is declared in the ENV VAR APP_NAMESPACES
-// DEPRECATED
 func IsValidAppNamespace(namespace string) (bool, error) {
 	appNamespacesEnvVar, err := GetAppNamespaces()
 	if err != nil {
@@ -93,9 +92,7 @@ func IsValidAppNamespace(namespace string) (bool, error) {
 }
 
 // IsValidOperatorNamespace return true when the namespace informed is declared in the ENV VAR APP_NAMESPACES
-// DEPRECATED
 func IsValidOperatorNamespace(namespace string) (bool, error) {
-	//FIXME: this check is used to bypass validation of namespace.
 	ns, err := k8sutil.GetOperatorNamespace()
 	if err != nil {
 		//Return true for the local env and for the unit tests

@@ -95,7 +95,6 @@ func (r *ReconcileMobileSecurityServiceApp) updateBindStatus(serviceURL string, 
 }
 
 // updateBindStatusWithInvalidNamespace returns error when status regards the all required resources could not be updated
-// DEPRECATED
 func (r *ReconcileMobileSecurityServiceApp) updateBindStatusWithInvalidNamespace(reqLogger logr.Logger, request reconcile.Request) error {
 	reqLogger.Info("Updating Bind App Status for the MobileSecurityServiceApp")
 
