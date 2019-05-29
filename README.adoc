@@ -142,21 +142,41 @@ $ make delete-all
 
 == Configuration and Options
 
-=== Metrics
+=== Monitoring for the Integr8ly project
 
 The application-monitoring stack provisioned by the
-https://github.com/integr8ly/application-monitoring-operator[application-monitoring-operator]
-can be used to gather metrics from the operator here.  Once you have
-provisioned that (or the ServiceMonitor CRD at a minimum), it is configured by default with `make create-all` 
-you can run the following commands to configure it manually:
+https://github.com/integr8ly/application-monitoring-operator[application-monitoring-operator] on https://github.com/integr8ly[Integr8ly]
+can be used to gather metrics from the operator. These metrics can be used by Integr8ly's application monitoring to generate  Prometheus metrics, AlertManager alerts and a Grafana dashboard 
+You can run the following commands to install it manually:
 
 [source,shell]
 ----
+# Installation of ServiceMonitor
 kubectl label namespace mobile-security-service monitoring-key=middleware
-kubectl create -f deploy/service_monitor.yaml
+kubectl create -f deploy/service_monitor.yaml namespace mobile-security-service
 kubectl create -f deploy/operator_service.yaml namespace mobile-security-service
+
+# Add AlertManager rules to prometheus
+kubectl create -f deploy/prometheus-rule.yaml namespace mobile-security-service
+
+# Add Grafana dashboard 
+kubectl create -f deploy/grafana-dashboard.yaml namespace mobile-security-service
 ----
 
+As all resource are tied to the namespace mobile-security-service removing this project will remove the above resources however if you wish to remove manually 
+
+[source,shell]
+----
+# Delete ServiceMonitor
+kubectl delete -f deploy/service_monitor.yaml namespace mobile-security-service
+kubectl delete -f deploy/operator_service.yaml namespace mobile-security-service
+
+# Delete AlertManager rules to prometheus
+kubectl delete -f deploy/prometheus-rule.yaml namespace mobile-security-service
+
+# Delete Grafana dashboard 
+kubectl delete -f deploy/grafana-dashboard.yaml namespace mobile-security-service
+----
 
 === Oauth Configuration
 

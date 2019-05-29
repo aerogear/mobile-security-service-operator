@@ -84,7 +84,6 @@ create-all:
 .PHONY: delete-all
 delete-all:
 	@echo Delete Mobile Security Service Operator, Service and namespace ${NAMESPACE}:
-	- kubectl delete -f deploy/service_monitor.yaml
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
@@ -98,9 +97,6 @@ delete-all:
 create-oper:
 	@echo Create Mobile Security Service Operator:
 	- oc new-project ${NAMESPACE}
-	- kubectl label namespace ${NAMESPACE} monitoring-key=middleware
-	- kubectl create -f deploy/service_monitor.yaml
-	- kubectl create -f deploy/operator_service.yaml -n ${NAMESPACE}
 	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
 	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
 	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml
