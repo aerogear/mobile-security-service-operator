@@ -93,6 +93,8 @@ delete-all:
 	- kubectl delete -f deploy/cluster_role_binding.yaml
 	- kubectl delete -f deploy/service_account.yaml
 	- kubectl delete -f deploy/operator.yaml
+	@echo Call command to uninstall the Monitor Service in the case of it be installed:
+	- make uninstall-service-monitor
 	- kubectl delete namespace ${NAMESPACE}
 
 .PHONY: create-oper
