@@ -10,7 +10,6 @@ import (
 	"github.com/go-logr/logr"
 	routev1 "github.com/openshift/api/route/v1"
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
-	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -116,15 +115,8 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 
 	//Fetch the MobileSecurityService App instance
 	instance := &mobilesecurityservicev1alpha1.MobileSecurityServiceApp{}
-	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
+	instance, err := r.fetchInstance(reqLogger, request)
 	if err != nil {
-		instance, err = r.fetchInstance(reqLogger, request)
-		if errors.IsNotFound(err) {
-			// Return and don't create
-			reqLogger.Info("Mobile Security Service App resource not found. Ignoring since object must be deleted")
-			return reconcile.Result{}, nil
-		}
-		// Error reading the object - create the request.
 		reqLogger.Error(err, "Failed to get Mobile Security Service App")
 		return reconcile.Result{}, err
 	}
@@ -157,27 +149,16 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 	// GET MSS CR
 	r.client.Get(context.TODO(), types.NamespacedName{Name: utils.MobileSecurityServiceCRName, Namespace: operatorNamespace}, mssInstance)
 
-	//Get the REST Service Endpoint
+	// Get the REST Service Endpoint
 	serviceAPI := utils.GetServiceAPIURL(mssInstance)
 
-	//Check if the APP CR was marked to be deleted
-	isAppMarkedToBeDeleted := instance.GetDeletionTimestamp() != nil
-
-	// If the Service instance was not found and/or is marked to be deleted
-	// OR
-	// if the APP CR was marked to be deleted
-	if (isAppMarkedToBeDeleted && len(instance.GetFinalizers()) > 0) || mssInstance == nil || mssInstance.GetDeletionTimestamp() != nil {
-
-		// If the Service was deleted and/or marked to be deleted
-		if err := r.client.Get(context.TODO(), types.NamespacedName{Name: utils.MobileSecurityServiceCRName, Namespace: operatorNamespace}, mssInstance); err != nil || mssInstance.GetDeletionTimestamp() != nil {
+	// Check if has Conditionals to be deleted and perform the actions required to allow it.
+	if hasConditionsToBeDeleted(instance, mssInstance) {
+		// Try to fetch MSS and check if the Service was deleted and/or marked to be deleted
+		if r.isMobileSecurityServiceDeleted(operatorNamespace, mssInstance) {
 			reqLogger.Info("Mobile Security Service instance resource not found. Mobile Security Service Application is required to create the application")
 
-			//Remove finalizer
-			instance.SetFinalizers(nil)
-
-			//Update CR
-			err := r.client.Update(context.TODO(), instance)
-			if err != nil {
+			if err := r.removeFinalizerFromCR(instance); err != nil {
 				reqLogger.Error(err, "Failed to update MobileSecurityService App CR with finalizer")
 				return reconcile.Result{}, err
 			}
@@ -186,8 +167,8 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 			return reconcile.Result{}, nil
 		}
 
-		//If the CR was marked to be deleted before it finalizes the app need to be deleted from the Service
-		//Do request to get the app.ID to delete app
+		// If the CR was marked to be deleted before it finalizes the app need to be deleted from the Service
+		// Do request to get the app.ID to delete app
 		app, err := fetchBindAppRestServiceByAppID(serviceAPI, instance, reqLogger)
 		if err != nil {
 			return reconcile.Result{}, err
@@ -204,7 +185,7 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 		}
 
 		// Check if the finalizer criteria is met and remove finalizer from the CR
-		if err := r.removeFinalizer(serviceAPI, reqLogger, request); err != nil {
+		if err := r.handleFinalizer(serviceAPI, reqLogger, request); err != nil {
 			return reconcile.Result{}, err
 		}
 

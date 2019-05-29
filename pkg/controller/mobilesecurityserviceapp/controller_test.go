@@ -185,9 +185,12 @@ func TestReconcileMobileSecurityServiceApp_Reconcile_FetchInstance(t *testing.T)
 	}
 
 	res, err := r.Reconcile(req)
-	// should return without error or requeueing request if App is not found
-	if res.Requeue == true || err != nil {
-		t.Fatalf("returned unexpectedly after attempting to fetch instance")
+	if err == nil {
+		t.Error("Should fail since the instance has not a valid name")
+	}
+
+	if res.Requeue {
+		t.Error("reconcile requeue request which is not expected")
 	}
 }
 
@@ -221,9 +224,14 @@ func TestReconcileMobileSecurityServiceApp_Reconcile_Deletion(t *testing.T) {
 	}
 
 	res, err := r.Reconcile(req)
-	// should return without error or requeueing request if App is deleted
-	if res.Requeue == true || err != nil {
+
+	// should return without error and not requeue if App is deleted
+	if err != nil {
 		t.Fatalf("returned unexpectedly after attempting to delete app")
+	}
+
+	if res.Requeue {
+		t.Error("reconcile requeue request which is not expected")
 	}
 
 }
@@ -458,40 +466,5 @@ func TestReconcileMobileSecurityServiceApp_Reconcile_UpdateName(t *testing.T) {
 	// Check the result of reconciliation to make sure it has the desired state
 	if res.Requeue {
 		t.Error("reconcile Requeue unexpected")
-	}
-}
-
-func TestReconcileMobileSecurityServiceApp_Reconcile_InvalidAppNamespace(t *testing.T) {
-
-	// objects to track in the fake client
-	objs := []runtime.Object{
-		&mssInstance,
-		&instanceInvalidNameSpace,
-		&route,
-	}
-
-	r := buildReconcileWithFakeClientWithMocks(objs, t)
-
-	// mock request to simulate Reconcile() being called on an event for a watched resource
-	req := reconcile.Request{
-		NamespacedName: types.NamespacedName{
-			Name:      instance.Name,
-			Namespace: instance.Namespace,
-		},
-	}
-
-	res, err := r.Reconcile(req)
-	if err != nil {
-		t.Fatalf("reconcile: (%v)", err)
-	}
-
-	if res.Requeue {
-		t.Error("reconcile requeue request which is not expected")
-	}
-
-	configMap := &corev1.ConfigMap{}
-	err = r.client.Get(context.TODO(), types.NamespacedName{Name: getSDKConfigMapName(&instanceInvalidNameSpace), Namespace: instanceInvalidNameSpace.Namespace}, configMap)
-	if err == nil {
-		t.Error("Should not found the ConfigMap")
 	}
 }

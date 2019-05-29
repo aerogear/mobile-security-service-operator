@@ -310,8 +310,8 @@ func TestReconcileMobileSecurityServiceDB_Reconcile_NotFound(t *testing.T) {
 	}
 
 	res, err := r.Reconcile(req)
-	if err != nil {
-		t.Fatalf("reconcile: (%v)", err)
+	if err == nil {
+		t.Error("should fail since the instance do not exist in the <unknown> nammespace")
 	}
 
 	if res.Requeue {

@@ -8,7 +8,6 @@ import (
 	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"github.com/go-logr/logr"
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
-	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -133,15 +132,8 @@ func (r *ReconcileMobileSecurityServiceDB) Reconcile(request reconcile.Request) 
 
 	//Fetch the MobileSecurityService App instance
 	instance := &mobilesecurityservicev1alpha1.MobileSecurityServiceDB{}
-	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
+	instance, err := r.fetchInstance(reqLogger, request)
 	if err != nil {
-		instance, err = r.fetchInstance(reqLogger, request)
-		if errors.IsNotFound(err) {
-			// Return and don't create
-			reqLogger.Info("Mobile Security Service DB resource not found. Ignoring since object must be deleted")
-			return reconcile.Result{}, nil
-		}
-		// Error reading the object - create the request.
 		reqLogger.Error(err, "Failed to get Mobile Security Service DB")
 		return reconcile.Result{}, err
 	}

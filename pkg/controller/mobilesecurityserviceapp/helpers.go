@@ -1,9 +1,12 @@
 package mobilesecurityserviceapp
 
 import (
+	"context"
 	"encoding/json"
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/models"
+	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
+	"k8s.io/apimachinery/pkg/types"
 )
 
 const SdkConfigMapSufix = "-security"
@@ -37,4 +40,24 @@ func getConfigMapSDKForMobileSecurityService(m *mobilesecurityservicev1alpha1.Mo
 // return properties for the response SdkConfigMapSufix
 func getSDKConfigMapName(m *mobilesecurityservicev1alpha1.MobileSecurityServiceApp) string {
 	return m.Spec.AppName + SdkConfigMapSufix
+}
+
+// hasConditionsToBeDeleted will return true if the Service instance was not found and/or is marked to be deleted
+// OR
+// if the APP CR was marked to be deleted
+func hasConditionsToBeDeleted(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, mssInstance *mobilesecurityservicev1alpha1.MobileSecurityService) bool {
+	//Check if the APP CR was marked to be deleted
+	isAppMarkedToBeDeleted := instance.GetDeletionTimestamp() != nil
+	hasFinalizer := len(instance.GetFinalizers()) > 0
+	isMssInstanceDeleted := mssInstance == nil
+	isMssInstanceMarkedToBeDeleted := mssInstance.GetDeletionTimestamp() != nil
+	return (isAppMarkedToBeDeleted && hasFinalizer) || isMssInstanceDeleted || isMssInstanceMarkedToBeDeleted
+}
+
+// isMobileSecurityServiceDeleted return true if it is not found because was deleted and/or was marked to be deleted
+func (r *ReconcileMobileSecurityServiceApp) isMobileSecurityServiceDeleted(operatorNamespace string, mssInstance *mobilesecurityservicev1alpha1.MobileSecurityService) bool {
+	if err := r.client.Get(context.TODO(), types.NamespacedName{Name: utils.MobileSecurityServiceCRName, Namespace: operatorNamespace}, mssInstance); err != nil || mssInstance.GetDeletionTimestamp() != nil {
+		return true
+	}
+	return false
 }

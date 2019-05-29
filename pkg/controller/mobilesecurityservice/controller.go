@@ -149,9 +149,8 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 
 	//Fetch the MobileSecurityService instance
 	instance := &mobilesecurityservicev1alpha1.MobileSecurityService{}
-	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
+	instance, err := r.fetchInstance(reqLogger, request)
 	if err != nil {
-		instance, err = r.fetchInstance(reqLogger, request)
 		reqLogger.Error(err, "Failed to get Mobile Security Service ")
 		return reconcile.Result{}, err
 	}
