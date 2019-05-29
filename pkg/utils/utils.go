@@ -17,20 +17,25 @@ const (
 	// The namespaces should be informed split by ";".
 	AppNamespaceEnvVar = "APP_NAMESPACES"
 	// OperatorNamespaceForLocalEnv is valid and used just in the local env and for the tests.
-	OperatorNamespaceForLocalEnv   = "mobile-security-service-proxy"
+	OperatorNamespaceForLocalEnv   = "mobile-security-service"
 	ProxyServiceInstanceName       = "mobile-security-service-proxy"
 	ApplicationServiceInstanceName = "mobile-security-service-application"
 	InitEndpoint                   = "/init"
+	ApiEndpoint                    = "/api"
+	// The MobileSecurityServiceCRName has the name of the CR which should not be changed.
+	MobileSecurityServiceCRName = "mobile-security-service"
 )
-
-// The MobileSecurityServiceCRName has the name of the CR which should not be changed.
-const MobileSecurityServiceCRName = "mobile-security-service"
 
 var log = logf.Log.WithName("mobile-security-service-operator.utils")
 
-//GetPublicServiceAPIURL returns the public service URL API
-func GetPublicServiceAPIURL(route *routev1.Route, serviceInstance *mobilesecurityservicev1alpha1.MobileSecurityService) string {
+//GetInitPublicURL returns the public service init endpoint URL for the Rest Service
+func GetInitPublicURL(route *routev1.Route, serviceInstance *mobilesecurityservicev1alpha1.MobileSecurityService) string {
 	return fmt.Sprintf("%v://%v%v", serviceInstance.Spec.ClusterProtocol, route.Status.Ingress[0].Host, InitEndpoint)
+}
+
+//Return REST Service API
+func GetServiceAPIURL(mssInstance *mobilesecurityservicev1alpha1.MobileSecurityService) string {
+	return mssInstance.Spec.ClusterProtocol + "://" + ApplicationServiceInstanceName + ":" + fmt.Sprint(mssInstance.Spec.Port) + ApiEndpoint
 }
 
 //GetRouteName returns an string name with the name of the router
@@ -59,7 +64,6 @@ func GetAppNamespaces() (string, error) {
 }
 
 // IsValidAppNamespace return true when the namespace informed is declared in the ENV VAR APP_NAMESPACES
-// DEPRECATED
 func IsValidAppNamespace(namespace string) (bool, error) {
 	appNamespacesEnvVar, err := GetAppNamespaces()
 	if err != nil {
@@ -88,9 +92,7 @@ func IsValidAppNamespace(namespace string) (bool, error) {
 }
 
 // IsValidOperatorNamespace return true when the namespace informed is declared in the ENV VAR APP_NAMESPACES
-// DEPRECATED
 func IsValidOperatorNamespace(namespace string) (bool, error) {
-	//FIXME: this check is used to bypass validation of namespace.
 	ns, err := k8sutil.GetOperatorNamespace()
 	if err != nil {
 		//Return true for the local env and for the unit tests

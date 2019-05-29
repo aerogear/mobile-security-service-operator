@@ -60,7 +60,7 @@ create-app-ns:
 
 .PHONY: create-app
 create-app:
-	kubectl create -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml
+	kubectl apply -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml
 
 .PHONY: delete-app
 delete-app:
@@ -199,14 +199,10 @@ push-latest:
 
 .PHONY: debug-setup
 debug-setup:
-	@echo Exporting WATCH_NAMESPACE=default:
-	- export WATCH_NAMESPACE=default
-	@echo Create Namespace:
-	- oc new-project ${NAMESPACE}
-	@echo Installing the CRD:
-	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
-	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
-	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml
+	@echo Exporting env vars to run operator locally:
+	- . ./scripts/export_local_envvars.sh
+	@echo Installing ...
+	- make create-all
 
 .PHONY: vet
 vet:

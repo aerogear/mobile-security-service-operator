@@ -97,10 +97,10 @@ type ReconcileMobileSecurityService struct {
 func (r *ReconcileMobileSecurityService) update(obj runtime.Object, reqLogger logr.Logger) error {
 	err := r.client.Update(context.TODO(), obj)
 	if err != nil {
-		reqLogger.Error(err, "Failed to update Spec")
+		reqLogger.Error(err, "Failed to update Object", "obj:", obj)
 		return err
 	}
-	reqLogger.Info("Spec updated - return and create")
+	reqLogger.Info("Updated successfully", "obj:", obj)
 	return nil
 }
 
@@ -112,7 +112,7 @@ func (r *ReconcileMobileSecurityService) create(instance *mobilesecurityservicev
 	if err != nil {
 		reqLogger.Error(err, "Failed to create new ", "kind", kind, "Namespace", instance.Namespace)
 	}
-	reqLogger.Info("Created successfully - return and create", "kind", kind, "Namespace", instance.Namespace)
+	reqLogger.Info("Created successfully", "kind", kind, "Namespace", instance.Namespace)
 	return err
 }
 
@@ -156,10 +156,7 @@ func (r *ReconcileMobileSecurityService) Reconcile(request reconcile.Request) (r
 		return reconcile.Result{}, err
 	}
 
-	// FIXME: Check if is a valid namespace
-	// We should not checked if the namespace is valid or not. It is an workaround since currently is not possible watch/cache a List of Namespaces
-	// The impl to allow do it is done and merged in the master branch of the lib but not released in an stable version. It should be removed when this feature be impl.
-	// See the PR which we are working on to update the deps and have this feature: https://github.com/operator-framework/operator-sdk/pull/1388
+	// Ensure that the Service will be installed just in the same namespace of the operator
 	if isValidNamespace, err := utils.IsValidOperatorNamespace(instance.Namespace); err != nil || isValidNamespace == false {
 		// Stop reconcile
 		operatorNamespace, _ := k8sutil.GetOperatorNamespace()

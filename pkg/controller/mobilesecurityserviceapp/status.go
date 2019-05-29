@@ -10,8 +10,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
-//updateSDKConfigMapStatus returns error when status regards the ConfigMap resource could not be updated
-func (r *ReconcileMobileSecurityServiceApp) updateSDKConfigMapStatus(reqLogger logr.Logger, request reconcile.Request) (*corev1.ConfigMap, error) {
+//updateConfigMapStatus returns error when status regards the ConfigMap resource could not be updated
+func (r *ReconcileMobileSecurityServiceApp) updateConfigMapStatus(reqLogger logr.Logger, request reconcile.Request) (*corev1.ConfigMap, error) {
 	reqLogger.Info("Updating SDKConfigMap Status for the MobileSecurityServiceApp")
 
 	// Get the latest version of CR
@@ -21,7 +21,7 @@ func (r *ReconcileMobileSecurityServiceApp) updateSDKConfigMapStatus(reqLogger l
 	}
 
 	// Get SDKConfigMap object
-	SDKConfigMapStatus, err := r.fetchSDKConfigMap(reqLogger, instance)
+	SDKConfigMapStatus, err := r.fetchConfigMap(reqLogger, instance)
 	if err != nil {
 		reqLogger.Error(err, "Failed to get SDKConfigMap for Status", "MobileSecurityServiceApp.Namespace", instance.Namespace, "MobileSecurityServiceApp.Name", instance.Name)
 		return SDKConfigMapStatus, err
@@ -95,7 +95,6 @@ func (r *ReconcileMobileSecurityServiceApp) updateBindStatus(serviceURL string, 
 }
 
 // updateBindStatusWithInvalidNamespace returns error when status regards the all required resources could not be updated
-// DEPRECATED
 func (r *ReconcileMobileSecurityServiceApp) updateBindStatusWithInvalidNamespace(reqLogger logr.Logger, request reconcile.Request) error {
 	reqLogger.Info("Updating Bind App Status for the MobileSecurityServiceApp")
 

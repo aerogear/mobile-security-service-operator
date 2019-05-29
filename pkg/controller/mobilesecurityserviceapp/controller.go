@@ -2,7 +2,7 @@ package mobilesecurityserviceapp
 
 import (
 	"context"
-	"github.com/aerogear/mobile-security-service-operator/pkg/models"
+	"github.com/aerogear/mobile-security-service/pkg/models"
 
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/service"
@@ -62,6 +62,17 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 
 var _ reconcile.Reconciler = &ReconcileMobileSecurityServiceApp{}
 
+//Update the factory object and requeue
+func (r *ReconcileMobileSecurityServiceApp) delete(obj runtime.Object, reqLogger logr.Logger) error {
+	err := r.client.Delete(context.TODO(), obj)
+	if err != nil {
+		reqLogger.Error(err, "Failed to delete obj", "obj:", obj)
+		return err
+	}
+	reqLogger.Info("Deleted successfully", "obj:", obj)
+	return nil
+}
+
 //ReconcileMobileSecurityServiceApp reconciles a MobileSecurityServiceApp object
 type ReconcileMobileSecurityServiceApp struct {
 	// This client, initialized using mgr.Client() above, is a split client
@@ -78,7 +89,7 @@ func (r *ReconcileMobileSecurityServiceApp) create(instance *mobilesecurityservi
 	if err != nil {
 		reqLogger.Error(err, "Failed to create new ", "kind", kind, "Instance.Namespace", instance.Namespace, "Instance.Name", instance.Name)
 	}
-	reqLogger.Info("Created successfully - return and create", "kind", kind, "Instance.Namespace", instance.Namespace, "Instance.Name", instance.Name)
+	reqLogger.Info("Created successfully", "kind", kind, "Instance.Namespace", instance.Namespace, "Instance.Name", instance.Name)
 	return err
 }
 
@@ -118,10 +129,7 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 		return reconcile.Result{}, err
 	}
 
-	// FIXME: Check if is a valid namespace
-	// We should not checked if the namespace is valid or not. It is an workaround since currently is not possible watch/cache a List of Namespaces
-	// The impl to allow do it is done and merged in the master branch of the lib but not released in an stable version. It should be removed when this feature be impl.
-	// See the PR which we are working on to update the deps and have this feature: https://github.com/operator-framework/operator-sdk/pull/1388
+	// Ensure that the APP CR will be installed and performed just in the namespaces setup in the ENV VAR APP NAMESPACES
 	if isValidNamespace, err := utils.IsValidAppNamespace(instance.Namespace); err != nil || isValidNamespace == false {
 		// Stop reconcile
 		envVar, _ := utils.GetAppNamespaces()
@@ -136,7 +144,6 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 	}
 
 	reqLogger.Info("Valid namespace for MobileSecurityServiceApp", "Namespace", request.Namespace)
-
 	reqLogger.Info("Checking for service instance ...")
 	mssInstance := &mobilesecurityservicev1alpha1.MobileSecurityService{}
 
@@ -151,11 +158,15 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 	r.client.Get(context.TODO(), types.NamespacedName{Name: utils.MobileSecurityServiceCRName, Namespace: operatorNamespace}, mssInstance)
 
 	//Get the REST Service Endpoint
-	serviceAPI := service.GetServiceAPIURL(mssInstance)
+	serviceAPI := utils.GetServiceAPIURL(mssInstance)
 
 	//Check if the APP CR was marked to be deleted
 	isAppMarkedToBeDeleted := instance.GetDeletionTimestamp() != nil
-	if isAppMarkedToBeDeleted && len(instance.GetFinalizers()) > 0 {
+
+	// If the Service instance was not found and/or is marked to be deleted
+	// OR
+	// if the APP CR was marked to be deleted
+	if (isAppMarkedToBeDeleted && len(instance.GetFinalizers()) > 0) || mssInstance == nil || mssInstance.GetDeletionTimestamp() != nil {
 
 		// If the Service was deleted and/or marked to be deleted
 		if err := r.client.Get(context.TODO(), types.NamespacedName{Name: utils.MobileSecurityServiceCRName, Namespace: operatorNamespace}, mssInstance); err != nil || mssInstance.GetDeletionTimestamp() != nil {
@@ -201,7 +212,7 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 		return reconcile.Result{}, nil
 	}
 
-	if !hasMandatorySpecs(instance, mssInstance, reqLogger) {
+	if !hasMandatorySpecs(instance, reqLogger) {
 		//Stop reconcile since it has not the mandatory specs
 		return reconcile.Result{}, nil
 	}
@@ -219,13 +230,43 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 	}
 
 	// Get the Public Service API URL which will be used to build the SDKConfigMap json
-	publicServiceURLAPI := utils.GetPublicServiceAPIURL(route, mssInstance)
+	publicServiceURLAPI := utils.GetInitPublicURL(route, mssInstance)
 
-	//Check if ConfigMap for the app exist, if not create one.
-	if _, err := r.fetchSDKConfigMap(reqLogger, instance); err != nil {
+	reqLogger.Info("Checking if the configMap already exists ...")
+	// Check if ConfigMap for the app exist, if not create one.
+	if _, err := r.fetchConfigMap(reqLogger, instance); err != nil {
 		if err := r.create(instance, ConfigMap, publicServiceURLAPI, reqLogger, request); err != nil {
 			return reconcile.Result{}, err
 		}
+	}
+
+	reqLogger.Info("Checking if a configMap for the same appId already exists with another name ...")
+	// Check if has already a confgMap for the same appId, if yes and the name is not the same then remove it
+	if list, err := r.fetchConfigMapListByLabels(reqLogger, instance); err == nil && len(list.Items) > 0 {
+		for i := 0; i < len(list.Items); i++ {
+			cmItem := list.Items[i]
+
+			// If found a ConfigMap with the same appID but different name then remove.
+			if cmItem.Name != getSDKConfigMapName(instance) {
+				if err := r.delete(&cmItem, reqLogger); err != nil {
+					return reconcile.Result{}, err
+				}
+			}
+		}
+	}
+
+	reqLogger.Info("Checking if has more than one configMap for the same appId ...")
+	//Ensure that it has always just one configMap for each appId
+	if list, err := r.fetchConfigMapListByLabels(reqLogger, instance); err == nil && len(list.Items) > 1 {
+		// Remove all and leave just one
+		for i := 0; i < len(list.Items)-1; i++ {
+			cmItem := list.Items[i]
+			if err := r.delete(&cmItem, reqLogger); err != nil {
+				return reconcile.Result{}, err
+			}
+		}
+		//Requeu in order to do a full validation
+		return reconcile.Result{Requeue: true}, nil
 	}
 
 	// Fetch app
@@ -237,7 +278,7 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 	// Bind App in the Service by the REST API
 	// NOTE: If the app was soft deleted before it will make the required job as well
 	if app.ID == "" {
-		newApp := models.NewApp(instance.Spec.AppName, instance.Spec.AppId)
+		newApp := models.NewAppByNameAndAppID(instance.Spec.AppName, instance.Spec.AppId)
 		if err := service.CreateAppByRestAPI(serviceAPI, newApp, reqLogger); err != nil {
 			return reconcile.Result{}, err
 		}
@@ -264,7 +305,7 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 	}
 
 	//Update status for SDKConfigMap
-	SDKConfigMapStatus, err := r.updateSDKConfigMapStatus(reqLogger, request)
+	SDKConfigMapStatus, err := r.updateConfigMapStatus(reqLogger, request)
 	if err != nil {
 		return reconcile.Result{}, err
 	}

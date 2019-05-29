@@ -432,3 +432,77 @@ func TestReconcileMobileSecurityService_Reconcile_UnknownNamespace(t *testing.T)
 		t.Fatalf("expected not to find namespace '%v'", namespace)
 	}
 }
+
+func TestReconcileMobileSecurityService_Reconcile_ReplicaSize(t *testing.T) {
+
+	// objects to track in the fake client
+	objs := []runtime.Object{
+		&mssInstance2,
+	}
+
+	r := buildReconcileWithFakeClientWithMocks(objs, t)
+
+	// mock request to simulate Reconcile() being called on an event for a watched resource
+	req := reconcile.Request{
+		NamespacedName: types.NamespacedName{
+			Name:      mssInstance2.Name,
+			Namespace: mssInstance2.Namespace,
+		},
+	}
+
+	res, err := r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+
+	// Check the result of reconciliation to make sure it has the desired state
+	if !res.Requeue {
+		t.Error("reconcile did not requeue request as expected")
+	}
+
+	// check if the deployment has been created
+	dep := &v1beta1.Deployment{}
+	err = r.client.Get(context.TODO(), req.NamespacedName, dep)
+	if err != nil {
+		t.Fatalf("get deployment: (%v)", err)
+	}
+
+	// Check if the quantity of Replicas for this deployment is equals the specification
+	dsize := *dep.Spec.Replicas
+	if dsize != mssInstance2.Spec.Size {
+		t.Errorf("dep size (%d) is not the expected size (%d)", dsize, mssInstance2.Spec.Size)
+	}
+
+	res, err = r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+
+	//Mock Replicas wrong size
+	size := int32(3)
+	dep.Spec.Replicas = &size
+
+	// Update
+	err = r.client.Update(context.TODO(), dep)
+	if err != nil {
+		t.Fatalf("fails when ttry to update dep replicas: (%v)", err)
+	}
+
+	_, err = r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+
+	// check if the deployment has been created
+	dep = &v1beta1.Deployment{}
+	err = r.client.Get(context.TODO(), req.NamespacedName, dep)
+	if err != nil {
+		t.Fatalf("get deployment: (%v)", err)
+	}
+
+	// Check if the quantity of Replicas for this deployment is equals the specification
+	if *dep.Spec.Replicas != mssInstance2.Spec.Size {
+		t.Errorf("dep size (%d) is not the expected size (%d)", dsize, mssInstance2.Spec.Size)
+	}
+
+}

@@ -60,7 +60,7 @@ required = [
   name = "github.com/operator-framework/operator-sdk"
   # The version rule is used for a specific release and the master branch for in between releases.
   # branch = "master" #osdk_branch_annotation
-  version = "=v0.7.0" #osdk_version_annotation
+  version = "=v0.8.1" #osdk_version_annotation
 
 [prune]
   go-tests = true
@@ -77,3 +77,7 @@ required = [
 [[constraint]]
   branch = "master"
   name = "github.com/openshift/api"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/aerogear/mobile-security-service"

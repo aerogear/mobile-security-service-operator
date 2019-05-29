@@ -5,7 +5,6 @@ import (
 
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
-	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 )
@@ -44,8 +43,7 @@ func (r *ReconcileMobileSecurityServiceDB) hasAppConfigMap(m *mobilesecurityserv
 
 	//Looking for the configMap created by the service instance
 	configMap := &corev1.ConfigMap{}
-	operatorNamespace, _ := k8sutil.GetOperatorNamespace()
-	err := r.client.Get(context.TODO(), types.NamespacedName{Name: utils.GetConfigMapName(serviceInstance), Namespace: operatorNamespace}, configMap)
+	err := r.client.Get(context.TODO(), types.NamespacedName{Name: utils.GetConfigMapName(serviceInstance), Namespace: m.Namespace}, configMap)
 	if err != nil {
 		return false
 	}

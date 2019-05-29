@@ -396,7 +396,7 @@ NOTE: The image/tag used from https://github.com/aerogear/mobile-security-servic
 | `make delete-service-only`       | Delete Mobile Security Service App only.
 | `make create-db-only`            | Create Mobile Security Service Database without its application.
 | `make delete-db-only`            | Delete Mobile Security Service Database only.
-| `make create-app`                | Apply the App CR. (Create/Update app in the Service and add SKD ConfigMap).
+| `make create-app`                | Apply the App CR . (Create/Update app in the cluster and Service, also creates ConfigMap with the public host endpoint for the init config in the mobile device(SDK) ).
 | `make delete-app`                | Delete the App CR. (Delete app from the Service and SDKConfigMap).
 | `make build-dev`                 | Build operator dev image with tag `quay.io/aerogear/mobile-security-service-operator:<version>-dev`.
 | `make push-dev`                  | Push operator dev image to https://quay.io/repository/aerogear/mobile-security-service-operator[quay.io].

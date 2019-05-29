@@ -12,7 +12,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes/scheme"
-	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
@@ -49,7 +48,7 @@ func TestReconcileMobileSecurityServiceDB_update(t *testing.T) {
 
 			objs := []runtime.Object{tt.fields.createdInstance}
 
-			r := newReconcilerWithFakeClient(objs)
+			r := buildReconcileWithFakeClientWithMocks(objs, t)
 
 			reqLogger := log.WithValues("Request.Namespace", tt.fields.instanceToUpdate.Namespace, "Request.Name", tt.fields.createdInstance.Name)
 
@@ -109,7 +108,7 @@ func TestReconcileMobileSecurityServiceDB_create(t *testing.T) {
 
 			objs := []runtime.Object{tt.args.instance}
 
-			r := newReconcilerWithFakeClient(objs)
+			r := buildReconcileWithFakeClientWithMocks(objs, t)
 
 			reqLogger := log.WithValues("Request.Namespace", tt.args.instance.Namespace, "Request.Name", tt.args.instance.Name)
 
@@ -200,7 +199,7 @@ func TestReconcileMobileSecurityServiceDB_buildFactory(t *testing.T) {
 
 			objs := []runtime.Object{tt.args.instance}
 
-			r := newReconcilerWithFakeClient(objs)
+			r := buildReconcileWithFakeClientWithMocks(objs, t)
 
 			reqLogger := log.WithValues("Request.Namespace", tt.args.instance.Namespace, "Request.Name", tt.args.instance.Name)
 
@@ -228,7 +227,7 @@ func TestReconcileMobileSecurityServiceDB_Reconcile(t *testing.T) {
 		&instanceOne,
 	}
 
-	r := newReconcilerWithFakeClient(objs)
+	r := buildReconcileWithFakeClientWithMocks(objs, t)
 
 	// mock request to simulate Reconcile() being called on an event for a watched resource
 	req := reconcile.Request{
@@ -250,7 +249,7 @@ func TestReconcileMobileSecurityServiceDB_Reconcile(t *testing.T) {
 	}
 
 	if !res.Requeue {
-		t.Error("reconcile did not requeue request as expected")
+		t.Error("did not expect request to requeue")
 	}
 
 	res, err = r.Reconcile(req)
@@ -265,7 +264,7 @@ func TestReconcileMobileSecurityServiceDB_Reconcile(t *testing.T) {
 	}
 
 	if res.Requeue {
-		t.Error("reconcile did not requeue request as expected")
+		t.Error("did not expect request to requeue")
 	}
 
 	res, err = r.Reconcile(req)
@@ -280,7 +279,7 @@ func TestReconcileMobileSecurityServiceDB_Reconcile(t *testing.T) {
 	}
 
 	if res.Requeue {
-		t.Error("reconcile did not requeue request as expected")
+		t.Error("did not expect request to requeue")
 	}
 
 	res, err = r.Reconcile(req)
@@ -300,7 +299,7 @@ func TestReconcileMobileSecurityServiceDB_Reconcile_NotFound(t *testing.T) {
 		&instanceOne,
 	}
 
-	r := newReconcilerWithFakeClient(objs)
+	r := buildReconcileWithFakeClientWithMocks(objs, t)
 
 	// mock request to simulate Reconcile() being called on an event for a watched resource
 	req := reconcile.Request{
@@ -320,14 +319,150 @@ func TestReconcileMobileSecurityServiceDB_Reconcile_NotFound(t *testing.T) {
 	}
 }
 
-// Creates a new reconciler with a fake client
-func newReconcilerWithFakeClient(objs []runtime.Object) *ReconcileMobileSecurityServiceDB {
-	s := scheme.Scheme
+func TestReconcileMobileSecurityServiceDB_Reconcile_UsingMSSConfigMapToCreateEnvVars(t *testing.T) {
 
-	s.AddKnownTypes(v1alpha1.SchemeGroupVersion, &v1alpha1.MobileSecurityServiceDB{})
+	// objects to track in the fake client
+	objs := []runtime.Object{
+		&instanceOne,
+		&serviceInstance,
+		&configMap,
+	}
 
-	// create a fake client to mock API calls
-	cl := fake.NewFakeClient(objs...)
-	// create a ReconcileMobileSecurityService object with the scheme and fake client
-	return &ReconcileMobileSecurityServiceDB{client: cl, scheme: s}
+	r := buildReconcileWithFakeClientWithMocks(objs, t)
+
+	// mock request to simulate Reconcile() being called on an event for a watched resource
+	req := reconcile.Request{
+		NamespacedName: types.NamespacedName{
+			Name:      instanceOne.Name,
+			Namespace: instanceOne.Namespace,
+		},
+	}
+
+	_ = r.client.Create(context.TODO(), &serviceInstance)
+	_ = r.client.Create(context.TODO(), &configMap)
+
+	res, err := r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+
+	deployment := &v1beta1.Deployment{}
+	err = r.client.Get(context.TODO(), req.NamespacedName, deployment)
+	if err != nil {
+		t.Fatalf("get deployment: (%v)", err)
+	}
+
+	res, err = r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+
+	if deployment.Spec.Template.Spec.Containers[0].Env[0].ValueFrom == nil {
+		t.Error("deployment envvar did not came from service instance config map")
+	}
+
+	if deployment.Spec.Template.Spec.Containers[0].Env[0].ValueFrom.ConfigMapKeyRef.Name != configMap.Name {
+		t.Fatalf("deployment envvar did not came from service instance config map: (%v,%v)", deployment.Spec.Template.Spec.Containers[0].Env[0].ValueFrom.ConfigMapKeyRef.Name, configMap.Name)
+	}
+
+	if res.Requeue {
+		t.Error("reconcile did not requeue request as expected")
+	}
+
+	res, err = r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+
+	service := &corev1.Service{}
+	err = r.client.Get(context.TODO(), req.NamespacedName, service)
+	if err != nil {
+		t.Fatalf("get service: (%v)", err)
+	}
+
+	if res.Requeue {
+		t.Error("did not expect request to requeue")
+	}
+
+	res, err = r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+
+	pvc := &corev1.PersistentVolumeClaim{}
+	err = r.client.Get(context.TODO(), req.NamespacedName, pvc)
+	if err != nil {
+		t.Fatalf("get pvc: (%v)", err)
+	}
+
+	if res.Requeue {
+		t.Error("did not expect request to requeue")
+	}
+
+	res, err = r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+
+	if res.Requeue {
+		t.Error("did not expect request to requeue")
+	}
+}
+
+func TestReconcileMobileSecurityServiceDB_Reconcile_ReplicasSizes(t *testing.T) {
+
+	// objects to track in the fake client
+	objs := []runtime.Object{
+		&instanceOne,
+	}
+
+	r := buildReconcileWithFakeClientWithMocks(objs, t)
+
+	// mock request to simulate Reconcile() being called on an event for a watched resource
+	req := reconcile.Request{
+		NamespacedName: types.NamespacedName{
+			Name:      instanceOne.Name,
+			Namespace: instanceOne.Namespace,
+		},
+	}
+
+	res, err := r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+
+	deployment := &v1beta1.Deployment{}
+	err = r.client.Get(context.TODO(), req.NamespacedName, deployment)
+	if err != nil {
+		t.Fatalf("get deployment: (%v)", err)
+	}
+
+	if !res.Requeue {
+		t.Error("did not expect request to requeue")
+	}
+
+	//Mock Replicas wrong size
+	size := int32(3)
+	deployment.Spec.Replicas = &size
+
+	// Update
+	err = r.client.Update(context.TODO(), deployment)
+	if err != nil {
+		t.Fatalf("fails when ttry to update deployment replicas: (%v)", err)
+	}
+
+	res, err = r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+
+	deployment = &v1beta1.Deployment{}
+	err = r.client.Get(context.TODO(), req.NamespacedName, deployment)
+	if err != nil {
+		t.Fatalf("get deployment: (%v)", err)
+	}
+
+	if *deployment.Spec.Replicas != instanceOne.Spec.Size {
+		t.Error("Replicas size was not respected")
+	}
 }
