@@ -122,7 +122,7 @@ func TestReconcileMobileSecurityServiceApp_removeFinalizer(t *testing.T) {
 				return &app, nil
 			}
 
-			if err := r.removeFinalizer("http://mobile-security-service-application:1234/api", reqLogger, tt.args.request); (err != nil) != tt.wantErr {
+			if err := r.handleFinalizer("http://mobile-security-service-application:1234/api", reqLogger, tt.args.request); (err != nil) != tt.wantErr {
 				t.Errorf("ReconcileMobileSecurityService.updateStatus() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

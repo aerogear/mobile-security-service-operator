@@ -33,8 +33,8 @@ func (r *ReconcileMobileSecurityServiceApp) addFinalizer(reqLogger logr.Logger, 
 	return nil
 }
 
-//removeFinalizer returns error when the app still not deleted in the REST Service
-func (r *ReconcileMobileSecurityServiceApp) removeFinalizer(serviceAPI string, reqLogger logr.Logger, request reconcile.Request) error {
+//handleFinalizer returns error when the app still not deleted in the REST Service
+func (r *ReconcileMobileSecurityServiceApp) handleFinalizer(serviceAPI string, reqLogger logr.Logger, request reconcile.Request) error {
 
 	// Get the latest version of CR
 	instance, err := r.fetchInstance(reqLogger, request)
@@ -49,15 +49,22 @@ func (r *ReconcileMobileSecurityServiceApp) removeFinalizer(serviceAPI string, r
 			return err
 		}
 
-		//Remove finalizer
-		instance.SetFinalizers(nil)
-
-		//Update CR
-		err := r.client.Update(context.TODO(), instance)
-		if err != nil {
+		if err := r.removeFinalizerFromCR(instance); err != nil {
 			reqLogger.Error(err, "Failed to update MobileSecurityService App CR with finalizer")
 			return err
 		}
+	}
+	return nil
+}
+
+func (r *ReconcileMobileSecurityServiceApp) removeFinalizerFromCR(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp) error {
+	//Remove finalizer
+	instance.SetFinalizers(nil)
+
+	//Update CR
+	err := r.client.Update(context.TODO(), instance)
+	if err != nil {
+		return err
 	}
 	return nil
 }
