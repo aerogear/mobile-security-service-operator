@@ -86,7 +86,7 @@ To verify the installation has been successful run the following
 [source,shell]
 ----
 # check the project exists 
-$ oc project mobile-security-service-operator
+$ oc project mobile-security-service
 # check the pods are deployed
 $ oc get pods
 NAME                                                READY     STATUS    RESTARTS   AGE
@@ -226,8 +226,8 @@ NOTE: The operator, application and database will be installed in the namespace 
 +
 |===
 | *Resource*    | *Description*
-| link:./pkg/controller/mobilesecurityservice/configmaps.go[configmaps.go]             | Define the ConfigMap resources required for the Mobile Security Service Application and its Database. It will create the mobile-security-service-app` which map the values used in the Environment Variables of both.
-| link:./pkg/controller/mobilesecurityservice/deployments.go[deployments.go]           | Define the Deployment resource of Mobile Security Service Application. (E.g container and resources definitions)
+| link:./pkg/controller/mobilesecurityservice/configmaps.go[configmaps.go]             | Define the ConfigMap resources required for the Mobile Security Service Application and its Database. It will create the `mobile-security-service-app` which map the values used in the Environment Variables of both.
+| link:./pkg/controller/mobilesecurityservice/deployments.go[deployments.go]           | Define the Deployment resource of Mobile Security Service Application, e.g. container and resources definitions.
 | link:./pkg/controller/mobilesecurityservice/route.go[route.go]                       | Define the route resource required to expose the Mobile Security Service (REST Service and UI).
 | link:./pkg/controller/mobilesecurityservice/services.go[services.go]                 | Define the Service resource of Mobile Security Service Application.
 |===
@@ -245,7 +245,7 @@ NOTE: The operator, application and database will be installed in the namespace 
 +
 |===
 | *Resource*    | *Description*
-| link:./pkg/controller/mobilesecurityserviceapp/configmaps.go[configmaps.go]           | Define the ConfigMap resources managed by the Bind. It creates the ConfigMap with the config JSON for the SDK and the app by the REST API. Note that each application has our own Bind CR applied.
+| link:./pkg/controller/mobilesecurityserviceapp/configmaps.go[configmaps.go]           | Define the ConfigMap resources managed by the Bind. It creates the ConfigMap with the config JSON for the SDK and the app with the REST API. Note that each application has our own Bind CR applied.
 |===
 
 ==== Status Definition per Types
@@ -257,11 +257,11 @@ NOTE: The operator, application and database will be installed in the namespace 
 | `appStatus` | For this status is expected the value `OK` which means that all required Kubernetes/OCP objects are created.
 | `configMapName` | Name of the configMap created with the Environment Variables.
 | `deploymentName` | Name of the deployment object created for the App.
-| `deploymentStatus` | Deployment Status from ks8 API. ( https://kubernetes.io/docs/reference/federation/extensions/v1beta1/definitions/#_v1beta1_deploymentstatus[v1beta1.DeploymentStatus] )
+| `deploymentStatus` | Deployment Status from ks8 API (https://kubernetes.io/docs/reference/federation/extensions/v1beta1/definitions/#_v1beta1_deploymentstatus[v1beta1.DeploymentStatus]).
 | `serviceName` | Name of the service object created for the App.
-| `serviceStatus` | Deployment Status from ks8 API. ( https://kubernetes.io/docs/reference/federation/v1/definitions/#_v1_servicestatus[v1.ServiceStatus] )
+| `serviceStatus` | Deployment Status from ks8 API (https://kubernetes.io/docs/reference/federation/v1/definitions/#_v1_servicestatus[v1.ServiceStatus]).
 | `routeName` | Name of the route object created for the App.
-| `routeStatus` | Route Status from OCP API. ( https://docs.openshift.com/container-platform/3.7/rest_api/apis-route.openshift.io/v1.Route.html#object-schema[v1.Route] )
+| `routeStatus` | Route Status from OCP API (https://docs.openshift.com/container-platform/3.7/rest_api/apis-route.openshift.io/v1.Route.html#object-schema[v1.Route]).
 |===
 
 * link:./pkg/apis/mobilesecurityservice/v1alpha1/mobilesecurityservicedb_types.go[MobileSecurityServiceDB]
@@ -270,9 +270,9 @@ NOTE: The operator, application and database will be installed in the namespace 
 | *Status*    | *Description*
 | `databaseStatus` | For this status is expected the value `OK` which means that all required Kubernetes/OCP objects are created.
 | `deploymentName` | Name of the deployment object created for the Database.
-| `deploymentStatus` | Deployment Status from ks8 API. ( https://kubernetes.io/docs/reference/federation/extensions/v1beta1/definitions/#_v1beta1_deploymentstatus[v1beta1.DeploymentStatus] )
+| `deploymentStatus` | Deployment Status from ks8 API (https://kubernetes.io/docs/reference/federation/extensions/v1beta1/definitions/#_v1beta1_deploymentstatus[v1beta1.DeploymentStatus]).
 | `serviceName` | Name of the service object created for the Database.
-| `serviceStatus` | Deployment Status from ks8 API. ( https://kubernetes.io/docs/reference/federation/v1/definitions/#_v1_servicestatus[v1.ServiceStatus] )
+| `serviceStatus` | Deployment Status from ks8 API (https://kubernetes.io/docs/reference/federation/v1/definitions/#_v1_servicestatus[v1.ServiceStatus]).
 | `PersistentVolumeClaimName` | Name of the PersistentVolumeClaimName object created for the Database.
 |===
 
@@ -295,7 +295,7 @@ $ make setup
 
 === Running the operator locally
 
-The following command will install the operator in the cluster and run the changes performed locally without the need to publish a `dev tag. In this way, you can verify your code in the development environment.
+The following command will install the operator in the cluster and run the changes performed locally without the need to publish a `dev` tag. In this way, you can verify your code in the development environment.
 
 [source,yaml]
 ----
@@ -373,14 +373,16 @@ Images for the mobile-security-service-operator are published to https://quay.io
 
 ==== Automated image publishing
 
-- For every change merged to master a new image with the `master` tag is published
-- For every change merged that has a git tag a new image with the `<operator-version>` and `latest` tags are published
+Images are automatically built and pushed to our https://quay.io/repository/aerogear/mobile-security-service-operator[image repository] in the following cases:
+
+- For every change merged to master a new image with the `master` tag is published. 
+- For every change merged that has a git tag a new image with the `<operator-version>` and `latest` tags are published.
 
 If the image does not get built and pushed automatically the job may be re-run manually via the https://circleci.com/gh/aerogear/mobile-security-service-operator[CI dashboard]. 
 
 ==== Dev images
 
-The following commands will build the project and publish it to `quay.io/aerogear/mobile-security-service-operator` with the tag <version>-dev.
+The following commands will build the project and publish it to our https://quay.io/repository/aerogear/mobile-security-service-operator[image repository] with the tag <version>-dev.
 
 [source,shell]
 ----
