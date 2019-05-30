@@ -4,6 +4,9 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"os"
+	"runtime"
+
 	"github.com/aerogear/mobile-security-service-operator/pkg/apis"
 	"github.com/aerogear/mobile-security-service-operator/pkg/controller"
 	routev1 "github.com/openshift/api/route/v1"
@@ -13,8 +16,6 @@ import (
 	sdkVersion "github.com/operator-framework/operator-sdk/version"
 	"github.com/spf13/pflag"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
-	"os"
-	"runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
