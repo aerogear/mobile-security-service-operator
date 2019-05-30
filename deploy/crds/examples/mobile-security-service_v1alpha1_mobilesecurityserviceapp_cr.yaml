@@ -1,8 +1,14 @@
+# Example of a CR to create/apply and allow the operator manage the applications.
+# Note that a similar YAML file should be generated for each app which will be created/manage by the Mobile Security Service
 apiVersion: mobile-security-service.aerogear.com/v1alpha1
 kind: MobileSecurityServiceApp
 metadata:
   name: mobile-security-service-app
 spec:
+  # The appName spec defines the appName of the app in the Service side, it also is used to create the ConfigMap name
+  # NOTE: To update the name just update this spec and re-apply the CR
   appName: "example-appname"
-  # The appId spec defines the appId of the app used to bind the service
+  # The appId spec defines the appId  of the app in the Service side and it is also used to manage the ConfigMap for this app
+  # IMPORTANT: This is a unique identifier which means that each app managed by the Operator and its service
+  # needs to have a unique value for this spec
   appId: "appid.example.com"

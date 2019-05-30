@@ -1,10 +1,10 @@
+# Monitor Service (Metrics)
 apiVersion: v1
 kind: Service
 metadata:
   labels:
     name: mobile-security-service-operator
   name: mobile-security-service-operator
-  namespace: mobile-security-service
   resourceVersion: '66190'
   selfLink: >-
     /api/v1/namespaces/mobile-security-service/services/mobile-security-service-operator
