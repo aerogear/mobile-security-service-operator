@@ -55,8 +55,9 @@ func getDeploymentContainers(m *mobilesecurityservicev1alpha1.MobileSecurityServ
 
 func buildOAuthContainer(m *mobilesecurityservicev1alpha1.MobileSecurityService) corev1.Container {
 	return corev1.Container{
-		Image: "docker.io/openshift/oauth-proxy:v1.1.0",
-		Name:  "oauth-proxy",
+		Image:           m.Spec.OAuthImage,
+		Name:            m.Spec.OAuthContainerName,
+		ImagePullPolicy: m.Spec.OAuthContainerImagePullPolicy,
 		Ports: []corev1.ContainerPort{{
 			ContainerPort: m.Spec.OAuthPort,
 			Name:          "public",
@@ -73,7 +74,7 @@ func buildApplicationContainer(m *mobilesecurityservicev1alpha1.MobileSecuritySe
 	return corev1.Container{
 		Image:           m.Spec.Image,
 		Name:            m.Spec.ContainerName,
-		ImagePullPolicy: corev1.PullAlways,
+		ImagePullPolicy: m.Spec.ContainerImagePullPolicy,
 		Ports: []corev1.ContainerPort{{
 			ContainerPort: m.Spec.Port,
 			Name:          "http",

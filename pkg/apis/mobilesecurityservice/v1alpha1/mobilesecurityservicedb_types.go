@@ -25,13 +25,16 @@ type MobileSecurityServiceDBSpec struct {
 	DatabaseUserParam     string `json:"databaseUserParam"`
 	DatabasePort          int32  `json:"databasePort"`
 
-	//CR mandatory configuration values
+	//CR mandatory config values
 	Size                   int32  `json:"size"`
 	Image                  string `json:"image"`
 	ContainerName          string `json:"containerName"`
 	DatabaseMemoryLimit    string `json:"databaseMemoryLimit"`
 	DatabaseMemoryRequest  string `json:"databaseMemoryRequest"`
 	DatabaseStorageRequest string `json:"databaseStorageRequest"`
+
+	//CR optinal config values
+	ContainerImagePullPolicy v1.PullPolicy `json:"containerImagePullPolicy,omitempty"`
 }
 
 // MobileSecurityServiceDBStatus defines the observed state of MobileSecurityServiceDB
