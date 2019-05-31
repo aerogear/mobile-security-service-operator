@@ -168,11 +168,6 @@ An Oauth Proxy container and the required configuration will be setup by default
 
 Environment Variables are used to configure the https://github.com/aerogear/mobile-security-service[Mobile Security Service] Application and Database. For further information on configuration see the https://github.com/aerogear/mobile-security-service#setup-and-configurations[Setup and Configuration] section.
 
-NOTE:
-
-* All values used in the default configuration are sourced from the config-map which is managed and created by the Operator. This config map will be created in the Operator namespace and its name is defined by the attribute `configMapName` in the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService CR].
-* If the name of this ConfigMap is not specified then the name of the Mobile Security Service instance will be used instead.
-
 === Monitoring Service (Metrics)
 
 The application-monitoring stack provisioned by the

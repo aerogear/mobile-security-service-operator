@@ -40,7 +40,7 @@ func (r *ReconcileMobileSecurityServiceDB) buildDBDeployment(m *mobilesecurityse
 					Containers: []corev1.Container{{
 						Image:           m.Spec.Image,
 						Name:            m.Spec.ContainerName,
-						ImagePullPolicy: corev1.PullIfNotPresent,
+						ImagePullPolicy: m.Spec.ContainerImagePullPolicy,
 						Ports: []corev1.ContainerPort{{
 							ContainerPort: m.Spec.DatabasePort,
 							Protocol:      "TCP",
