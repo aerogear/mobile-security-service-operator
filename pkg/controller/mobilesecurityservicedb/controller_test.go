@@ -495,6 +495,11 @@ func TestReconcileMobileSecurityServiceDB_Reconcile_InstanceWithoutSpec(t *testi
 		t.Fatalf("get deployment: (%v)", err)
 	}
 
+	// Check if the quantity of Replicas for this deployment is equals the specification
+	if *deployment.Spec.Replicas != size {
+		t.Errorf("dep size (%d) is not the expected size (%d)", deployment.Spec.Replicas, size)
+	}
+
 	if !res.Requeue {
 		t.Error("did not expect request to requeue")
 	}
