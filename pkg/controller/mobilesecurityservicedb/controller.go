@@ -2,14 +2,11 @@ package mobilesecurityservicedb
 
 import (
 	"context"
-	"time"
-
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"github.com/go-logr/logr"
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
@@ -93,8 +90,8 @@ func (r *ReconcileMobileSecurityServiceDB) update(obj runtime.Object, reqLogger 
 }
 
 //Create the object and reconcile it
-func (r *ReconcileMobileSecurityServiceDB) create(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceDB, serviceInstance *mobilesecurityservicev1alpha1.MobileSecurityService, kind string, reqLogger logr.Logger) error {
-	obj := r.buildFactory(instance, serviceInstance, kind, reqLogger)
+func (r *ReconcileMobileSecurityServiceDB) create(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceDB, kind string, reqLogger logr.Logger) error {
+	obj := r.buildFactory(instance, kind, reqLogger)
 	reqLogger.Info("Creating a new ", "kind", kind, "Namespace", instance.Namespace)
 	err := r.client.Create(context.TODO(), obj)
 	if err != nil {
@@ -106,17 +103,20 @@ func (r *ReconcileMobileSecurityServiceDB) create(instance *mobilesecurityservic
 }
 
 //buildFactory will return the resource according to the kind defined
-func (r *ReconcileMobileSecurityServiceDB) buildFactory(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceDB, serviceInstance *mobilesecurityservicev1alpha1.MobileSecurityService, kind string, reqLogger logr.Logger) runtime.Object {
-	reqLogger.Info("Check "+kind, "into the namespace", instance.Namespace)
+func (r *ReconcileMobileSecurityServiceDB) buildFactory(db *mobilesecurityservicev1alpha1.MobileSecurityServiceDB, kind string, reqLogger logr.Logger) runtime.Object {
+	reqLogger.Info("Check "+kind, "into the namespace", db.Namespace)
 	switch kind {
 	case PVC:
-		return r.buildPVCForDB(instance)
+		return r.buildPVCForDB(db)
 	case Deployment:
-		return r.buildDBDeployment(instance, serviceInstance)
+		// FIXME: It should not be made here
+		// FIXME: The Service should find the db deployment and update its ENV VARs instead of we looking for it here for we are able to extract it and use it with any service
+		serviceConfigMapName := r.getAppConfigMapName(db)
+		return r.buildDBDeployment(db, serviceConfigMapName)
 	case Service:
-		return r.buildDBService(instance)
+		return r.buildDBService(db)
 	default:
-		msg := "Failed to recognize type of object" + kind + " into the Namespace " + instance.Namespace
+		msg := "Failed to recognize type of object" + kind + " into the Namespace " + db.Namespace
 		panic(msg)
 	}
 }
@@ -138,11 +138,9 @@ func (r *ReconcileMobileSecurityServiceDB) Reconcile(request reconcile.Request) 
 		return reconcile.Result{}, err
 	}
 
-	operatorNamespace, _ := k8sutil.GetOperatorNamespace()
-
-	// Ensure that the DB will be installed just in the same namespace of the Operator
+	// Check if the DB CR was applied in the same namespace of the operator
 	if isValidNamespace, err := utils.IsValidOperatorNamespace(instance.Namespace); err != nil || isValidNamespace == false {
-		// Stop reconcile
+		operatorNamespace, _ := k8sutil.GetOperatorNamespace()
 		reqLogger.Error(err, "Unable to reconcile Mobile Security Service Database", "instance.Namespace", instance.Namespace, "isValidNamespace", isValidNamespace, "Operator.Namespace", operatorNamespace)
 
 		//Update status with Invalid Namespace
@@ -150,25 +148,19 @@ func (r *ReconcileMobileSecurityServiceDB) Reconcile(request reconcile.Request) 
 			return reconcile.Result{}, err
 		}
 
+		// Stop reconcile
 		return reconcile.Result{}, nil
 	}
-
 	reqLogger.Info("Valid namespace for Mobile Security Service DB", "Namespace", request.Namespace)
+
+	// Add const values for mandatory specs
+	addMandatorySpecsDefinitions(instance)
 
 	//Check if Deployment for the app exist, if not create one
 	deployment, err := r.fetchDBDeployment(reqLogger, instance)
-
 	if err != nil {
-		// To give time for the mobile security service be created
-		time.Sleep(30 * time.Second)
-		// It will fetch the service instance for the DB type be able to get the configMap config created by it, however,
-		// if the Instance cannot be found and/or its configMap was not created than the default values specified in its CR will be used
-		reqLogger.Info("Checking for service instance ...")
-		serviceInstance := &mobilesecurityservicev1alpha1.MobileSecurityService{}
-		r.client.Get(context.TODO(), types.NamespacedName{Name: utils.MobileSecurityServiceCRName, Namespace: instance.Namespace}, serviceInstance)
-
 		// Create the deployment
-		if err := r.create(instance, serviceInstance, Deployment, reqLogger); err != nil {
+		if err := r.create(instance, Deployment, reqLogger); err != nil {
 			return reconcile.Result{}, err
 		}
 		return reconcile.Result{Requeue: true}, nil
@@ -176,14 +168,14 @@ func (r *ReconcileMobileSecurityServiceDB) Reconcile(request reconcile.Request) 
 
 	//Check if Service for the app exist, if not create one
 	if _, err := r.fetchDBService(reqLogger, instance); err != nil {
-		if err := r.create(instance, nil, Service, reqLogger); err != nil {
+		if err := r.create(instance, Service, reqLogger); err != nil {
 			return reconcile.Result{}, err
 		}
 	}
 
 	//Check if PersistentVolumeClaim for the app exist, if not create one
 	if _, err := r.fetchDBPersistentVolumeClaim(reqLogger, instance); err != nil {
-		if err := r.create(instance, nil, PVC, reqLogger); err != nil {
+		if err := r.create(instance, PVC, reqLogger); err != nil {
 			return reconcile.Result{}, err
 		}
 	}

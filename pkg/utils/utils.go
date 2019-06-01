@@ -38,22 +38,6 @@ func GetServiceAPIURL(mssInstance *mobilesecurityservicev1alpha1.MobileSecurityS
 	return mssInstance.Spec.ClusterProtocol + "://" + ApplicationServiceInstanceName + ":" + fmt.Sprint(mssInstance.Spec.Port) + ApiEndpoint
 }
 
-//GetRouteName returns an string name with the name of the router
-func GetRouteName(m *mobilesecurityservicev1alpha1.MobileSecurityService) string {
-	if len(m.Spec.RouteName) > 0 {
-		return m.Spec.RouteName
-	}
-	return m.Name
-}
-
-// GetConfigMapName returns an string name with the name of the configMap
-func GetConfigMapName(m *mobilesecurityservicev1alpha1.MobileSecurityService) string {
-	if len(m.Spec.ConfigMapName) > 0 {
-		return m.Spec.ConfigMapName
-	}
-	return m.Name
-}
-
 // GetAppNamespaces returns the namespace the operator should be watching for changes
 func GetAppNamespaces() (string, error) {
 	ns, found := os.LookupEnv(AppNamespaceEnvVar)

@@ -20,18 +20,18 @@ type MobileSecurityServiceDBSpec struct {
 	DatabaseName          string `json:"databaseName,omitempty"`
 	DatabasePassword      string `json:"databasePassword,omitempty"`
 	DatabaseUser          string `json:"databaseUser,omitempty"`
-	DatabaseNameParam     string `json:"databaseNameParam"`
-	DatabasePasswordParam string `json:"databasePasswordParam"`
-	DatabaseUserParam     string `json:"databaseUserParam"`
-	DatabasePort          int32  `json:"databasePort"`
+	DatabaseNameParam     string `json:"databaseNameParam,omitempty"`
+	DatabasePasswordParam string `json:"databasePasswordParam,omitempty"`
+	DatabaseUserParam     string `json:"databaseUserParam,omitempty"`
+	DatabasePort          int32  `json:"databasePort,omitempty"`
 
 	//CR mandatory config values
-	Size                   int32  `json:"size"`
-	Image                  string `json:"image"`
-	ContainerName          string `json:"containerName"`
-	DatabaseMemoryLimit    string `json:"databaseMemoryLimit"`
-	DatabaseMemoryRequest  string `json:"databaseMemoryRequest"`
-	DatabaseStorageRequest string `json:"databaseStorageRequest"`
+	Size                   int32  `json:"size,omitempty"`
+	Image                  string `json:"image,omitempty"`
+	ContainerName          string `json:"containerName,omitempty"`
+	DatabaseMemoryLimit    string `json:"databaseMemoryLimit,omitempty"`
+	DatabaseMemoryRequest  string `json:"databaseMemoryRequest,omitempty"`
+	DatabaseStorageRequest string `json:"databaseStorageRequest,omitempty"`
 
 	//CR optinal config values
 	ContainerImagePullPolicy v1.PullPolicy `json:"containerImagePullPolicy,omitempty"`

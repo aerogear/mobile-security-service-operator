@@ -246,11 +246,8 @@ func (r *ReconcileMobileSecurityService) updateRouteStatus(reqLogger logr.Logger
 		return route, err
 	}
 
-	// Update the Route Name
-	routeName := utils.GetRouteName(instance)
-
 	// Update the Route Status and Name
-	if routeName != instance.Status.RouteName || !reflect.DeepEqual(route.Status, instance.Status.RouteStatus) {
+	if instance.Spec.RouteName != instance.Status.RouteName || !reflect.DeepEqual(route.Status, instance.Status.RouteStatus) {
 		// Get the latest version of the CR in order to try to avoid errors when try to update the CR
 		instance, err := r.fetchInstance(reqLogger, request)
 		if err != nil {
@@ -258,7 +255,7 @@ func (r *ReconcileMobileSecurityService) updateRouteStatus(reqLogger logr.Logger
 		}
 
 		// Set the data
-		instance.Status.RouteName = routeName
+		instance.Status.RouteName = instance.Spec.RouteName
 		instance.Status.RouteStatus = route.Status
 
 		// Update the CR

@@ -206,7 +206,7 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 	// Get the route in order to obtain the public Service URL API
 	reqLogger.Info("Checking if the route already exists ...")
 	route := &routev1.Route{}
-	if err := r.client.Get(context.TODO(), types.NamespacedName{Name: utils.GetRouteName(mssInstance), Namespace: operatorNamespace}, route); err != nil {
+	if err := r.client.Get(context.TODO(), types.NamespacedName{Name: mssInstance.Spec.RouteName, Namespace: operatorNamespace}, route); err != nil {
 		return reconcile.Result{}, err
 	}
 

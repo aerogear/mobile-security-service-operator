@@ -4,7 +4,7 @@ import (
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	routev1 "github.com/openshift/api/route/v1"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
@@ -15,7 +15,7 @@ func (r *ReconcileMobileSecurityService) buildRoute(m *mobilesecurityservicev1al
 	ls := getAppLabels(m.Name)
 	route := &routev1.Route{
 		ObjectMeta: v1.ObjectMeta{
-			Name:      utils.GetRouteName(m),
+			Name:      m.Spec.RouteName,
 			Namespace: m.Namespace,
 			Labels:    ls,
 		},

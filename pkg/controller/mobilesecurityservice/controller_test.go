@@ -296,7 +296,7 @@ func TestReconcileMobileSecurityService_Reconcile(t *testing.T) {
 	}
 
 	configMap := &corev1.ConfigMap{}
-	err = r.client.Get(context.TODO(), types.NamespacedName{Name: utils.GetConfigMapName(&mssInstance), Namespace: mssInstance.Namespace}, configMap)
+	err = r.client.Get(context.TODO(), types.NamespacedName{Name: mssInstance.Spec.ConfigMapName, Namespace: mssInstance.Namespace}, configMap)
 	if err != nil {
 		t.Fatalf("get configMap: (%v)", err)
 	}
@@ -360,7 +360,7 @@ func TestReconcileMobileSecurityService_Reconcile(t *testing.T) {
 	}
 
 	route := &routev1.Route{}
-	err = r.client.Get(context.TODO(), types.NamespacedName{Name: utils.GetRouteName(&mssInstance), Namespace: mssInstance.Namespace}, route)
+	err = r.client.Get(context.TODO(), types.NamespacedName{Name: mssInstance.Spec.RouteName, Namespace: mssInstance.Namespace}, route)
 	if err != nil {
 		t.Fatalf("get route: (%v)", err)
 	}
@@ -399,14 +399,11 @@ func TestReconcileMobileSecurityService_Reconcile_InvalidSpec(t *testing.T) {
 		},
 	}
 
-	res, err := r.Reconcile(req)
+	_, err := r.Reconcile(req)
 	if err != nil {
 		t.Fatalf("reconcile: (%v)", err)
 	}
 
-	if res.Requeue {
-		t.Error("reconcile requeue request which is not expected")
-	}
 }
 
 func TestReconcileMobileSecurityService_Reconcile_UnknownNamespace(t *testing.T) {
@@ -430,6 +427,13 @@ func TestReconcileMobileSecurityService_Reconcile_UnknownNamespace(t *testing.T)
 	_, err := r.Reconcile(req)
 	if err == nil {
 		t.Fatalf("expected not to find namespace '%v'", namespace)
+	}
+
+	// check if the deployment has been created
+	dep := &v1beta1.Deployment{}
+	err = r.client.Get(context.TODO(), req.NamespacedName, dep)
+	if err == nil {
+		t.Error("Should not create the Deployments since is an invalid namespace")
 	}
 }
 
@@ -505,4 +509,112 @@ func TestReconcileMobileSecurityService_Reconcile_ReplicaSize(t *testing.T) {
 		t.Errorf("dep size (%d) is not the expected size (%d)", dsize, mssInstance2.Spec.Size)
 	}
 
+}
+
+func TestReconcileMobileSecurityService_Reconcile_WithInstanceWithoutSpecDefined(t *testing.T) {
+
+	// objects to track in the fake client
+	objs := []runtime.Object{
+		&mssInstanceWithoutSpec,
+	}
+
+	r := buildReconcileWithFakeClientWithMocks(objs, t)
+
+	// mock request to simulate Reconcile() being called on an event for a watched resource
+	req := reconcile.Request{
+		NamespacedName: types.NamespacedName{
+			Name:      mssInstanceWithoutSpec.Name,
+			Namespace: mssInstanceWithoutSpec.Namespace,
+		},
+	}
+
+	res, err := r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+
+	configMap := &corev1.ConfigMap{}
+	err = r.client.Get(context.TODO(), types.NamespacedName{Name: mssInstanceWithoutSpec.Spec.ConfigMapName, Namespace: mssInstanceWithoutSpec.Namespace}, configMap)
+	if err != nil {
+		t.Fatalf("get configMap: (%v)", err)
+	}
+
+	// Check the result of reconciliation to make sure it has the desired state
+	if !res.Requeue {
+		t.Error("reconcile did not requeue request as expected")
+	}
+
+	res, err = r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+
+	// check if the deployment has been created
+	dep := &v1beta1.Deployment{}
+	err = r.client.Get(context.TODO(), req.NamespacedName, dep)
+	if err != nil {
+		t.Fatalf("get deployment: (%v)", err)
+	}
+
+	// Check if the quantity of Replicas for this deployment is equals the specification
+	dsize := *dep.Spec.Replicas
+	if dsize != mssInstanceWithoutSpec.Spec.Size {
+		t.Errorf("dep size (%d) is not the expected size (%d)", dsize, mssInstanceWithoutSpec.Spec.Size)
+	}
+
+	res, err = r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+
+	service := &corev1.Service{}
+	err = r.client.Get(context.TODO(), types.NamespacedName{
+		Name:      utils.ApplicationServiceInstanceName,
+		Namespace: mssInstance.Namespace,
+	}, service)
+	if err != nil {
+		t.Fatalf("get application service: (%v)", err)
+	}
+
+	res, err = r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+
+	// check if the service has been created
+	proxyService := &corev1.Service{}
+
+	err = r.client.Get(context.TODO(), types.NamespacedName{
+		Name:      utils.ProxyServiceInstanceName,
+		Namespace: mssInstanceWithoutSpec.Namespace,
+	}, proxyService)
+	if err != nil {
+		t.Fatalf("get proxy service: (%v)", err)
+	}
+
+	res, err = r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+
+	route := &routev1.Route{}
+	err = r.client.Get(context.TODO(), types.NamespacedName{Name: mssInstanceWithoutSpec.Spec.RouteName, Namespace: mssInstanceWithoutSpec.Namespace}, route)
+	if err != nil {
+		t.Fatalf("get route: (%v)", err)
+	}
+
+	res, err = r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+	serviceAccount := &corev1.ServiceAccount{}
+	err = r.client.Get(context.TODO(), req.NamespacedName, serviceAccount)
+	if err != nil {
+		t.Fatalf("get service account: (%v)", err)
+	}
+
+	res, err = r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
 }

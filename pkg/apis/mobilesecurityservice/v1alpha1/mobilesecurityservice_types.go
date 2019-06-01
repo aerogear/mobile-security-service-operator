@@ -18,10 +18,10 @@ type MobileSecurityServiceSpec struct {
 	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
 
 	//Enviroment Variables for the Service
-	DatabaseName                  string `json:"databaseName"`
-	DatabasePassword              string `json:"databasePassword"`
-	DatabaseUser                  string `json:"databaseUser"`
-	DatabaseHost                  string `json:"databaseHost"`
+	DatabaseName                  string `json:"databaseName,omitempty"`
+	DatabasePassword              string `json:"databasePassword,omitempty"`
+	DatabaseUser                  string `json:"databaseUser,omitempty"`
+	DatabaseHost                  string `json:"databaseHost,omitempty"`
 	Port                          int32  `json:"port,omitempty"`
 	LogLevel                      string `json:"logLevel,omitempty"`
 	LogFormat                     string `json:"logFormat,omitempty"`
@@ -29,15 +29,15 @@ type MobileSecurityServiceSpec struct {
 	AccessControlAllowCredentials string `json:"accessControlAllowCredentials"`
 
 	//CR mandatory configuration values
-	Size               int32  `json:"size"`
-	Image              string `json:"image"`
-	ContainerName      string `json:"containerName"`
-	ClusterProtocol    string `json:"clusterProtocol"`
-	MemoryLimit        string `json:"memoryLimit"`
-	MemoryRequest      string `json:"memoryRequest"`
-	OAuthPort          int32  `json:"oAuthPort"`
-	OAuthImage         string `json:"oAuthImage"`
-	OAuthContainerName string `json:"oAuthContainerName"`
+	Size               int32  `json:"size,omitempty"`
+	Image              string `json:"image,omitempty"`
+	ContainerName      string `json:"containerName,omitempty"`
+	ClusterProtocol    string `json:"clusterProtocol,omitempty"`
+	MemoryLimit        string `json:"memoryLimit,omitempty"`
+	MemoryRequest      string `json:"memoryRequest,omitempty"`
+	OAuthPort          int32  `json:"oAuthPort,omitempty"`
+	OAuthImage         string `json:"oAuthImage,omitempty"`
+	OAuthContainerName string `json:"oAuthContainerName,omitempty"`
 
 	//CR optional configuration values
 	ConfigMapName                 string        `json:"configMapName,omitempty"`

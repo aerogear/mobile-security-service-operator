@@ -4,6 +4,13 @@ kind: MobileSecurityServiceDB
 metadata:
   name: mobile-security-service-db
 spec:
+
+  # NOTE: If no specs be defined here the constants values in the code implementation will be applied
+
+  # ---------------------------------
+  # DB Resources
+  # ---------------------------------
+
   size: 1
 
   # ---------------------------------
@@ -35,4 +42,3 @@ spec:
   databaseName: "mobile_security_service"
   databasePassword: "postgres"
   databaseUser: "postgresql"
-
