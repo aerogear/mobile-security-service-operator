@@ -5,7 +5,6 @@ import (
 	"math/rand"
 
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
-	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	corev1 "k8s.io/api/core/v1"
 )
 
@@ -25,7 +24,7 @@ func buildAppEnvVars(m *mobilesecurityservicev1alpha1.MobileSecurityService) *[]
 			ValueFrom: &corev1.EnvVarSource{
 				ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 					LocalObjectReference: corev1.LocalObjectReference{
-						Name: utils.GetConfigMapName(m),
+						Name: m.Spec.ConfigMapName,
 					},
 					Key: key,
 				},

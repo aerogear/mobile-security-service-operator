@@ -119,7 +119,7 @@ func TestReconcileMobileSecurityServiceDB_create(t *testing.T) {
 				}
 			}()
 
-			err := r.create(tt.args.instance, tt.args.serviceInstance, tt.args.kind, reqLogger)
+			err := r.create(tt.args.instance, tt.args.kind, reqLogger)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ReconcileMobileSecurityServiceDB.create() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -211,7 +211,7 @@ func TestReconcileMobileSecurityServiceDB_buildFactory(t *testing.T) {
 				}
 			}()
 
-			got := r.buildFactory(tt.args.instance, tt.args.serviceInstance, tt.args.kind, reqLogger)
+			got := r.buildFactory(tt.args.instance, tt.args.kind, reqLogger)
 
 			if gotType := reflect.TypeOf(got); !reflect.DeepEqual(gotType, tt.want) {
 				t.Errorf("ReconcileMobileSecurityServiceDB.buildFactory() = %v, want %v", gotType, tt.want)
@@ -464,5 +464,77 @@ func TestReconcileMobileSecurityServiceDB_Reconcile_ReplicasSizes(t *testing.T) 
 
 	if *deployment.Spec.Replicas != instanceOne.Spec.Size {
 		t.Error("Replicas size was not respected")
+	}
+}
+
+func TestReconcileMobileSecurityServiceDB_Reconcile_InstanceWithoutSpec(t *testing.T) {
+
+	// objects to track in the fake client
+	objs := []runtime.Object{
+		&dbInstanceWithoutSpec,
+	}
+
+	r := buildReconcileWithFakeClientWithMocks(objs, t)
+
+	// mock request to simulate Reconcile() being called on an event for a watched resource
+	req := reconcile.Request{
+		NamespacedName: types.NamespacedName{
+			Name:      dbInstanceWithoutSpec.Name,
+			Namespace: dbInstanceWithoutSpec.Namespace,
+		},
+	}
+
+	res, err := r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+
+	deployment := &v1beta1.Deployment{}
+	err = r.client.Get(context.TODO(), req.NamespacedName, deployment)
+	if err != nil {
+		t.Fatalf("get deployment: (%v)", err)
+	}
+
+	if !res.Requeue {
+		t.Error("did not expect request to requeue")
+	}
+
+	res, err = r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+
+	service := &corev1.Service{}
+	err = r.client.Get(context.TODO(), req.NamespacedName, service)
+	if err != nil {
+		t.Fatalf("get service: (%v)", err)
+	}
+
+	if res.Requeue {
+		t.Error("did not expect request to requeue")
+	}
+
+	res, err = r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+
+	pvc := &corev1.PersistentVolumeClaim{}
+	err = r.client.Get(context.TODO(), req.NamespacedName, pvc)
+	if err != nil {
+		t.Fatalf("get pvc: (%v)", err)
+	}
+
+	if res.Requeue {
+		t.Error("did not expect request to requeue")
+	}
+
+	res, err = r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+
+	if res.Requeue {
+		t.Error("did not expect request to requeue")
 	}
 }

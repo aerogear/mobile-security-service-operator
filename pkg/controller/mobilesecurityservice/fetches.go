@@ -4,7 +4,6 @@ import (
 	"context"
 
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
-	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"github.com/go-logr/logr"
 	routev1 "github.com/openshift/api/route/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -26,7 +25,7 @@ func (r *ReconcileMobileSecurityService) fetchInstance(reqLogger logr.Logger, re
 func (r *ReconcileMobileSecurityService) fetchRoute(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityService) (*routev1.Route, error) {
 	reqLogger.Info("Checking if the route already exists")
 	route := &routev1.Route{}
-	err := r.client.Get(context.TODO(), types.NamespacedName{Name: utils.GetRouteName(instance), Namespace: instance.Namespace}, route)
+	err := r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Spec.RouteName, Namespace: instance.Namespace}, route)
 	return route, err
 }
 
@@ -58,6 +57,6 @@ func (r *ReconcileMobileSecurityService) fetchDeployment(reqLogger logr.Logger, 
 func (r *ReconcileMobileSecurityService) fetchConfigMap(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityService) (*corev1.ConfigMap, error) {
 	reqLogger.Info("Checking if the ConfigMap already exists")
 	configMap := &corev1.ConfigMap{}
-	err := r.client.Get(context.TODO(), types.NamespacedName{Name: utils.GetConfigMapName(instance), Namespace: instance.Namespace}, configMap)
+	err := r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Spec.ConfigMapName, Namespace: instance.Namespace}, configMap)
 	return configMap, err
 }

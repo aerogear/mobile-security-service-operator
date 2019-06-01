@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
-	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	routev1 "github.com/openshift/api/route/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
@@ -116,7 +115,7 @@ func TestReconcileMobileSecurityService_updateConfigMapStatus(t *testing.T) {
 			},
 			want: &corev1.ConfigMap{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      utils.GetConfigMapName(&mssInstance),
+					Name:      mssInstance.Spec.ConfigMapName,
 					Namespace: mssInstance.Namespace,
 					Labels:    getAppLabels(mssInstance.Name),
 				},

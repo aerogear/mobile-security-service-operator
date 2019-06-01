@@ -27,7 +27,7 @@ var (
 
 	route = routev1.Route{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      GetRouteName(&mssInstance),
+			Name:      mssInstance.Spec.RouteName,
 			Namespace: mssInstance.Namespace,
 			Labels:    map[string]string{"app": "mobilesecurityservice", "mobilesecurityservice_cr": mssInstance.Name},
 		},
@@ -40,82 +40,6 @@ var (
 		},
 	}
 )
-
-func TestGetRouteName(t *testing.T) {
-	type args struct {
-		instance *mobilesecurityservicev1alpha1.MobileSecurityService
-	}
-	tests := []struct {
-		name string
-		args args
-		want string
-	}{
-		{
-			name: "should use RouteName",
-			args: args{
-				instance: &mssInstance,
-			},
-			want: "route",
-		},
-		{
-			name: "should use Instance name",
-			args: args{
-				instance: &mobilesecurityservicev1alpha1.MobileSecurityService{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "mobile-security-service",
-						Namespace: "mobile-security-service-operator",
-					},
-				},
-			},
-			want: "mobile-security-service",
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := GetRouteName(tt.args.instance); got != tt.want {
-				t.Errorf("GetRouteName() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestGetConfigMapName(t *testing.T) {
-	type args struct {
-		instance *mobilesecurityservicev1alpha1.MobileSecurityService
-	}
-	tests := []struct {
-		name string
-		args args
-		want string
-	}{
-		{
-			name: "should use ConfigMapName",
-			args: args{
-				instance: &mssInstance,
-			},
-			want: "mss-config",
-		},
-		{
-			name: "should use Instance name",
-			args: args{
-				instance: &mobilesecurityservicev1alpha1.MobileSecurityService{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "mobile-security-service",
-						Namespace: "mobile-security-service-operator",
-					},
-				},
-			},
-			want: "mobile-security-service",
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := GetConfigMapName(tt.args.instance); got != tt.want {
-				t.Errorf("GetConfigMapName() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
 
 func TestGetAppNamespaces(t *testing.T) {
 	type fields struct {
