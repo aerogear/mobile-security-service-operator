@@ -8,9 +8,9 @@ kind: MobileSecurityServiceApp
 metadata:
   name: mobile-security-service-app
 spec:
-  # The appName is the name of the application in the Service Side. It will be used to created the labels and the name of the ConfigMap.
+  # The appName is the name of your mobile application. It is used to create a new app in the service, the labels and the name of the ConfigMap.
   appName: "example-appname"
-  # The appId is the appId of the application in the Service Side. It will be used to created the labels.
+  # The appId should exactly match your mobile applications appId (bundle identifier or package name). It is used when calling the `init` API endpoint and for creating the new app in the service
   # IMPORTANT: This is a unique identifier which means that each app managed by the Operator and its service
   # needs to have a unique value for this spec
   appId: "appid.example.com"

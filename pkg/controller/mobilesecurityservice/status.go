@@ -17,7 +17,7 @@ import (
 func (r *ReconcileMobileSecurityService) updateStatus(reqLogger logr.Logger, configMapStatus *corev1.ConfigMap, deploymentStatus *v1beta1.Deployment, proxyServiceStatus *corev1.Service, applicationServiceStatus *corev1.Service, routeStatus *routev1.Route, request reconcile.Request) error {
 	reqLogger.Info("Updating App Status for the MobileSecurityService")
 	// Get the latest version of the CR
-	instance, err := r.fetchInstance(reqLogger, request)
+	mss, err := r.fetchMssInstance(reqLogger, request)
 	if err != nil {
 		return err
 	}
@@ -25,18 +25,18 @@ func (r *ReconcileMobileSecurityService) updateStatus(reqLogger logr.Logger, con
 	//Check if all required objects are created
 	if len(configMapStatus.UID) < 1 && len(deploymentStatus.UID) < 1 && len(proxyServiceStatus.UID) < 1 && len(applicationServiceStatus.UID) < 1 && len(routeStatus.Name) < 1 {
 		err := fmt.Errorf("Failed to get OK Status for MobileSecurityService")
-		reqLogger.Error(err, "One of the resources are not created", "MobileSecurityService.Namespace", instance.Namespace, "MobileSecurityService.Name", instance.Name)
+		reqLogger.Error(err, "One of the resources are not created", "MobileSecurityService.Namespace", mss.Namespace, "MobileSecurityService.Name", mss.Name)
 		return err
 	}
 	status := "OK"
 
 	// Update CR with the AppStatus == OK
-	if !reflect.DeepEqual(status, instance.Status.AppStatus) {
+	if !reflect.DeepEqual(status, mss.Status.AppStatus) {
 		// Set the data
-		instance.Status.AppStatus = status
+		mss.Status.AppStatus = status
 
 		// Update the CR
-		err = r.client.Status().Update(context.TODO(), instance)
+		err = r.client.Status().Update(context.TODO(), mss)
 		if err != nil {
 			reqLogger.Error(err, "Failed to update Project Status for the MobileSecurityService")
 			return err
@@ -50,7 +50,7 @@ func (r *ReconcileMobileSecurityService) updateStatusWithInvalidNamespace(reqLog
 	reqLogger.Info("Updating Bind App Status for the MobileSecurityServiceApp")
 
 	// Get the latest version of CR
-	instance, err := r.fetchInstance(reqLogger, request)
+	mss, err := r.fetchMssInstance(reqLogger, request)
 	if err != nil {
 		return err
 	}
@@ -58,9 +58,9 @@ func (r *ReconcileMobileSecurityService) updateStatusWithInvalidNamespace(reqLog
 	status := "Invalid Namespace"
 
 	//Update Bind CR Status with OK
-	if !reflect.DeepEqual(status, instance.Status.AppStatus) {
+	if !reflect.DeepEqual(status, mss.Status.AppStatus) {
 		// Get the latest version of the CR in order to try to avoid errors when try to update the CR
-		instance, err := r.fetchInstance(reqLogger, request)
+		instance, err := r.fetchMssInstance(reqLogger, request)
 		if err != nil {
 			return err
 		}
@@ -82,22 +82,22 @@ func (r *ReconcileMobileSecurityService) updateStatusWithInvalidNamespace(reqLog
 func (r *ReconcileMobileSecurityService) updateConfigMapStatus(reqLogger logr.Logger, request reconcile.Request) (*corev1.ConfigMap, error) {
 	reqLogger.Info("Updating ConfigMap Status for the MobileSecurityService")
 	// Get the latest version of the CR
-	instance, err := r.fetchInstance(reqLogger, request)
+	mss, err := r.fetchMssInstance(reqLogger, request)
 	if err != nil {
 		return nil, err
 	}
 
 	// Get the ConfigMap object
-	configMapStatus, err := r.fetchConfigMap(reqLogger, instance)
+	configMapStatus, err := r.fetchConfigMap(reqLogger, mss)
 	if err != nil {
-		reqLogger.Error(err, "Failed to get ConfigMap Name for Status", "MobileSecurityService.Namespace", instance.Namespace, "MobileSecurityService.Name", instance.Name)
+		reqLogger.Error(err, "Failed to get ConfigMap Name for Status", "MobileSecurityService.Namespace", mss.Namespace, "MobileSecurityService.Name", mss.Name)
 		return configMapStatus, err
 	}
 
 	// Update ConfigMap Name
-	if configMapStatus.Name != instance.Status.ConfigMapName {
+	if configMapStatus.Name != mss.Status.ConfigMapName {
 		// Get the latest version of the CR in order to try to avoid errors when try to update the CR
-		instance, err := r.fetchInstance(reqLogger, request)
+		instance, err := r.fetchMssInstance(reqLogger, request)
 		if err != nil {
 			return nil, err
 		}
@@ -119,22 +119,22 @@ func (r *ReconcileMobileSecurityService) updateConfigMapStatus(reqLogger logr.Lo
 func (r *ReconcileMobileSecurityService) updateDeploymentStatus(reqLogger logr.Logger, request reconcile.Request) (*v1beta1.Deployment, error) {
 	reqLogger.Info("Updating Deployment Status for the MobileSecurityService")
 	// Get the latest version of the CR
-	instance, err := r.fetchInstance(reqLogger, request)
+	mss, err := r.fetchMssInstance(reqLogger, request)
 	if err != nil {
 		return nil, err
 	}
 
 	// Get the deployment object
-	deploymentStatus, err := r.fetchDeployment(reqLogger, instance)
+	deploymentStatus, err := r.fetchDeployment(reqLogger, mss)
 	if err != nil {
-		reqLogger.Error(err, "Failed to get Deployment for Status", "MobileSecurityService.Namespace", instance.Namespace, "MobileSecurityService.Name", instance.Name)
+		reqLogger.Error(err, "Failed to get Deployment for Status", "MobileSecurityService.Namespace", mss.Namespace, "MobileSecurityService.Name", mss.Name)
 		return deploymentStatus, err
 	}
 
 	// Update the Deployment Name and Status
-	if deploymentStatus.Name != instance.Status.DeploymentName || !reflect.DeepEqual(deploymentStatus.Status, instance.Status.DeploymentStatus) {
+	if deploymentStatus.Name != mss.Status.DeploymentName || !reflect.DeepEqual(deploymentStatus.Status, mss.Status.DeploymentStatus) {
 		// Get the latest version of the CR in order to try to avoid errors when try to update the CR
-		instance, err := r.fetchInstance(reqLogger, request)
+		instance, err := r.fetchMssInstance(reqLogger, request)
 		if err != nil {
 			return nil, err
 		}
@@ -158,31 +158,31 @@ func (r *ReconcileMobileSecurityService) updateDeploymentStatus(reqLogger logr.L
 func (r *ReconcileMobileSecurityService) updateAppServiceStatus(reqLogger logr.Logger, request reconcile.Request) (*corev1.Service, error) {
 	reqLogger.Info("Updating App Service Status for the MobileSecurityService")
 	// Get the latest version of the CR
-	instance, err := r.fetchInstance(reqLogger, request)
+	mss, err := r.fetchMssInstance(reqLogger, request)
 	if err != nil {
 		return nil, err
 	}
 	// Get the Service Object
-	serviceStatus, err := r.fetchService(reqLogger, instance, utils.ApplicationServiceInstanceName)
+	serviceStatus, err := r.fetchService(reqLogger, mss, utils.ApplicationServiceInstanceName)
 	if err != nil {
-		reqLogger.Error(err, "Failed to get App Service for Status", "MobileSecurityService.Namespace", instance.Namespace, "MobileSecurityService.Name", instance.Name)
+		reqLogger.Error(err, "Failed to get App Service for Status", "MobileSecurityService.Namespace", mss.Namespace, "MobileSecurityService.Name", mss.Name)
 		return serviceStatus, err
 	}
 
 	// Update the Deployment Name and Status
-	if serviceStatus.Name != instance.Status.ServiceName || !reflect.DeepEqual(serviceStatus.Status, instance.Status.ServiceStatus) {
+	if serviceStatus.Name != mss.Status.ServiceName || !reflect.DeepEqual(serviceStatus.Status, mss.Status.ServiceStatus) {
 		// Get the latest version of the CR in order to try to avoid errors when try to update the CR
-		instance, err := r.fetchInstance(reqLogger, request)
+		mss, err := r.fetchMssInstance(reqLogger, request)
 		if err != nil {
 			return nil, err
 		}
 
 		// Set the data
-		instance.Status.ServiceName = serviceStatus.Name
-		instance.Status.ServiceStatus = serviceStatus.Status
+		mss.Status.ServiceName = serviceStatus.Name
+		mss.Status.ServiceStatus = serviceStatus.Status
 
 		// Update the CR
-		err = r.client.Status().Update(context.TODO(), instance)
+		err = r.client.Status().Update(context.TODO(), mss)
 		if err != nil {
 			reqLogger.Error(err, "Failed to update App Service Name and Status for the MobileSecurityService")
 			return serviceStatus, err
@@ -196,31 +196,31 @@ func (r *ReconcileMobileSecurityService) updateAppServiceStatus(reqLogger logr.L
 func (r *ReconcileMobileSecurityService) updateProxyServiceStatus(reqLogger logr.Logger, request reconcile.Request) (*corev1.Service, error) {
 	reqLogger.Info("Updating Proxy Service Status for the MobileSecurityService")
 	// Get the latest version of the CR
-	instance, err := r.fetchInstance(reqLogger, request)
+	mss, err := r.fetchMssInstance(reqLogger, request)
 	if err != nil {
 		return nil, err
 	}
 	// Get the Service Object
-	serviceStatus, err := r.fetchService(reqLogger, instance, utils.ProxyServiceInstanceName)
+	serviceStatus, err := r.fetchService(reqLogger, mss, utils.ProxyServiceInstanceName)
 	if err != nil {
-		reqLogger.Error(err, "Failed to get Proxy Service for Status", "MobileSecurityService.Namespace", instance.Namespace, "MobileSecurityService.Name", instance.Name)
+		reqLogger.Error(err, "Failed to get Proxy Service for Status", "MobileSecurityService.Namespace", mss.Namespace, "MobileSecurityService.Name", mss.Name)
 		return serviceStatus, err
 	}
 
 	// Update the Service Status and Name
-	if serviceStatus.Name != instance.Status.ProxyServiceName || !reflect.DeepEqual(serviceStatus.Status, instance.Status.ProxyServiceStatus) {
+	if serviceStatus.Name != mss.Status.ProxyServiceName || !reflect.DeepEqual(serviceStatus.Status, mss.Status.ProxyServiceStatus) {
 		// Get the latest version of the CR in order to try to avoid errors when try to update the CR
-		instance, err := r.fetchInstance(reqLogger, request)
+		mss, err := r.fetchMssInstance(reqLogger, request)
 		if err != nil {
 			return nil, err
 		}
 
 		// Set the data
-		instance.Status.ProxyServiceName = serviceStatus.Name
-		instance.Status.ProxyServiceStatus = serviceStatus.Status
+		mss.Status.ProxyServiceName = serviceStatus.Name
+		mss.Status.ProxyServiceStatus = serviceStatus.Status
 
 		// Update the CR
-		err = r.client.Status().Update(context.TODO(), instance)
+		err = r.client.Status().Update(context.TODO(), mss)
 		if err != nil {
 			reqLogger.Error(err, "Failed to update Proxy Service Name and Status for the MobileSecurityService")
 			return serviceStatus, err
@@ -234,32 +234,32 @@ func (r *ReconcileMobileSecurityService) updateProxyServiceStatus(reqLogger logr
 func (r *ReconcileMobileSecurityService) updateRouteStatus(reqLogger logr.Logger, request reconcile.Request) (*routev1.Route, error) {
 	reqLogger.Info("Updating Route Status for the MobileSecurityService")
 	// Get the latest version of the CR
-	instance, err := r.fetchInstance(reqLogger, request)
+	mss, err := r.fetchMssInstance(reqLogger, request)
 	if err != nil {
 		return nil, err
 	}
 
 	//Get the route Object
-	route, err := r.fetchRoute(reqLogger, instance)
+	route, err := r.fetchRoute(reqLogger, mss)
 	if err != nil {
-		reqLogger.Error(err, "Failed to get Route for Status", "MobileSecurityService.Namespace", instance.Namespace, "MobileSecurityService.Name", instance.Name)
+		reqLogger.Error(err, "Failed to get Route for Status", "MobileSecurityService.Namespace", mss.Namespace, "MobileSecurityService.Name", mss.Name)
 		return route, err
 	}
 
 	// Update the Route Status and Name
-	if instance.Spec.RouteName != instance.Status.RouteName || !reflect.DeepEqual(route.Status, instance.Status.RouteStatus) {
+	if mss.Spec.RouteName != mss.Status.RouteName || !reflect.DeepEqual(route.Status, mss.Status.RouteStatus) {
 		// Get the latest version of the CR in order to try to avoid errors when try to update the CR
-		instance, err := r.fetchInstance(reqLogger, request)
+		mss, err := r.fetchMssInstance(reqLogger, request)
 		if err != nil {
 			return nil, err
 		}
 
 		// Set the data
-		instance.Status.RouteName = instance.Spec.RouteName
-		instance.Status.RouteStatus = route.Status
+		mss.Status.RouteName = mss.Spec.RouteName
+		mss.Status.RouteStatus = route.Status
 
 		// Update the CR
-		err = r.client.Status().Update(context.TODO(), instance)
+		err = r.client.Status().Update(context.TODO(), mss)
 		if err != nil {
 			reqLogger.Error(err, "Failed to update Route Name and Status for the MobileSecurityService")
 			return route, err

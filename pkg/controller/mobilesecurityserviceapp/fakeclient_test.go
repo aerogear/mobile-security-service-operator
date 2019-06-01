@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-//buildReconcileWithFakeClientWithMocks return reconcile with fake client, schemes and mock objects
+// buildReconcileWithFakeClientWithMocks return reconcile with fake client, schemes and mock objects
 func buildReconcileWithFakeClientWithMocks(objs []runtime.Object, t *testing.T) *ReconcileMobileSecurityServiceApp {
 	s := scheme.Scheme
 

@@ -15,31 +15,31 @@ func (r *ReconcileMobileSecurityServiceApp) updateConfigMapStatus(reqLogger logr
 	reqLogger.Info("Updating SDKConfigMap Status for the MobileSecurityServiceApp")
 
 	// Get the latest version of CR
-	instance, err := r.fetchInstance(reqLogger, request)
+	mssApp, err := r.fetchMssAppInstance(reqLogger, request)
 	if err != nil {
 		return &corev1.ConfigMap{}, err
 	}
 
 	// Get SDKConfigMap object
-	SDKConfigMapStatus, err := r.fetchConfigMap(reqLogger, instance)
+	SDKConfigMapStatus, err := r.fetchConfigMap(reqLogger, mssApp)
 	if err != nil {
-		reqLogger.Error(err, "Failed to get SDKConfigMap for Status", "MobileSecurityServiceApp.Namespace", instance.Namespace, "MobileSecurityServiceApp.Name", instance.Name)
+		reqLogger.Error(err, "Failed to get SDKConfigMap for Status", "MobileSecurityServiceApp.Namespace", mssApp.Namespace, "MobileSecurityServiceApp.Name", mssApp.Name)
 		return SDKConfigMapStatus, err
 	}
 
 	//Update CR Status with SDKConfigMap name
-	if SDKConfigMapStatus.Name != instance.Status.SDKConfigMapName {
+	if SDKConfigMapStatus.Name != mssApp.Status.SDKConfigMapName {
 		// Get the latest version of CR
-		instance, err := r.fetchInstance(reqLogger, request)
+		mssApp, err := r.fetchMssAppInstance(reqLogger, request)
 		if err != nil {
 			return &corev1.ConfigMap{}, err
 		}
 
 		// Set the data
-		instance.Status.SDKConfigMapName = SDKConfigMapStatus.Name
+		mssApp.Status.SDKConfigMapName = SDKConfigMapStatus.Name
 
 		// Update the CR
-		err = r.client.Status().Update(context.TODO(), instance)
+		err = r.client.Status().Update(context.TODO(), mssApp)
 		if err != nil {
 			reqLogger.Error(err, "Failed to update SDKConfigMap Status for the MobileSecurityServiceApp")
 			return SDKConfigMapStatus, err
@@ -53,30 +53,30 @@ func (r *ReconcileMobileSecurityServiceApp) updateBindStatus(serviceURL string, 
 	reqLogger.Info("Updating Bind App Status for the MobileSecurityServiceApp")
 
 	// Get the latest version of CR
-	instance, err := r.fetchInstance(reqLogger, request)
+	mssApp, err := r.fetchMssAppInstance(reqLogger, request)
 	if err != nil {
 		return err
 	}
 
 	// Get App created in the Rest Service
-	app, err := fetchBindAppRestServiceByAppID(serviceURL, instance, reqLogger)
+	app, err := fetchBindAppRestServiceByAppID(serviceURL, mssApp, reqLogger)
 	if err != nil {
-		reqLogger.Error(err, "Failed to get App for Status", "MobileSecurityServiceApp.Namespace", instance.Namespace, "MobileSecurityServiceApp.Name", instance.Name)
+		reqLogger.Error(err, "Failed to get App for Status", "MobileSecurityServiceApp.Namespace", mssApp.Namespace, "MobileSecurityServiceApp.Name", mssApp.Name)
 		return err
 	}
 
 	// Check if the ConfigMap and the App is created in the Rest Service
 	if len(SDKConfigMapStatus.UID) < 1 && app.ID == "" {
 		err := fmt.Errorf("Failed to get OK Status for MobileSecurityService Bind.")
-		reqLogger.Error(err, "One of the resources are not created", "MobileSecurityServiceApp.Namespace", instance.Namespace, "MobileSecurityServiceApp.Name", instance.Name)
+		reqLogger.Error(err, "One of the resources are not created", "MobileSecurityServiceApp.Namespace", mssApp.Namespace, "MobileSecurityServiceApp.Name", mssApp.Name)
 		return err
 	}
 	status := "OK"
 
 	//Update Bind CR Status with OK
-	if !reflect.DeepEqual(status, instance.Status.BindStatus) {
+	if !reflect.DeepEqual(status, mssApp.Status.BindStatus) {
 		// Get the latest version of the CR in order to try to avoid errors when try to update the CR
-		instance, err := r.fetchInstance(reqLogger, request)
+		instance, err := r.fetchMssAppInstance(reqLogger, request)
 		if err != nil {
 			return err
 		}
@@ -99,7 +99,7 @@ func (r *ReconcileMobileSecurityServiceApp) updateBindStatusWithInvalidNamespace
 	reqLogger.Info("Updating Bind App Status for the MobileSecurityServiceApp")
 
 	// Get the latest version of CR
-	instance, err := r.fetchInstance(reqLogger, request)
+	mssApp, err := r.fetchMssAppInstance(reqLogger, request)
 	if err != nil {
 		return err
 	}
@@ -107,9 +107,9 @@ func (r *ReconcileMobileSecurityServiceApp) updateBindStatusWithInvalidNamespace
 	status := "Invalid Namespace"
 
 	//Update Bind CR Status with OK
-	if !reflect.DeepEqual(status, instance.Status.BindStatus) {
+	if !reflect.DeepEqual(status, mssApp.Status.BindStatus) {
 		// Get the latest version of the CR in order to try to avoid errors when try to update the CR
-		instance, err := r.fetchInstance(reqLogger, request)
+		instance, err := r.fetchMssAppInstance(reqLogger, request)
 		if err != nil {
 			return err
 		}

@@ -15,7 +15,7 @@ func (r *ReconcileMobileSecurityServiceDB) updateDBStatus(reqLogger logr.Logger,
 	reqLogger.Info("Updating App Status for the MobileSecurityServiceDB")
 
 	//Get the latest version of the CR
-	instance, err := r.fetchInstance(reqLogger, request)
+	instance, err := r.fetchDBInstance(reqLogger, request)
 	if err != nil {
 		return err
 	}
@@ -31,7 +31,7 @@ func (r *ReconcileMobileSecurityServiceDB) updateDBStatus(reqLogger logr.Logger,
 	// Update Database Status == OK
 	if !reflect.DeepEqual(status, instance.Status.DatabaseStatus) {
 		// Get the latest version of the CR in order to try to avoid errors when try to update the CR
-		instance, err := r.fetchInstance(reqLogger, request)
+		instance, err := r.fetchDBInstance(reqLogger, request)
 		if err != nil {
 			return err
 		}
@@ -53,7 +53,7 @@ func (r *ReconcileMobileSecurityServiceDB) updateDBStatus(reqLogger logr.Logger,
 func (r *ReconcileMobileSecurityServiceDB) updateDeploymentStatus(reqLogger logr.Logger, request reconcile.Request) (*v1beta1.Deployment, error) {
 	reqLogger.Info("Updating Deployment Status for the MobileSecurityServiceDB")
 	// Get the latest version of the instance CR
-	instance, err := r.fetchInstance(reqLogger, request)
+	instance, err := r.fetchDBInstance(reqLogger, request)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (r *ReconcileMobileSecurityServiceDB) updateDeploymentStatus(reqLogger logr
 	// Update the Deployment Name and Status
 	if deploymentStatus.Name != instance.Status.DeploymentName || !reflect.DeepEqual(deploymentStatus.Status, instance.Status.DeploymentStatus) {
 		// Get the latest version of the CR in order to try to avoid errors when try to update the CR
-		instance, err := r.fetchInstance(reqLogger, request)
+		instance, err := r.fetchDBInstance(reqLogger, request)
 		if err != nil {
 			return nil, err
 		}
@@ -90,7 +90,7 @@ func (r *ReconcileMobileSecurityServiceDB) updateDeploymentStatus(reqLogger logr
 func (r *ReconcileMobileSecurityServiceDB) updateServiceStatus(reqLogger logr.Logger, request reconcile.Request) (*corev1.Service, error) {
 	reqLogger.Info("Updating Service Status for the MobileSecurityServiceDB")
 	// Get the latest version of the instance CR
-	instance, err := r.fetchInstance(reqLogger, request)
+	instance, err := r.fetchDBInstance(reqLogger, request)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +103,7 @@ func (r *ReconcileMobileSecurityServiceDB) updateServiceStatus(reqLogger logr.Lo
 
 	if serviceStatus.Name != instance.Status.ServiceName || !reflect.DeepEqual(serviceStatus.Status, instance.Status.ServiceStatus) {
 		// Get the latest version of the CR in order to try to avoid errors when try to update the CR
-		instance, err := r.fetchInstance(reqLogger, request)
+		instance, err := r.fetchDBInstance(reqLogger, request)
 		if err != nil {
 			return nil, err
 		}
@@ -126,7 +126,7 @@ func (r *ReconcileMobileSecurityServiceDB) updateServiceStatus(reqLogger logr.Lo
 func (r *ReconcileMobileSecurityServiceDB) updatePvcStatus(reqLogger logr.Logger, request reconcile.Request) (*corev1.PersistentVolumeClaim, error) {
 	reqLogger.Info("Updating PersistentVolumeClaim Status for the MobileSecurityServiceDB")
 	// Get the latest version of the CR
-	instance, err := r.fetchInstance(reqLogger, request)
+	instance, err := r.fetchDBInstance(reqLogger, request)
 	if err != nil {
 		return nil, err
 	}
@@ -141,7 +141,7 @@ func (r *ReconcileMobileSecurityServiceDB) updatePvcStatus(reqLogger logr.Logger
 	// Update CR with PVC name
 	if pvcStatus.Name != instance.Status.PersistentVolumeClaimName {
 		// Get the latest version of the CR in order to try to avoid errors when try to update the CR
-		instance, err := r.fetchInstance(reqLogger, request)
+		instance, err := r.fetchDBInstance(reqLogger, request)
 		if err != nil {
 			return nil, err
 		}
@@ -164,7 +164,7 @@ func (r *ReconcileMobileSecurityServiceDB) updateStatusWithInvalidNamespace(reqL
 	reqLogger.Info("Updating App Status for the MobileSecurityServiceDB")
 
 	// Get the latest version of CR
-	instance, err := r.fetchInstance(reqLogger, request)
+	instance, err := r.fetchDBInstance(reqLogger, request)
 	if err != nil {
 		return err
 	}
@@ -174,7 +174,7 @@ func (r *ReconcileMobileSecurityServiceDB) updateStatusWithInvalidNamespace(reqL
 	//Update Bind CR Status with OK
 	if !reflect.DeepEqual(status, instance.Status.DatabaseStatus) {
 		// Get the latest version of the CR in order to try to avoid errors when try to update the CR
-		instance, err := r.fetchInstance(reqLogger, request)
+		instance, err := r.fetchDBInstance(reqLogger, request)
 		if err != nil {
 			return err
 		}

@@ -117,8 +117,8 @@ func TestReconcileMobileSecurityServiceApp_removeFinalizer(t *testing.T) {
 			reqLogger := log.WithValues("Request.Namespace", tt.args.request.Namespace, "Request.Name", tt.args.request.Name)
 
 			// mock fetchBindAppRestServiceByAppID http call
-			fetchBindAppRestServiceByAppID = func(serviceURL string, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, reqLogger logr.Logger) (*models.App, error) {
-				app := models.App{ID: "1234", AppName: instance.Spec.AppName, AppID: instance.Spec.AppId}
+			fetchBindAppRestServiceByAppID = func(serviceURL string, mssApp *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, reqLogger logr.Logger) (*models.App, error) {
+				app := models.App{ID: "1234", AppName: mssApp.Spec.AppName, AppID: mssApp.Spec.AppId}
 				return &app, nil
 			}
 

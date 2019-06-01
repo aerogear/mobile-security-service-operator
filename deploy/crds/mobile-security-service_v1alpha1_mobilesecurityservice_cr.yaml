@@ -5,7 +5,7 @@ metadata:
   name: mobile-security-service
 spec:
 
-  # NOTE: If no specs be defined here the constants values in the code implementation will be applied
+  # NOTE: Default values are applied by the operator if values are not specified below.
 
   # ---------------------------------
   # Service Resources
@@ -41,14 +41,13 @@ spec:
   containerName: "application"
   memoryLimit: "512Mi"
   memoryRequest: "512Mi"
-  # Use the following spec if you would like to define the image policy
+  # Use the following spec if you would like to define the image pull policy
   # containerImagePullPolicy: "IfNotPresent"
 
   # ---------------------------------
   # OAuth Proxy
   # ---------------------------------
 
-  oAuthPort: 4180
   oAuthImage: "docker.io/openshift/oauth-proxy:v1.1.0"
   oAuthContainerName: "oauth-proxy"
   # Use the following spec if you would like to define the image policy

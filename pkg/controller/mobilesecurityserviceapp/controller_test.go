@@ -214,8 +214,8 @@ func TestReconcileMobileSecurityServiceApp_Reconcile_Deletion(t *testing.T) {
 	}
 
 	// mock fetchBindAppRestServiceByAppID http call
-	fetchBindAppRestServiceByAppID = func(serviceURL string, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, reqLogger logr.Logger) (*models.App, error) {
-		app := models.App{ID: "1234", AppName: instance.Spec.AppName, AppID: instance.Spec.AppId}
+	fetchBindAppRestServiceByAppID = func(serviceURL string, mssApp *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, reqLogger logr.Logger) (*models.App, error) {
+		app := models.App{ID: "1234", AppName: mssApp.Spec.AppName, AppID: mssApp.Spec.AppId}
 		return &app, nil
 	}
 
@@ -265,8 +265,8 @@ func TestReconcileMobileSecurityServiceApp_Reconcile(t *testing.T) {
 	}
 
 	// mock fetchBindAppRestServiceByAppID http call
-	fetchBindAppRestServiceByAppID = func(serviceURL string, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, reqLogger logr.Logger) (*models.App, error) {
-		app := models.App{AppName: instance.Spec.AppName, AppID: instance.Spec.AppId}
+	fetchBindAppRestServiceByAppID = func(serviceURL string, mssApp *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, reqLogger logr.Logger) (*models.App, error) {
+		app := models.App{AppName: mssApp.Spec.AppName, AppID: mssApp.Spec.AppId}
 		return &app, nil
 	}
 
@@ -407,8 +407,8 @@ func TestReconcileMobileSecurityServiceApp_Reconcile_UpdateName(t *testing.T) {
 	}
 
 	// mock fetchBindAppRestServiceByAppID http call
-	fetchBindAppRestServiceByAppID = func(serviceURL string, instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, reqLogger logr.Logger) (*models.App, error) {
-		app := models.App{AppName: "oldName", AppID: instance.Spec.AppId}
+	fetchBindAppRestServiceByAppID = func(serviceURL string, mssApp *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, reqLogger logr.Logger) (*models.App, error) {
+		app := models.App{AppName: "oldName", AppID: mssApp.Spec.AppId}
 		return &app, nil
 	}
 

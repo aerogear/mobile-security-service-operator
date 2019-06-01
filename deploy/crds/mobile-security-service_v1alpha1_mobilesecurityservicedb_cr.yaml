@@ -5,7 +5,7 @@ metadata:
   name: mobile-security-service-db
 spec:
 
-  # NOTE: If no specs be defined here the constants values in the code implementation will be applied
+  # NOTE: Default values are applied by the operator if values are not specified below.
 
   # ---------------------------------
   # DB Resources
@@ -20,7 +20,7 @@ spec:
   # The imaged used in this project is from Red Hat. See more in https://docs.okd.io/latest/using_images/db_images/postgresql.html
   image: "centos/postgresql-96-centos7"
   containerName: "database"
-  # Use the following spec if you would like to define the image policy
+  # Use the following spec if you would like to define the image pull policy
   # containerImagePullPolicy: "IfNotPresent"
 
   # Following are the values which will be used as the key label for the environment variable of the database image.
@@ -38,7 +38,7 @@ spec:
   # ---------------------------------
 
   # IMPORTANT: By default the database will use the values defined in the Mobile Security Service and shared via a Config Map.
-  # The following specs are just used just if the database be installed without the Service (standalone)
+  # The following specs are used if the database be installed without the Service (standalone)
   databaseName: "mobile_security_service"
   databasePassword: "postgres"
   databaseUser: "postgresql"

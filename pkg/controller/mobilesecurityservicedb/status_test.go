@@ -34,14 +34,14 @@ func TestReconcileMobileSecurityServiceDB_updateDBStatus(t *testing.T) {
 		{
 			name: "should return an error when no name found",
 			fields: fields{
-				objs:   []runtime.Object{&instanceOne},
+				objs:   []runtime.Object{&dbInstance},
 				scheme: scheme.Scheme,
 			},
 			args: args{
 				request: reconcile.Request{
 					NamespacedName: types.NamespacedName{
-						Name:      instanceOne.Name,
-						Namespace: instanceOne.Namespace,
+						Name:      dbInstance.Name,
+						Namespace: dbInstance.Namespace,
 					},
 				},
 				deploymentStatus: &v1beta1.Deployment{},
@@ -53,14 +53,14 @@ func TestReconcileMobileSecurityServiceDB_updateDBStatus(t *testing.T) {
 		{
 			name: "should update status",
 			fields: fields{
-				objs:   []runtime.Object{&instanceOne},
+				objs:   []runtime.Object{&dbInstance},
 				scheme: scheme.Scheme,
 			},
 			args: args{
 				request: reconcile.Request{
 					NamespacedName: types.NamespacedName{
-						Name:      instanceOne.Name,
-						Namespace: instanceOne.Namespace,
+						Name:      dbInstance.Name,
+						Namespace: dbInstance.Namespace,
 					},
 				},
 				deploymentStatus: &v1beta1.Deployment{
@@ -107,13 +107,13 @@ func TestReconcileMobileSecurityServiceDB_updateDeploymentStatus(t *testing.T) {
 			name: "Should not find the instance",
 			fields: fields{
 				scheme: scheme.Scheme,
-				objs:   []runtime.Object{&instanceOne},
+				objs:   []runtime.Object{&dbInstance},
 			},
 			args: args{
 				request: reconcile.Request{
 					NamespacedName: types.NamespacedName{
-						Name:      instanceTwo.Name,
-						Namespace: instanceTwo.Namespace,
+						Name:      dbInstanceNonDefaultNamespace.Name,
+						Namespace: dbInstanceNonDefaultNamespace.Namespace,
 					},
 				},
 			},
@@ -124,13 +124,13 @@ func TestReconcileMobileSecurityServiceDB_updateDeploymentStatus(t *testing.T) {
 			name: "Should not find the Deployment",
 			fields: fields{
 				scheme: scheme.Scheme,
-				objs:   []runtime.Object{&instanceOne},
+				objs:   []runtime.Object{&dbInstance},
 			},
 			args: args{
 				request: reconcile.Request{
 					NamespacedName: types.NamespacedName{
-						Name:      instanceOne.Name,
-						Namespace: instanceOne.Namespace,
+						Name:      dbInstance.Name,
+						Namespace: dbInstance.Namespace,
 					},
 				},
 			},
@@ -169,7 +169,7 @@ func TestReconcileMobileSecurityServiceDB_updateBindStatusWithInvalidNamespace(t
 		{
 			name: "should return without an error when updating status",
 			args: args{
-				instance: &instanceOne,
+				instance: &dbInstance,
 			},
 			wantErr: false,
 		},
@@ -188,8 +188,8 @@ func TestReconcileMobileSecurityServiceDB_updateBindStatusWithInvalidNamespace(t
 			// mock request to simulate Reconcile() being called on an event for a watched resource
 			req := reconcile.Request{
 				NamespacedName: types.NamespacedName{
-					Name:      instanceOne.Name,
-					Namespace: instanceOne.Namespace,
+					Name:      dbInstance.Name,
+					Namespace: dbInstance.Namespace,
 				},
 			}
 

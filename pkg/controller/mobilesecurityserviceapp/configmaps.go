@@ -8,16 +8,16 @@ import (
 )
 
 // Returns the ConfigMap with the properties used to setup/config the Mobile Security Service Project
-func (r *ReconcileMobileSecurityServiceApp) buildAppSDKConfigMap(m *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, serviceURL string) *corev1.ConfigMap {
+func (r *ReconcileMobileSecurityServiceApp) buildAppSDKConfigMap(mssApp *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, serviceURL string) *corev1.ConfigMap {
 	configMap := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      getSDKConfigMapName(m),
-			Namespace: m.Namespace,
-			Labels:    getSDKAppLabels(m),
+			Name:      getSDKConfigMapName(mssApp),
+			Namespace: mssApp.Namespace,
+			Labels:    getSDKAppLabels(mssApp),
 		},
-		Data: getConfigMapSDKForMobileSecurityService(m, serviceURL),
+		Data: getConfigMapSDKForMobileSecurityService(serviceURL),
 	}
-	// Set MobileSecurityService instance as the owner and controller
-	controllerutil.SetControllerReference(m, configMap, r.scheme)
+	// Set MobileSecurityService mssApp as the owner and controller
+	controllerutil.SetControllerReference(mssApp, configMap, r.scheme)
 	return configMap
 }

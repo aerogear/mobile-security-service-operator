@@ -26,8 +26,8 @@ const (
 func addMandatorySpecsDefinitions(db *mobilesecurityservicev1alpha1.MobileSecurityServiceDB) {
 
 	/*
-		#   CR DB Resource
-		#   ---------------------
+	   CR DB Resource
+	   ---------------------
 	*/
 
 	if db.Spec.Size == 0 {
@@ -35,10 +35,10 @@ func addMandatorySpecsDefinitions(db *mobilesecurityservicev1alpha1.MobileSecuri
 	}
 
 	/*
-		#	Environment Variables
-		#	---------------------
-		#	The following values are used to create the ConfigMap and the Environment Variables which will use these values
-		#	These values are used for both the Mobile Security Service and its Database
+		Environment Variables
+		---------------------
+		The following values are used to create the ConfigMap and the Environment Variables which will use these values
+		These values are used for both the Mobile Security Service and its Database
 	*/
 
 	if db.Spec.DatabaseName == "" {
@@ -54,8 +54,8 @@ func addMandatorySpecsDefinitions(db *mobilesecurityservicev1alpha1.MobileSecuri
 	}
 
 	/*
-		#   Database Container
-		#   ---------------------------------
+	   Database Container
+	   ---------------------------------
 	*/
 
 	//Following are the values which will be used as the key label for the environment variable of the database image.

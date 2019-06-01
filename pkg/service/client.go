@@ -106,21 +106,21 @@ func GetAppFromServiceByRestApi(serviceAPI string, appId string, reqLogger logr.
 	var obj []models.App
 	err = json.NewDecoder(response.Body).Decode(&obj)
 
-	got := models.App{}
+	app := models.App{}
 	if err == io.ErrUnexpectedEOF {
 		reqLogger.Error(err, "The app was not found in the REST Service API - Empty Response", "HTTPMethod", http.MethodGet, "url", url, "Response.Body", response.Body)
-		return &got, nil
+		return &app, nil
 	}
 
 	defer response.Body.Close()
 	if 204 == response.StatusCode {
 		reqLogger.Info("The app was not found in the REST Service API", "HTTPMethod", http.MethodGet, "url", url)
-		return &got, nil
+		return &app, nil
 	}
 
-	got = obj[0]
-	reqLogger.Info("App found in the Service", "App", got)
-	return &got, nil
+	app = obj[0]
+	reqLogger.Info("App found in the Service", "App", app)
+	return &app, nil
 }
 
 //UpdateAppNameByRestAPI will update name of the APP in the Service

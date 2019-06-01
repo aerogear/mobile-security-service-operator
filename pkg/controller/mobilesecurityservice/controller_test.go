@@ -433,7 +433,7 @@ func TestReconcileMobileSecurityService_Reconcile_UnknownNamespace(t *testing.T)
 	dep := &v1beta1.Deployment{}
 	err = r.client.Get(context.TODO(), req.NamespacedName, dep)
 	if err == nil {
-		t.Error("Should not create the Deployments since is an invalid namespace")
+		t.Error("Should not create the Deployment since it is an invalid namespace")
 	}
 }
 
@@ -557,9 +557,8 @@ func TestReconcileMobileSecurityService_Reconcile_WithInstanceWithoutSpecDefined
 	}
 
 	// Check if the quantity of Replicas for this deployment is equals the specification
-	dsize := *dep.Spec.Replicas
-	if dsize != mssInstanceWithoutSpec.Spec.Size {
-		t.Errorf("dep size (%d) is not the expected size (%d)", dsize, mssInstanceWithoutSpec.Spec.Size)
+	if *dep.Spec.Replicas != mssInstanceWithoutSpec.Spec.Size {
+		t.Errorf("dep size (%d) is not the expected size (%d)", dep.Spec.Replicas, mssInstanceWithoutSpec.Spec.Size)
 	}
 
 	res, err = r.Reconcile(req)

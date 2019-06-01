@@ -35,7 +35,6 @@ type MobileSecurityServiceSpec struct {
 	ClusterProtocol    string `json:"clusterProtocol,omitempty"`
 	MemoryLimit        string `json:"memoryLimit,omitempty"`
 	MemoryRequest      string `json:"memoryRequest,omitempty"`
-	OAuthPort          int32  `json:"oAuthPort,omitempty"`
 	OAuthImage         string `json:"oAuthImage,omitempty"`
 	OAuthContainerName string `json:"oAuthContainerName,omitempty"`
 

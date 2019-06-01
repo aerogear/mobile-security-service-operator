@@ -20,7 +20,6 @@ const (
 	memoryRequest                 = "512Mi"
 	image                         = "aerogear/mobile-security-service:master"
 	containerName                 = "application"
-	oAuthPort                     = 4180
 	oAuthImage                    = "docker.io/openshift/oauth-proxy:v1.1.0"
 	oAuthContainerName            = "oauth-proxy"
 	configMapName                 = "mobile-security-service-config"
@@ -29,7 +28,7 @@ const (
 
 // addMandatorySpecsDefinitions will add the specs which are mandatory for Mobile Security Service CR in the case them
 // not be applied
-func addMandatorySpecsDefinitions(serviceInstance *mobilesecurityservicev1alpha1.MobileSecurityService) {
+func addMandatorySpecsDefinitions(mss *mobilesecurityservicev1alpha1.MobileSecurityService) {
 
 	/*
 		Environment Variables
@@ -38,40 +37,40 @@ func addMandatorySpecsDefinitions(serviceInstance *mobilesecurityservicev1alpha1
 		These values are used for both the Mobile Security Service and its Database
 	*/
 
-	if serviceInstance.Spec.DatabaseName == "" {
-		serviceInstance.Spec.DatabaseName = databaseName
+	if mss.Spec.DatabaseName == "" {
+		mss.Spec.DatabaseName = databaseName
 	}
 
-	if serviceInstance.Spec.DatabasePassword == "" {
-		serviceInstance.Spec.DatabasePassword = databasePassword
+	if mss.Spec.DatabasePassword == "" {
+		mss.Spec.DatabasePassword = databasePassword
 	}
 
-	if serviceInstance.Spec.DatabaseUser == "" {
-		serviceInstance.Spec.DatabaseUser = databaseUser
+	if mss.Spec.DatabaseUser == "" {
+		mss.Spec.DatabaseUser = databaseUser
 	}
 
-	if serviceInstance.Spec.DatabaseHost == "" {
-		serviceInstance.Spec.DatabaseHost = databaseHost
+	if mss.Spec.DatabaseHost == "" {
+		mss.Spec.DatabaseHost = databaseHost
 	}
 
-	if serviceInstance.Spec.Port == 0 {
-		serviceInstance.Spec.Port = port
+	if mss.Spec.Port == 0 {
+		mss.Spec.Port = port
 	}
 
-	if serviceInstance.Spec.LogLevel == "" {
-		serviceInstance.Spec.LogLevel = logLevel
+	if mss.Spec.LogLevel == "" {
+		mss.Spec.LogLevel = logLevel
 	}
 
-	if serviceInstance.Spec.LogFormat == "" {
-		serviceInstance.Spec.LogFormat = logFormat
+	if mss.Spec.LogFormat == "" {
+		mss.Spec.LogFormat = logFormat
 	}
 
-	if serviceInstance.Spec.LogLevel == "" {
-		serviceInstance.Spec.LogLevel = accessControlAllowOrigin
+	if mss.Spec.LogLevel == "" {
+		mss.Spec.LogLevel = accessControlAllowOrigin
 	}
 
-	if serviceInstance.Spec.AccessControlAllowOrigin == "" {
-		serviceInstance.Spec.AccessControlAllowCredentials = accessControlAllowCredentials
+	if mss.Spec.AccessControlAllowOrigin == "" {
+		mss.Spec.AccessControlAllowCredentials = accessControlAllowCredentials
 	}
 
 	/*
@@ -79,30 +78,30 @@ func addMandatorySpecsDefinitions(serviceInstance *mobilesecurityservicev1alpha1
 		---------------------
 	*/
 
-	if serviceInstance.Spec.Size == 0 {
-		serviceInstance.Spec.Size = size
+	if mss.Spec.Size == 0 {
+		mss.Spec.Size = size
 	}
 
 	// The clusterProtocol is required and used to generated the Public Host URL
 	// Options [http or https]
-	if serviceInstance.Spec.ClusterProtocol == "" {
-		serviceInstance.Spec.ClusterProtocol = clusterProtocol
+	if mss.Spec.ClusterProtocol == "" {
+		mss.Spec.ClusterProtocol = clusterProtocol
 	}
 
-	if serviceInstance.Spec.MemoryLimit == "" {
-		serviceInstance.Spec.MemoryLimit = memoryLimit
+	if mss.Spec.MemoryLimit == "" {
+		mss.Spec.MemoryLimit = memoryLimit
 	}
 
-	if serviceInstance.Spec.MemoryRequest == "" {
-		serviceInstance.Spec.MemoryRequest = memoryRequest
+	if mss.Spec.MemoryRequest == "" {
+		mss.Spec.MemoryRequest = memoryRequest
 	}
 
-	if serviceInstance.Spec.RouteName == "" {
-		serviceInstance.Spec.RouteName = routeName
+	if mss.Spec.RouteName == "" {
+		mss.Spec.RouteName = routeName
 	}
 
-	if serviceInstance.Spec.ConfigMapName == "" {
-		serviceInstance.Spec.ConfigMapName = configMapName
+	if mss.Spec.ConfigMapName == "" {
+		mss.Spec.ConfigMapName = configMapName
 	}
 
 	/*
@@ -110,12 +109,12 @@ func addMandatorySpecsDefinitions(serviceInstance *mobilesecurityservicev1alpha1
 		---------------------
 	*/
 
-	if serviceInstance.Spec.Image == "" {
-		serviceInstance.Spec.Image = image
+	if mss.Spec.Image == "" {
+		mss.Spec.Image = image
 	}
 
-	if serviceInstance.Spec.ContainerName == "" {
-		serviceInstance.Spec.ContainerName = containerName
+	if mss.Spec.ContainerName == "" {
+		mss.Spec.ContainerName = containerName
 	}
 
 	/*
@@ -123,15 +122,11 @@ func addMandatorySpecsDefinitions(serviceInstance *mobilesecurityservicev1alpha1
 		---------------------
 	*/
 
-	if serviceInstance.Spec.OAuthPort == 0 {
-		serviceInstance.Spec.OAuthPort = oAuthPort
+	if mss.Spec.OAuthImage == "" {
+		mss.Spec.OAuthImage = oAuthImage
 	}
 
-	if serviceInstance.Spec.OAuthImage == "" {
-		serviceInstance.Spec.OAuthImage = oAuthImage
-	}
-
-	if serviceInstance.Spec.OAuthContainerName == "" {
-		serviceInstance.Spec.OAuthContainerName = oAuthContainerName
+	if mss.Spec.OAuthContainerName == "" {
+		mss.Spec.OAuthContainerName = oAuthContainerName
 	}
 }
