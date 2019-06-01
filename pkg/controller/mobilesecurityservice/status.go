@@ -17,7 +17,7 @@ import (
 func (r *ReconcileMobileSecurityService) updateStatus(reqLogger logr.Logger, configMapStatus *corev1.ConfigMap, deploymentStatus *v1beta1.Deployment, proxyServiceStatus *corev1.Service, applicationServiceStatus *corev1.Service, routeStatus *routev1.Route, request reconcile.Request) error {
 	reqLogger.Info("Updating App Status for the MobileSecurityService")
 	// Get the latest version of the CR
-	instance, err := r.fetchInstance(reqLogger, request)
+	instance, err := r.fetchServiceInstance(reqLogger, request)
 	if err != nil {
 		return err
 	}
@@ -50,7 +50,7 @@ func (r *ReconcileMobileSecurityService) updateStatusWithInvalidNamespace(reqLog
 	reqLogger.Info("Updating Bind App Status for the MobileSecurityServiceApp")
 
 	// Get the latest version of CR
-	instance, err := r.fetchInstance(reqLogger, request)
+	instance, err := r.fetchServiceInstance(reqLogger, request)
 	if err != nil {
 		return err
 	}
@@ -60,7 +60,7 @@ func (r *ReconcileMobileSecurityService) updateStatusWithInvalidNamespace(reqLog
 	//Update Bind CR Status with OK
 	if !reflect.DeepEqual(status, instance.Status.AppStatus) {
 		// Get the latest version of the CR in order to try to avoid errors when try to update the CR
-		instance, err := r.fetchInstance(reqLogger, request)
+		instance, err := r.fetchServiceInstance(reqLogger, request)
 		if err != nil {
 			return err
 		}
@@ -82,7 +82,7 @@ func (r *ReconcileMobileSecurityService) updateStatusWithInvalidNamespace(reqLog
 func (r *ReconcileMobileSecurityService) updateConfigMapStatus(reqLogger logr.Logger, request reconcile.Request) (*corev1.ConfigMap, error) {
 	reqLogger.Info("Updating ConfigMap Status for the MobileSecurityService")
 	// Get the latest version of the CR
-	instance, err := r.fetchInstance(reqLogger, request)
+	instance, err := r.fetchServiceInstance(reqLogger, request)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func (r *ReconcileMobileSecurityService) updateConfigMapStatus(reqLogger logr.Lo
 	// Update ConfigMap Name
 	if configMapStatus.Name != instance.Status.ConfigMapName {
 		// Get the latest version of the CR in order to try to avoid errors when try to update the CR
-		instance, err := r.fetchInstance(reqLogger, request)
+		instance, err := r.fetchServiceInstance(reqLogger, request)
 		if err != nil {
 			return nil, err
 		}
@@ -119,7 +119,7 @@ func (r *ReconcileMobileSecurityService) updateConfigMapStatus(reqLogger logr.Lo
 func (r *ReconcileMobileSecurityService) updateDeploymentStatus(reqLogger logr.Logger, request reconcile.Request) (*v1beta1.Deployment, error) {
 	reqLogger.Info("Updating Deployment Status for the MobileSecurityService")
 	// Get the latest version of the CR
-	instance, err := r.fetchInstance(reqLogger, request)
+	instance, err := r.fetchServiceInstance(reqLogger, request)
 	if err != nil {
 		return nil, err
 	}
@@ -134,7 +134,7 @@ func (r *ReconcileMobileSecurityService) updateDeploymentStatus(reqLogger logr.L
 	// Update the Deployment Name and Status
 	if deploymentStatus.Name != instance.Status.DeploymentName || !reflect.DeepEqual(deploymentStatus.Status, instance.Status.DeploymentStatus) {
 		// Get the latest version of the CR in order to try to avoid errors when try to update the CR
-		instance, err := r.fetchInstance(reqLogger, request)
+		instance, err := r.fetchServiceInstance(reqLogger, request)
 		if err != nil {
 			return nil, err
 		}
@@ -158,7 +158,7 @@ func (r *ReconcileMobileSecurityService) updateDeploymentStatus(reqLogger logr.L
 func (r *ReconcileMobileSecurityService) updateAppServiceStatus(reqLogger logr.Logger, request reconcile.Request) (*corev1.Service, error) {
 	reqLogger.Info("Updating App Service Status for the MobileSecurityService")
 	// Get the latest version of the CR
-	instance, err := r.fetchInstance(reqLogger, request)
+	instance, err := r.fetchServiceInstance(reqLogger, request)
 	if err != nil {
 		return nil, err
 	}
@@ -172,7 +172,7 @@ func (r *ReconcileMobileSecurityService) updateAppServiceStatus(reqLogger logr.L
 	// Update the Deployment Name and Status
 	if serviceStatus.Name != instance.Status.ServiceName || !reflect.DeepEqual(serviceStatus.Status, instance.Status.ServiceStatus) {
 		// Get the latest version of the CR in order to try to avoid errors when try to update the CR
-		instance, err := r.fetchInstance(reqLogger, request)
+		instance, err := r.fetchServiceInstance(reqLogger, request)
 		if err != nil {
 			return nil, err
 		}
@@ -196,7 +196,7 @@ func (r *ReconcileMobileSecurityService) updateAppServiceStatus(reqLogger logr.L
 func (r *ReconcileMobileSecurityService) updateProxyServiceStatus(reqLogger logr.Logger, request reconcile.Request) (*corev1.Service, error) {
 	reqLogger.Info("Updating Proxy Service Status for the MobileSecurityService")
 	// Get the latest version of the CR
-	instance, err := r.fetchInstance(reqLogger, request)
+	instance, err := r.fetchServiceInstance(reqLogger, request)
 	if err != nil {
 		return nil, err
 	}
@@ -210,7 +210,7 @@ func (r *ReconcileMobileSecurityService) updateProxyServiceStatus(reqLogger logr
 	// Update the Service Status and Name
 	if serviceStatus.Name != instance.Status.ProxyServiceName || !reflect.DeepEqual(serviceStatus.Status, instance.Status.ProxyServiceStatus) {
 		// Get the latest version of the CR in order to try to avoid errors when try to update the CR
-		instance, err := r.fetchInstance(reqLogger, request)
+		instance, err := r.fetchServiceInstance(reqLogger, request)
 		if err != nil {
 			return nil, err
 		}
@@ -234,7 +234,7 @@ func (r *ReconcileMobileSecurityService) updateProxyServiceStatus(reqLogger logr
 func (r *ReconcileMobileSecurityService) updateRouteStatus(reqLogger logr.Logger, request reconcile.Request) (*routev1.Route, error) {
 	reqLogger.Info("Updating Route Status for the MobileSecurityService")
 	// Get the latest version of the CR
-	instance, err := r.fetchInstance(reqLogger, request)
+	instance, err := r.fetchServiceInstance(reqLogger, request)
 	if err != nil {
 		return nil, err
 	}
@@ -249,7 +249,7 @@ func (r *ReconcileMobileSecurityService) updateRouteStatus(reqLogger logr.Logger
 	// Update the Route Status and Name
 	if instance.Spec.RouteName != instance.Status.RouteName || !reflect.DeepEqual(route.Status, instance.Status.RouteStatus) {
 		// Get the latest version of the CR in order to try to avoid errors when try to update the CR
-		instance, err := r.fetchInstance(reqLogger, request)
+		instance, err := r.fetchServiceInstance(reqLogger, request)
 		if err != nil {
 			return nil, err
 		}

@@ -10,7 +10,7 @@ import (
 
 // Centralized mock objects for use in tests
 var (
-	instanceOne = v1alpha1.MobileSecurityServiceDB{
+	dbInstance = v1alpha1.MobileSecurityServiceDB{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "mobile-security-service-db",
 			Namespace: utils.OperatorNamespaceForLocalEnv,
@@ -32,7 +32,7 @@ var (
 		},
 	}
 
-	instanceTwo = v1alpha1.MobileSecurityServiceDB{
+	dbInstanceNotDefaultNamespace = v1alpha1.MobileSecurityServiceDB{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "mobile-security-service-db",
 			Namespace: "mobile-security-service-namespace",

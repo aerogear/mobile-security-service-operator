@@ -9,13 +9,12 @@ import (
 )
 
 // Returns the Service with the properties used to setup/config the Mobile Security Service Project
-func (r *ReconcileMobileSecurityService) buildServiceAccount(m *mobilesecurityservicev1alpha1.MobileSecurityService) *corev1.ServiceAccount {
-
+func (r *ReconcileMobileSecurityService) buildServiceAccount(service *mobilesecurityservicev1alpha1.MobileSecurityService) *corev1.ServiceAccount {
 	return &corev1.ServiceAccount{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:        m.Name,
-			Namespace:   m.Namespace,
-			Annotations: buildOauthAnnotationWithRoute(m.Spec.RouteName),
+			Name:        service.Name,
+			Namespace:   service.Namespace,
+			Annotations: buildOauthAnnotationWithRoute(service.Spec.RouteName),
 		},
 	}
 }

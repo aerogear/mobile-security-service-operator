@@ -6,15 +6,15 @@ import (
 )
 
 //Check if the mandatory specs are filled
-func hasMandatorySpecs(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, reqLogger logr.Logger) bool {
+func hasMandatorySpecs(app *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, reqLogger logr.Logger) bool {
 	//Check if the appId was added in the CR
-	if len(instance.Spec.AppId) < 1 {
+	if len(app.Spec.AppId) < 1 {
 		reqLogger.Info("AppID was not found. Check the App CR configuration.")
 		return false
 	}
 
 	//Check if the appName was added in the CR
-	if len(instance.Spec.AppName) < 1 {
+	if len(app.Spec.AppName) < 1 {
 		reqLogger.Info("AppName was not found. Check the App CR configuration.")
 		return false
 	}

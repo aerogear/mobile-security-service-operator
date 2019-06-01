@@ -14,7 +14,7 @@ import (
 
 // Request object not found, could have been deleted after reconcile request.
 // Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
-func (r *ReconcileMobileSecurityService) fetchInstance(reqLogger logr.Logger, request reconcile.Request) (*mobilesecurityservicev1alpha1.MobileSecurityService, error) {
+func (r *ReconcileMobileSecurityService) fetchServiceInstance(reqLogger logr.Logger, request reconcile.Request) (*mobilesecurityservicev1alpha1.MobileSecurityService, error) {
 	instance := &mobilesecurityservicev1alpha1.MobileSecurityService{}
 	//Fetch the MobileSecurityService instance
 	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
@@ -38,10 +38,10 @@ func (r *ReconcileMobileSecurityService) fetchServiceAccount(reqLogger logr.Logg
 }
 
 //fetchService returns the service resource created for this instance
-func (r *ReconcileMobileSecurityService) fetchService(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityService, name string) (*corev1.Service, error) {
+func (r *ReconcileMobileSecurityService) fetchService(reqLogger logr.Logger, instance *mobilesecurityservicev1alpha1.MobileSecurityService, serviceName string) (*corev1.Service, error) {
 	reqLogger.Info("Checking if the service already exists")
 	service := &corev1.Service{}
-	err := r.client.Get(context.TODO(), types.NamespacedName{Name: name, Namespace: instance.Namespace}, service)
+	err := r.client.Get(context.TODO(), types.NamespacedName{Name: serviceName, Namespace: instance.Namespace}, service)
 	return service, err
 }
 

@@ -557,9 +557,8 @@ func TestReconcileMobileSecurityService_Reconcile_WithInstanceWithoutSpecDefined
 	}
 
 	// Check if the quantity of Replicas for this deployment is equals the specification
-	dsize := *dep.Spec.Replicas
-	if dsize != mssInstanceWithoutSpec.Spec.Size {
-		t.Errorf("dep size (%d) is not the expected size (%d)", dsize, mssInstanceWithoutSpec.Spec.Size)
+	if *dep.Spec.Replicas != mssInstanceWithoutSpec.Spec.Size {
+		t.Errorf("dep size (%d) is not the expected size (%d)", dep.Spec.Replicas, mssInstanceWithoutSpec.Spec.Size)
 	}
 
 	res, err = r.Reconcile(req)

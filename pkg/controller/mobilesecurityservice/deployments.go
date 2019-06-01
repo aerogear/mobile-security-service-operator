@@ -11,14 +11,14 @@ import (
 )
 
 //buildDeployment returns the Deployment object using as image the MobileSecurityService App ( UI + REST API)
-func (r *ReconcileMobileSecurityService) buildDeployment(m *mobilesecurityservicev1alpha1.MobileSecurityService) *v1beta1.Deployment {
+func (r *ReconcileMobileSecurityService) buildDeployment(service *mobilesecurityservicev1alpha1.MobileSecurityService) *v1beta1.Deployment {
 
-	ls := getAppLabels(m.Name)
-	replicas := m.Spec.Size
+	ls := getAppLabels(service.Name)
+	replicas := service.Spec.Size
 	dep := &v1beta1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      m.Name,
-			Namespace: m.Namespace,
+			Name:      service.Name,
+			Namespace: service.Namespace,
 			Labels:    ls,
 		},
 		Spec: v1beta1.DeploymentSpec{
@@ -34,49 +34,49 @@ func (r *ReconcileMobileSecurityService) buildDeployment(m *mobilesecurityservic
 					Labels: ls,
 				},
 				Spec: corev1.PodSpec{
-					ServiceAccountName: m.Name,
-					Containers:         getDeploymentContainers(m),
+					ServiceAccountName: service.Name,
+					Containers:         getDeploymentContainers(service),
 				},
 			},
 		},
 	}
 
-	// Set MobileSecurityService instance as the owner and controller
-	controllerutil.SetControllerReference(m, dep, r.scheme)
+	// Set MobileSecurityService service as the owner and controller
+	controllerutil.SetControllerReference(service, dep, r.scheme)
 	return dep
 }
 
-func getDeploymentContainers(m *mobilesecurityservicev1alpha1.MobileSecurityService) []corev1.Container {
+func getDeploymentContainers(service *mobilesecurityservicev1alpha1.MobileSecurityService) []corev1.Container {
 	var containers []corev1.Container
-	containers = append(containers, buildOAuthContainer(m))
-	containers = append(containers, buildApplicationContainer(m))
+	containers = append(containers, buildOAuthContainer(service))
+	containers = append(containers, buildApplicationContainer(service))
 	return containers
 }
 
-func buildOAuthContainer(m *mobilesecurityservicev1alpha1.MobileSecurityService) corev1.Container {
+func buildOAuthContainer(service *mobilesecurityservicev1alpha1.MobileSecurityService) corev1.Container {
 	return corev1.Container{
-		Image:           m.Spec.OAuthImage,
-		Name:            m.Spec.OAuthContainerName,
-		ImagePullPolicy: m.Spec.OAuthContainerImagePullPolicy,
+		Image:           service.Spec.OAuthImage,
+		Name:            service.Spec.OAuthContainerName,
+		ImagePullPolicy: service.Spec.OAuthContainerImagePullPolicy,
 		Ports: []corev1.ContainerPort{{
-			ContainerPort: m.Spec.OAuthPort,
+			ContainerPort: service.Spec.OAuthPort,
 			Name:          "public",
 			Protocol:      "TCP",
 		}},
-		Args:                     getOAuthArgsMap(m),
+		Args:                     getOAuthArgsMap(service),
 		TerminationMessagePath:   "/dev/termination-log",
 		TerminationMessagePolicy: "File",
 	}
 }
 
-func buildApplicationContainer(m *mobilesecurityservicev1alpha1.MobileSecurityService) corev1.Container {
-	environment := buildAppEnvVars(m)
+func buildApplicationContainer(service *mobilesecurityservicev1alpha1.MobileSecurityService) corev1.Container {
+	environment := buildAppEnvVars(service)
 	return corev1.Container{
-		Image:           m.Spec.Image,
-		Name:            m.Spec.ContainerName,
-		ImagePullPolicy: m.Spec.ContainerImagePullPolicy,
+		Image:           service.Spec.Image,
+		Name:            service.Spec.ContainerName,
+		ImagePullPolicy: service.Spec.ContainerImagePullPolicy,
 		Ports: []corev1.ContainerPort{{
-			ContainerPort: m.Spec.Port,
+			ContainerPort: service.Spec.Port,
 			Name:          "http",
 			Protocol:      "TCP",
 		}},
@@ -88,7 +88,7 @@ func buildApplicationContainer(m *mobilesecurityservicev1alpha1.MobileSecuritySe
 					Path: "/api/healthz",
 					Port: intstr.IntOrString{
 						Type:   intstr.Int,
-						IntVal: m.Spec.Port,
+						IntVal: service.Spec.Port,
 					},
 					Scheme: corev1.URISchemeHTTP,
 				},
@@ -105,7 +105,7 @@ func buildApplicationContainer(m *mobilesecurityservicev1alpha1.MobileSecuritySe
 					Path: "/api/ping",
 					Port: intstr.IntOrString{
 						Type:   intstr.Int,
-						IntVal: m.Spec.Port,
+						IntVal: service.Spec.Port,
 					},
 					Scheme: corev1.URISchemeHTTP,
 				},
@@ -118,10 +118,10 @@ func buildApplicationContainer(m *mobilesecurityservicev1alpha1.MobileSecuritySe
 		},
 		Resources: corev1.ResourceRequirements{
 			Limits: corev1.ResourceList{
-				corev1.ResourceMemory: resource.MustParse(m.Spec.MemoryLimit),
+				corev1.ResourceMemory: resource.MustParse(service.Spec.MemoryLimit),
 			},
 			Requests: corev1.ResourceList{
-				corev1.ResourceMemory: resource.MustParse(m.Spec.MemoryRequest),
+				corev1.ResourceMemory: resource.MustParse(service.Spec.MemoryRequest),
 			},
 		},
 	}

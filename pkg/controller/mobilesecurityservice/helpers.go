@@ -16,15 +16,15 @@ func getAppLabels(name string) map[string]string {
 }
 
 //buildAppEnvVars is a helper to build the env vars which will be configured in the deployment of the Mobile Security Service Project
-func buildAppEnvVars(m *mobilesecurityservicev1alpha1.MobileSecurityService) *[]corev1.EnvVar {
+func buildAppEnvVars(service *mobilesecurityservicev1alpha1.MobileSecurityService) *[]corev1.EnvVar {
 	res := []corev1.EnvVar{}
-	for key := range getAppEnvVarsMap(m) {
+	for key := range getAppEnvVarsMap(service) {
 		env := corev1.EnvVar{
 			Name: key,
 			ValueFrom: &corev1.EnvVarSource{
 				ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 					LocalObjectReference: corev1.LocalObjectReference{
-						Name: m.Spec.ConfigMapName,
+						Name: service.Spec.ConfigMapName,
 					},
 					Key: key,
 				},
@@ -36,26 +36,26 @@ func buildAppEnvVars(m *mobilesecurityservicev1alpha1.MobileSecurityService) *[]
 }
 
 //getAppEnvVarsMap is a helper to get a map[string]string with the key and values required/used to setup the Mobile Security Service Project
-func getAppEnvVarsMap(m *mobilesecurityservicev1alpha1.MobileSecurityService) map[string]string {
+func getAppEnvVarsMap(service *mobilesecurityservicev1alpha1.MobileSecurityService) map[string]string {
 	return map[string]string{
-		"PGHOST":                           m.Spec.DatabaseHost,
-		"LOG_LEVEL":                        m.Spec.LogLevel,
-		"LOG_FORMAT":                       m.Spec.LogFormat,
-		"ACCESS_CONTROL_ALLOW_ORIGIN":      m.Spec.AccessControlAllowOrigin,
-		"ACCESS_CONTROL_ALLOW_CREDENTIALS": m.Spec.AccessControlAllowCredentials,
-		"PGDATABASE":                       m.Spec.DatabaseName,
-		"PGPASSWORD":                       m.Spec.DatabasePassword,
-		"PGUSER":                           m.Spec.DatabaseUser,
+		"PGHOST":                           service.Spec.DatabaseHost,
+		"LOG_LEVEL":                        service.Spec.LogLevel,
+		"LOG_FORMAT":                       service.Spec.LogFormat,
+		"ACCESS_CONTROL_ALLOW_ORIGIN":      service.Spec.AccessControlAllowOrigin,
+		"ACCESS_CONTROL_ALLOW_CREDENTIALS": service.Spec.AccessControlAllowCredentials,
+		"PGDATABASE":                       service.Spec.DatabaseName,
+		"PGPASSWORD":                       service.Spec.DatabasePassword,
+		"PGUSER":                           service.Spec.DatabaseUser,
 	}
 }
 
 // getOAuthArgsMap is a helper to get the []string with values required/used to set OAuth for the Mobile Security Service Project
-func getOAuthArgsMap(m *mobilesecurityservicev1alpha1.MobileSecurityService) []string {
+func getOAuthArgsMap(service *mobilesecurityservicev1alpha1.MobileSecurityService) []string {
 	return []string{
 		"--http-address=0.0.0.0:4180",
 		"--https-address=",
 		"--provider=openshift",
-		fmt.Sprintf("--openshift-service-account=%s", m.Name),
+		fmt.Sprintf("--openshift-service-account=%s", service.Name),
 		"--upstream=http://localhost:3000",
 		"--cookie-secure=true",
 		fmt.Sprintf("--cookie-secret=%s", RandStringBytes(16)),

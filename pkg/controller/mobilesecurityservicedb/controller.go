@@ -50,17 +50,17 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 
 	/** Watch for changes to secondary resources and create the owner MobileSecurityService **/
 
-	//Deployment
+	// Deployment
 	if err := watchDeployment(c); err != nil {
 		return err
 	}
 
-	//Service
+	// Service
 	if err := watchService(c); err != nil {
 		return err
 	}
 
-	//PersistenceVolume
+	// PersistenceVolume
 	if err := watchPersistenceVolumeClaim(c); err != nil {
 		return err
 	}
@@ -78,7 +78,7 @@ type ReconcileMobileSecurityServiceDB struct {
 	scheme *runtime.Scheme
 }
 
-//Update the object and reconcile it
+// Update the object and reconcile it
 func (r *ReconcileMobileSecurityServiceDB) update(obj runtime.Object, reqLogger logr.Logger) error {
 	err := r.client.Update(context.TODO(), obj)
 	if err != nil {
@@ -89,20 +89,20 @@ func (r *ReconcileMobileSecurityServiceDB) update(obj runtime.Object, reqLogger 
 	return nil
 }
 
-//Create the object and reconcile it
-func (r *ReconcileMobileSecurityServiceDB) create(instance *mobilesecurityservicev1alpha1.MobileSecurityServiceDB, kind string, reqLogger logr.Logger) error {
-	obj := r.buildFactory(instance, kind, reqLogger)
-	reqLogger.Info("Creating a new ", "kind", kind, "Namespace", instance.Namespace)
+// Create the object and reconcile it
+func (r *ReconcileMobileSecurityServiceDB) create(db *mobilesecurityservicev1alpha1.MobileSecurityServiceDB, kind string, reqLogger logr.Logger) error {
+	obj := r.buildFactory(db, kind, reqLogger)
+	reqLogger.Info("Creating a new ", "kind", kind, "Namespace", db.Namespace)
 	err := r.client.Create(context.TODO(), obj)
 	if err != nil {
-		reqLogger.Error(err, "Failed to create new ", "kind", kind, "Namespace", instance.Namespace)
+		reqLogger.Error(err, "Failed to create new ", "kind", kind, "Namespace", db.Namespace)
 		return err
 	}
-	reqLogger.Info("Created successfully", "kind", kind, "Namespace", instance.Namespace)
+	reqLogger.Info("Created successfully", "kind", kind, "Namespace", db.Namespace)
 	return nil
 }
 
-//buildFactory will return the resource according to the kind defined
+// buildFactory will return the resource according to the kind defined
 func (r *ReconcileMobileSecurityServiceDB) buildFactory(db *mobilesecurityservicev1alpha1.MobileSecurityServiceDB, kind string, reqLogger logr.Logger) runtime.Object {
 	reqLogger.Info("Check "+kind, "into the namespace", db.Namespace)
 	switch kind {
@@ -130,18 +130,18 @@ func (r *ReconcileMobileSecurityServiceDB) Reconcile(request reconcile.Request) 
 	reqLogger := log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
 	reqLogger.Info("Reconciling Mobile Security Service Database")
 
-	//Fetch the MobileSecurityService App instance
-	instance := &mobilesecurityservicev1alpha1.MobileSecurityServiceDB{}
-	instance, err := r.fetchInstance(reqLogger, request)
+	// Fetch the MobileSecurityService DB
+	db := &mobilesecurityservicev1alpha1.MobileSecurityServiceDB{}
+	db, err := r.fetchDBInstance(reqLogger, request)
 	if err != nil {
 		reqLogger.Error(err, "Failed to get Mobile Security Service DB")
 		return reconcile.Result{}, err
 	}
 
 	// Check if the DB CR was applied in the same namespace of the operator
-	if isValidNamespace, err := utils.IsValidOperatorNamespace(instance.Namespace); err != nil || isValidNamespace == false {
+	if isValidNamespace, err := utils.IsValidOperatorNamespace(db.Namespace); err != nil || isValidNamespace == false {
 		operatorNamespace, _ := k8sutil.GetOperatorNamespace()
-		reqLogger.Error(err, "Unable to reconcile Mobile Security Service Database", "instance.Namespace", instance.Namespace, "isValidNamespace", isValidNamespace, "Operator.Namespace", operatorNamespace)
+		reqLogger.Error(err, "Unable to reconcile Mobile Security Service Database", "db.Namespace", db.Namespace, "isValidNamespace", isValidNamespace, "Operator.Namespace", operatorNamespace)
 
 		//Update status with Invalid Namespace
 		if err := r.updateStatusWithInvalidNamespace(reqLogger, request); err != nil {
@@ -154,35 +154,35 @@ func (r *ReconcileMobileSecurityServiceDB) Reconcile(request reconcile.Request) 
 	reqLogger.Info("Valid namespace for Mobile Security Service DB", "Namespace", request.Namespace)
 
 	// Add const values for mandatory specs
-	addMandatorySpecsDefinitions(instance)
+	addMandatorySpecsDefinitions(db)
 
-	//Check if Deployment for the app exist, if not create one
-	deployment, err := r.fetchDBDeployment(reqLogger, instance)
+	// Check if Deployment for the app exist, if not create one
+	deployment, err := r.fetchDBDeployment(reqLogger, db)
 	if err != nil {
 		// Create the deployment
-		if err := r.create(instance, Deployment, reqLogger); err != nil {
+		if err := r.create(db, Deployment, reqLogger); err != nil {
 			return reconcile.Result{}, err
 		}
 		return reconcile.Result{Requeue: true}, nil
 	}
 
-	//Check if Service for the app exist, if not create one
-	if _, err := r.fetchDBService(reqLogger, instance); err != nil {
-		if err := r.create(instance, Service, reqLogger); err != nil {
+	// Check if Service for the app exist, if not create one
+	if _, err := r.fetchDBService(reqLogger, db); err != nil {
+		if err := r.create(db, Service, reqLogger); err != nil {
 			return reconcile.Result{}, err
 		}
 	}
 
-	//Check if PersistentVolumeClaim for the app exist, if not create one
-	if _, err := r.fetchDBPersistentVolumeClaim(reqLogger, instance); err != nil {
-		if err := r.create(instance, PVC, reqLogger); err != nil {
+	// Check if PersistentVolumeClaim for the app exist, if not create one
+	if _, err := r.fetchDBPersistentVolumeClaim(reqLogger, db); err != nil {
+		if err := r.create(db, PVC, reqLogger); err != nil {
 			return reconcile.Result{}, err
 		}
 	}
 
-	//Ensure the deployment size is the same as the spec
+	// Ensure the deployment size is the same as the spec
 	reqLogger.Info("Ensuring the Mobile Security Service Database deployment size is the same as the spec")
-	size := instance.Spec.Size
+	size := db.Spec.Size
 	if *deployment.Spec.Replicas != size {
 		// Set the number of Replicas spec in the CR
 		deployment.Spec.Replicas = &size
@@ -192,25 +192,25 @@ func (r *ReconcileMobileSecurityServiceDB) Reconcile(request reconcile.Request) 
 		}
 	}
 
-	//Update status for deployment
+	// Update status for deployment
 	deploymentStatus, err := r.updateDeploymentStatus(reqLogger, request)
 	if err != nil {
 		return reconcile.Result{}, err
 	}
 
-	//Update status for Service
+	// Update status for Service
 	serviceStatus, err := r.updateServiceStatus(reqLogger, request)
 	if err != nil {
 		return reconcile.Result{}, err
 	}
 
-	//Update status for PVC
+	// Update status for PVC
 	pvcStatus, err := r.updatePvcStatus(reqLogger, request)
 	if err != nil {
 		return reconcile.Result{}, err
 	}
 
-	//Update status for DB
+	// Update status for DB
 	if err := r.updateDBStatus(reqLogger, deploymentStatus, serviceStatus, pvcStatus, request); err != nil {
 		return reconcile.Result{}, err
 	}

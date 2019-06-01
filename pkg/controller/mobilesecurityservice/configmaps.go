@@ -8,16 +8,16 @@ import (
 )
 
 // Returns the ConfigMap with the properties used to setup/config the Mobile Security Service Project
-func (r *ReconcileMobileSecurityService) buildConfigMap(m *mobilesecurityservicev1alpha1.MobileSecurityService) *corev1.ConfigMap {
+func (r *ReconcileMobileSecurityService) buildConfigMap(instance *mobilesecurityservicev1alpha1.MobileSecurityService) *corev1.ConfigMap {
 	ser := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      m.Spec.ConfigMapName,
-			Namespace: m.Namespace,
-			Labels:    getAppLabels(m.Name),
+			Name:      instance.Spec.ConfigMapName,
+			Namespace: instance.Namespace,
+			Labels:    getAppLabels(instance.Name),
 		},
-		Data: getAppEnvVarsMap(m),
+		Data: getAppEnvVarsMap(instance),
 	}
 	// Set MobileSecurityService instance as the owner and controller
-	controllerutil.SetControllerReference(m, ser, r.scheme)
+	controllerutil.SetControllerReference(instance, ser, r.scheme)
 	return ser
 }

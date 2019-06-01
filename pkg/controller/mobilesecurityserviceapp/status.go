@@ -15,7 +15,7 @@ func (r *ReconcileMobileSecurityServiceApp) updateConfigMapStatus(reqLogger logr
 	reqLogger.Info("Updating SDKConfigMap Status for the MobileSecurityServiceApp")
 
 	// Get the latest version of CR
-	instance, err := r.fetchInstance(reqLogger, request)
+	instance, err := r.fetchAppInstance(reqLogger, request)
 	if err != nil {
 		return &corev1.ConfigMap{}, err
 	}
@@ -30,7 +30,7 @@ func (r *ReconcileMobileSecurityServiceApp) updateConfigMapStatus(reqLogger logr
 	//Update CR Status with SDKConfigMap name
 	if SDKConfigMapStatus.Name != instance.Status.SDKConfigMapName {
 		// Get the latest version of CR
-		instance, err := r.fetchInstance(reqLogger, request)
+		instance, err := r.fetchAppInstance(reqLogger, request)
 		if err != nil {
 			return &corev1.ConfigMap{}, err
 		}
@@ -53,7 +53,7 @@ func (r *ReconcileMobileSecurityServiceApp) updateBindStatus(serviceURL string, 
 	reqLogger.Info("Updating Bind App Status for the MobileSecurityServiceApp")
 
 	// Get the latest version of CR
-	instance, err := r.fetchInstance(reqLogger, request)
+	instance, err := r.fetchAppInstance(reqLogger, request)
 	if err != nil {
 		return err
 	}
@@ -76,7 +76,7 @@ func (r *ReconcileMobileSecurityServiceApp) updateBindStatus(serviceURL string, 
 	//Update Bind CR Status with OK
 	if !reflect.DeepEqual(status, instance.Status.BindStatus) {
 		// Get the latest version of the CR in order to try to avoid errors when try to update the CR
-		instance, err := r.fetchInstance(reqLogger, request)
+		instance, err := r.fetchAppInstance(reqLogger, request)
 		if err != nil {
 			return err
 		}
@@ -99,7 +99,7 @@ func (r *ReconcileMobileSecurityServiceApp) updateBindStatusWithInvalidNamespace
 	reqLogger.Info("Updating Bind App Status for the MobileSecurityServiceApp")
 
 	// Get the latest version of CR
-	instance, err := r.fetchInstance(reqLogger, request)
+	instance, err := r.fetchAppInstance(reqLogger, request)
 	if err != nil {
 		return err
 	}
@@ -109,7 +109,7 @@ func (r *ReconcileMobileSecurityServiceApp) updateBindStatusWithInvalidNamespace
 	//Update Bind CR Status with OK
 	if !reflect.DeepEqual(status, instance.Status.BindStatus) {
 		// Get the latest version of the CR in order to try to avoid errors when try to update the CR
-		instance, err := r.fetchInstance(reqLogger, request)
+		instance, err := r.fetchAppInstance(reqLogger, request)
 		if err != nil {
 			return err
 		}

@@ -10,13 +10,13 @@ import (
 )
 
 //buildRoute returns the route resource
-func (r *ReconcileMobileSecurityService) buildRoute(m *mobilesecurityservicev1alpha1.MobileSecurityService) *routev1.Route {
+func (r *ReconcileMobileSecurityService) buildRoute(service *mobilesecurityservicev1alpha1.MobileSecurityService) *routev1.Route {
 
-	ls := getAppLabels(m.Name)
+	ls := getAppLabels(service.Name)
 	route := &routev1.Route{
 		ObjectMeta: v1.ObjectMeta{
-			Name:      m.Spec.RouteName,
-			Namespace: m.Namespace,
+			Name:      service.Spec.RouteName,
+			Namespace: service.Namespace,
 			Labels:    ls,
 		},
 		Spec: routev1.RouteSpec{
@@ -33,7 +33,7 @@ func (r *ReconcileMobileSecurityService) buildRoute(m *mobilesecurityservicev1al
 		},
 	}
 
-	// Set MobileSecurityService instance as the owner and controller
-	controllerutil.SetControllerReference(m, route, r.scheme)
+	// Set MobileSecurityService service as the owner and controller
+	controllerutil.SetControllerReference(service, route, r.scheme)
 	return route
 }
