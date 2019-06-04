@@ -45,7 +45,7 @@ type MobileSecurityServiceDBStatus struct {
 	DeploymentStatus          v1beta1.DeploymentStatus `json:"deploymentStatus"`
 	ServiceName               string                   `json:"serviceName"`
 	ServiceStatus             v1.ServiceStatus         `json:"serviceStatus"`
-	DatabaseStatus            string                   `json:databaseStatus"`
+	DatabaseStatus            string                   `json:"databaseStatus"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

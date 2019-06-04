@@ -4,25 +4,13 @@
 
 # Check if the Go code is formatted
 check_code_format (){
-    gofmt -l . | grep -v vendor/ >/dev/null 2>&1
-    if [ $? -ne 1 ]; then
-       printf "\nErrors found in your code, please use 'make fmt' to format your code."
-       exit 1
-    else
-       exit 0
-    fi
-
-}
-
-# Check all files for errors
-check_code_errors (){
     {
-        errcheck -ignoretests $(go list ./... | grep -v /vendor/)
+       go fmt  $(go list ./... | grep -v /vendor/)
     } || {
         exitStatus=$?
 
         if [ $exitStatus ]; then
-            printf "\nErrors found in your code, please fix them and try again."
+            printf "\nErrors found in your code, please use 'make fmt' to format your code."
             exit 1
         fi
     }
@@ -31,7 +19,7 @@ check_code_errors (){
 # Check all files for suspicious constructs
 check_go_vet (){
     {
-        go vet $(go list ./... | grep -v /vendor/)
+        go vet $(go list ./... | grep -v vendor/)
     } || {
         exitStatus=$?
 
@@ -44,5 +32,4 @@ check_go_vet (){
 
 # Calling the function
 check_code_format
-check_code_errors
 check_go_vet
