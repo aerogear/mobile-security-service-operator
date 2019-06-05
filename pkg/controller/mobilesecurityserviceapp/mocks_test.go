@@ -10,7 +10,8 @@ import (
 )
 
 var (
-	instance = mobilesecurityservicev1alpha1.MobileSecurityServiceApp{
+	deletionTimestamp = metav1.NewTime(time.Now())
+	instance          = mobilesecurityservicev1alpha1.MobileSecurityServiceApp{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "mobile-security-service-app",
 			Namespace: "mobile-security-service-apps",
@@ -69,7 +70,7 @@ var (
 		ObjectMeta: metav1.ObjectMeta{
 			Name:              "mobile-security-service-app",
 			Namespace:         "mobile-security-service-apps",
-			DeletionTimestamp: &metav1.Time{time.Now()},
+			DeletionTimestamp: &deletionTimestamp,
 			Finalizers: []string{
 				FinalizerMetadata,
 			},
@@ -109,12 +110,11 @@ var (
 			RouteName:       "mss-route",
 		},
 	}
-
 	mssInstanceForDeletion = mobilesecurityservicev1alpha1.MobileSecurityService{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:              utils.MobileSecurityServiceCRName,
 			Namespace:         utils.OperatorNamespaceForLocalEnv,
-			DeletionTimestamp: &metav1.Time{time.Now()},
+			DeletionTimestamp: &deletionTimestamp,
 		},
 		Spec: mobilesecurityservicev1alpha1.MobileSecurityServiceSpec{
 			Size:            1,
