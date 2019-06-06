@@ -37,7 +37,7 @@ spec:
   # Service Container
   # ---------------------------------
 
-  image: "aerogear/mobile-security-service:master"
+  image: "quay.io/aerogear/mobile-security-service:master"
   containerName: "application"
   memoryLimit: "512Mi"
   memoryRequest: "512Mi"
