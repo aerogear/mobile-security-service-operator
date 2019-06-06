@@ -10,7 +10,7 @@ import (
 
 // Centralized mock objects for use in tests
 var (
-	instanceOne = v1alpha1.MobileSecurityServiceDB{
+	dbInstance = v1alpha1.MobileSecurityServiceDB{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "mobile-security-service-db",
 			Namespace: utils.OperatorNamespaceForLocalEnv,
@@ -32,7 +32,7 @@ var (
 		},
 	}
 
-	instanceTwo = v1alpha1.MobileSecurityServiceDB{
+	dbInstanceNonDefaultNamespace = v1alpha1.MobileSecurityServiceDB{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "mobile-security-service-db",
 			Namespace: "mobile-security-service-namespace",
@@ -54,6 +54,13 @@ var (
 		},
 	}
 
+	dbInstanceWithoutSpec = v1alpha1.MobileSecurityServiceDB{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "mobile-security-service-db",
+			Namespace: utils.OperatorNamespaceForLocalEnv,
+		},
+	}
+
 	serviceInstance = v1alpha1.MobileSecurityService{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      utils.MobileSecurityServiceCRName,
@@ -71,7 +78,7 @@ var (
 
 	configMap = corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      utils.GetConfigMapName(&serviceInstance),
+			Name:      serviceInstance.Spec.ConfigMapName,
 			Namespace: serviceInstance.Namespace,
 			Labels:    map[string]string{"app": "mobilesecurityservice", "mobilesecurityservice_cr": serviceInstance.Name},
 		},

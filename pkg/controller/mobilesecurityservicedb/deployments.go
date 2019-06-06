@@ -10,18 +10,18 @@ import (
 )
 
 //Returns the Deployment object for the Mobile Security Service Database
-func (r *ReconcileMobileSecurityServiceDB) buildDBDeployment(m *mobilesecurityservicev1alpha1.MobileSecurityServiceDB, serviceInstance *mobilesecurityservicev1alpha1.MobileSecurityService) *v1beta1.Deployment {
-	ls := getDBLabels(m.Name)
+func (r *ReconcileMobileSecurityServiceDB) buildDBDeployment(db *mobilesecurityservicev1alpha1.MobileSecurityServiceDB, serviceConfigMapName string) *v1beta1.Deployment {
+	ls := getDBLabels(db.Name)
 	auto := true
-	replicas := m.Spec.Size
+	replicas := db.Spec.Size
 	dep := &v1beta1.Deployment{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "extensions/v1beta1",
 			Kind:       "Deployment",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      m.Name,
-			Namespace: m.Namespace,
+			Name:      db.Name,
+			Namespace: db.Namespace,
 			Labels:    ls,
 		},
 		Spec: v1beta1.DeploymentSpec{
@@ -38,17 +38,17 @@ func (r *ReconcileMobileSecurityServiceDB) buildDBDeployment(m *mobilesecurityse
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{{
-						Image:           m.Spec.Image,
-						Name:            m.Spec.ContainerName,
-						ImagePullPolicy: corev1.PullIfNotPresent,
+						Image:           db.Spec.Image,
+						Name:            db.Spec.ContainerName,
+						ImagePullPolicy: db.Spec.ContainerImagePullPolicy,
 						Ports: []corev1.ContainerPort{{
-							ContainerPort: m.Spec.DatabasePort,
+							ContainerPort: db.Spec.DatabasePort,
 							Protocol:      "TCP",
 						}},
 						Env: []corev1.EnvVar{
-							r.getDatabaseNameEnvVar(m, serviceInstance),
-							r.getDatabaseUserEnvVar(m, serviceInstance),
-							r.getDatabasePasswordEnvVar(m, serviceInstance),
+							r.getDatabaseNameEnvVar(db, serviceConfigMapName),
+							r.getDatabaseUserEnvVar(db, serviceConfigMapName),
+							r.getDatabasePasswordEnvVar(db, serviceConfigMapName),
 							{
 								Name:  "PGDATA",
 								Value: "/var/lib/pgsql/data/pgdata",
@@ -56,7 +56,7 @@ func (r *ReconcileMobileSecurityServiceDB) buildDBDeployment(m *mobilesecurityse
 						},
 						VolumeMounts: []corev1.VolumeMount{
 							{
-								Name:      m.Name,
+								Name:      db.Name,
 								MountPath: "/var/lib/pgsql/data",
 							},
 						},
@@ -91,10 +91,10 @@ func (r *ReconcileMobileSecurityServiceDB) buildDBDeployment(m *mobilesecurityse
 						},
 						Resources: corev1.ResourceRequirements{
 							Limits: corev1.ResourceList{
-								corev1.ResourceMemory: resource.MustParse(m.Spec.DatabaseMemoryLimit),
+								corev1.ResourceMemory: resource.MustParse(db.Spec.DatabaseMemoryLimit),
 							},
 							Requests: corev1.ResourceList{
-								corev1.ResourceMemory: resource.MustParse(m.Spec.DatabaseMemoryRequest),
+								corev1.ResourceMemory: resource.MustParse(db.Spec.DatabaseMemoryRequest),
 							},
 						},
 						TerminationMessagePath: "/dev/termination-log",
@@ -103,10 +103,10 @@ func (r *ReconcileMobileSecurityServiceDB) buildDBDeployment(m *mobilesecurityse
 					RestartPolicy: corev1.RestartPolicyAlways,
 					Volumes: []corev1.Volume{
 						{
-							Name: m.Name,
+							Name: db.Name,
 							VolumeSource: corev1.VolumeSource{
 								PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
-									ClaimName: m.Name,
+									ClaimName: db.Name,
 								},
 							},
 						},
@@ -116,7 +116,7 @@ func (r *ReconcileMobileSecurityServiceDB) buildDBDeployment(m *mobilesecurityse
 			},
 		},
 	}
-	// Set MobileSecurityService instance as the owner and controller
-	controllerutil.SetControllerReference(m, dep, r.scheme)
+	// Set MobileSecurityService db as the owner and controller
+	controllerutil.SetControllerReference(db, dep, r.scheme)
 	return dep
 }

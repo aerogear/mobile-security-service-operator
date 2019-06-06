@@ -41,10 +41,17 @@ var (
 
 	configMap = corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      utils.GetConfigMapName(&mssInstance),
+			Name:      mssInstance.Spec.ConfigMapName,
 			Namespace: mssInstance.Namespace,
 			Labels:    getAppLabels(mssInstance.Name),
 		},
 		Data: getAppEnvVarsMap(&mssInstance),
+	}
+
+	mssInstanceWithoutSpec = mobilesecurityservicev1alpha1.MobileSecurityService{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      utils.MobileSecurityServiceCRName,
+			Namespace: utils.OperatorNamespaceForLocalEnv,
+		},
 	}
 )

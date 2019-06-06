@@ -29,29 +29,13 @@ const (
 var log = logf.Log.WithName("mobile-security-service-operator.utils")
 
 //GetInitPublicURL returns the public service init endpoint URL for the Rest Service
-func GetInitPublicURL(route *routev1.Route, serviceInstance *mobilesecurityservicev1alpha1.MobileSecurityService) string {
-	return fmt.Sprintf("%v://%v%v", serviceInstance.Spec.ClusterProtocol, route.Status.Ingress[0].Host, InitEndpoint)
+func GetInitPublicURL(route *routev1.Route, mss *mobilesecurityservicev1alpha1.MobileSecurityService) string {
+	return fmt.Sprintf("%v://%v%v", mss.Spec.ClusterProtocol, route.Status.Ingress[0].Host, InitEndpoint)
 }
 
 //Return REST Service API
-func GetServiceAPIURL(mssInstance *mobilesecurityservicev1alpha1.MobileSecurityService) string {
-	return mssInstance.Spec.ClusterProtocol + "://" + ApplicationServiceInstanceName + ":" + fmt.Sprint(mssInstance.Spec.Port) + ApiEndpoint
-}
-
-//GetRouteName returns an string name with the name of the router
-func GetRouteName(m *mobilesecurityservicev1alpha1.MobileSecurityService) string {
-	if len(m.Spec.RouteName) > 0 {
-		return m.Spec.RouteName
-	}
-	return m.Name
-}
-
-// GetConfigMapName returns an string name with the name of the configMap
-func GetConfigMapName(m *mobilesecurityservicev1alpha1.MobileSecurityService) string {
-	if len(m.Spec.ConfigMapName) > 0 {
-		return m.Spec.ConfigMapName
-	}
-	return m.Name
+func GetServiceAPIURL(mss *mobilesecurityservicev1alpha1.MobileSecurityService) string {
+	return mss.Spec.ClusterProtocol + "://" + ApplicationServiceInstanceName + ":" + fmt.Sprint(mss.Spec.Port) + ApiEndpoint
 }
 
 // GetAppNamespaces returns the namespace the operator should be watching for changes

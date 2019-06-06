@@ -129,7 +129,7 @@ var (
 
 	route = routev1.Route{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      utils.GetRouteName(&mssInstance),
+			Name:      mssInstance.Spec.RouteName,
 			Namespace: mssInstance.Namespace,
 			Labels:    map[string]string{"app": "mobilesecurityservice", "mobilesecurityservice_cr": mssInstance.Name},
 		},

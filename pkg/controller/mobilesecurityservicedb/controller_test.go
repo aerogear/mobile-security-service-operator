@@ -29,16 +29,16 @@ func TestReconcileMobileSecurityServiceDB_update(t *testing.T) {
 		{
 			name: "should successfully update the instance",
 			fields: fields{
-				createdInstance:  &instanceOne,
-				instanceToUpdate: &instanceOne,
+				createdInstance:  &dbInstance,
+				instanceToUpdate: &dbInstance,
 			},
 			wantErr: false,
 		},
 		{
 			name: "should give an error when the namespace is not found",
 			fields: fields{
-				createdInstance:  &instanceOne,
-				instanceToUpdate: &instanceTwo,
+				createdInstance:  &dbInstance,
+				instanceToUpdate: &dbInstanceNonDefaultNamespace,
 			},
 			wantErr: true,
 		},
@@ -83,7 +83,7 @@ func TestReconcileMobileSecurityServiceDB_create(t *testing.T) {
 				scheme.Scheme,
 			},
 			args: args{
-				instance:        &instanceOne,
+				instance:        &dbInstance,
 				serviceInstance: &serviceInstance,
 				kind:            Deployment,
 			},
@@ -95,7 +95,7 @@ func TestReconcileMobileSecurityServiceDB_create(t *testing.T) {
 				scheme.Scheme,
 			},
 			args: args{
-				instance:        &instanceOne,
+				instance:        &dbInstance,
 				serviceInstance: &serviceInstance,
 				kind:            "UNKNOWN",
 			},
@@ -119,7 +119,7 @@ func TestReconcileMobileSecurityServiceDB_create(t *testing.T) {
 				}
 			}()
 
-			err := r.create(tt.args.instance, tt.args.serviceInstance, tt.args.kind, reqLogger)
+			err := r.create(tt.args.instance, tt.args.kind, reqLogger)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ReconcileMobileSecurityServiceDB.create() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -150,7 +150,7 @@ func TestReconcileMobileSecurityServiceDB_buildFactory(t *testing.T) {
 				scheme: scheme.Scheme,
 			},
 			args: args{
-				instance:        &instanceOne,
+				instance:        &dbInstance,
 				serviceInstance: &serviceInstance,
 				kind:            Deployment,
 			},
@@ -162,7 +162,7 @@ func TestReconcileMobileSecurityServiceDB_buildFactory(t *testing.T) {
 				scheme: scheme.Scheme,
 			},
 			args: args{
-				instance:        &instanceOne,
+				instance:        &dbInstance,
 				serviceInstance: &serviceInstance,
 				kind:            PVC,
 			},
@@ -174,7 +174,7 @@ func TestReconcileMobileSecurityServiceDB_buildFactory(t *testing.T) {
 				scheme: scheme.Scheme,
 			},
 			args: args{
-				instance:        &instanceOne,
+				instance:        &dbInstance,
 				serviceInstance: &serviceInstance,
 				kind:            Service,
 			},
@@ -186,7 +186,7 @@ func TestReconcileMobileSecurityServiceDB_buildFactory(t *testing.T) {
 				scheme: scheme.Scheme,
 			},
 			args: args{
-				instance:        &instanceOne,
+				instance:        &dbInstance,
 				serviceInstance: &serviceInstance,
 				kind:            "UNDEFINED",
 			},
@@ -211,7 +211,7 @@ func TestReconcileMobileSecurityServiceDB_buildFactory(t *testing.T) {
 				}
 			}()
 
-			got := r.buildFactory(tt.args.instance, tt.args.serviceInstance, tt.args.kind, reqLogger)
+			got := r.buildFactory(tt.args.instance, tt.args.kind, reqLogger)
 
 			if gotType := reflect.TypeOf(got); !reflect.DeepEqual(gotType, tt.want) {
 				t.Errorf("ReconcileMobileSecurityServiceDB.buildFactory() = %v, want %v", gotType, tt.want)
@@ -224,7 +224,7 @@ func TestReconcileMobileSecurityServiceDB_Reconcile(t *testing.T) {
 
 	// objects to track in the fake client
 	objs := []runtime.Object{
-		&instanceOne,
+		&dbInstance,
 	}
 
 	r := buildReconcileWithFakeClientWithMocks(objs, t)
@@ -232,8 +232,8 @@ func TestReconcileMobileSecurityServiceDB_Reconcile(t *testing.T) {
 	// mock request to simulate Reconcile() being called on an event for a watched resource
 	req := reconcile.Request{
 		NamespacedName: types.NamespacedName{
-			Name:      instanceOne.Name,
-			Namespace: instanceOne.Namespace,
+			Name:      dbInstance.Name,
+			Namespace: dbInstance.Namespace,
 		},
 	}
 
@@ -296,7 +296,7 @@ func TestReconcileMobileSecurityServiceDB_Reconcile_NotFound(t *testing.T) {
 
 	// objects to track in the fake client
 	objs := []runtime.Object{
-		&instanceOne,
+		&dbInstance,
 	}
 
 	r := buildReconcileWithFakeClientWithMocks(objs, t)
@@ -304,7 +304,7 @@ func TestReconcileMobileSecurityServiceDB_Reconcile_NotFound(t *testing.T) {
 	// mock request to simulate Reconcile() being called on an event for a watched resource
 	req := reconcile.Request{
 		NamespacedName: types.NamespacedName{
-			Name:      instanceOne.Name,
+			Name:      dbInstance.Name,
 			Namespace: "unknown",
 		},
 	}
@@ -323,7 +323,7 @@ func TestReconcileMobileSecurityServiceDB_Reconcile_UsingMSSConfigMapToCreateEnv
 
 	// objects to track in the fake client
 	objs := []runtime.Object{
-		&instanceOne,
+		&dbInstance,
 		&serviceInstance,
 		&configMap,
 	}
@@ -333,8 +333,8 @@ func TestReconcileMobileSecurityServiceDB_Reconcile_UsingMSSConfigMapToCreateEnv
 	// mock request to simulate Reconcile() being called on an event for a watched resource
 	req := reconcile.Request{
 		NamespacedName: types.NamespacedName{
-			Name:      instanceOne.Name,
-			Namespace: instanceOne.Namespace,
+			Name:      dbInstance.Name,
+			Namespace: dbInstance.Namespace,
 		},
 	}
 
@@ -413,7 +413,7 @@ func TestReconcileMobileSecurityServiceDB_Reconcile_ReplicasSizes(t *testing.T) 
 
 	// objects to track in the fake client
 	objs := []runtime.Object{
-		&instanceOne,
+		&dbInstance,
 	}
 
 	r := buildReconcileWithFakeClientWithMocks(objs, t)
@@ -421,8 +421,8 @@ func TestReconcileMobileSecurityServiceDB_Reconcile_ReplicasSizes(t *testing.T) 
 	// mock request to simulate Reconcile() being called on an event for a watched resource
 	req := reconcile.Request{
 		NamespacedName: types.NamespacedName{
-			Name:      instanceOne.Name,
-			Namespace: instanceOne.Namespace,
+			Name:      dbInstance.Name,
+			Namespace: dbInstance.Namespace,
 		},
 	}
 
@@ -462,7 +462,84 @@ func TestReconcileMobileSecurityServiceDB_Reconcile_ReplicasSizes(t *testing.T) 
 		t.Fatalf("get deployment: (%v)", err)
 	}
 
-	if *deployment.Spec.Replicas != instanceOne.Spec.Size {
+	if *deployment.Spec.Replicas != dbInstance.Spec.Size {
 		t.Error("Replicas size was not respected")
+	}
+}
+
+func TestReconcileMobileSecurityServiceDB_Reconcile_InstanceWithoutSpec(t *testing.T) {
+
+	// objects to track in the fake client
+	objs := []runtime.Object{
+		&dbInstanceWithoutSpec,
+	}
+
+	r := buildReconcileWithFakeClientWithMocks(objs, t)
+
+	// mock request to simulate Reconcile() being called on an event for a watched resource
+	req := reconcile.Request{
+		NamespacedName: types.NamespacedName{
+			Name:      dbInstanceWithoutSpec.Name,
+			Namespace: dbInstanceWithoutSpec.Namespace,
+		},
+	}
+
+	res, err := r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+
+	deployment := &v1beta1.Deployment{}
+	err = r.client.Get(context.TODO(), req.NamespacedName, deployment)
+	if err != nil {
+		t.Fatalf("get deployment: (%v)", err)
+	}
+
+	// Check if the quantity of Replicas for this deployment is equals the specification
+	if *deployment.Spec.Replicas != size {
+		t.Errorf("dep size (%d) is not the expected size (%d)", deployment.Spec.Replicas, size)
+	}
+
+	if !res.Requeue {
+		t.Error("did not expect request to requeue")
+	}
+
+	res, err = r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+
+	service := &corev1.Service{}
+	err = r.client.Get(context.TODO(), req.NamespacedName, service)
+	if err != nil {
+		t.Fatalf("get service: (%v)", err)
+	}
+
+	if res.Requeue {
+		t.Error("did not expect request to requeue")
+	}
+
+	res, err = r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+
+	pvc := &corev1.PersistentVolumeClaim{}
+	err = r.client.Get(context.TODO(), req.NamespacedName, pvc)
+	if err != nil {
+		t.Fatalf("get pvc: (%v)", err)
+	}
+
+	if res.Requeue {
+		t.Error("did not expect request to requeue")
+	}
+
+	res, err = r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+
+	if res.Requeue {
+		t.Error("did not expect request to requeue")
 	}
 }
