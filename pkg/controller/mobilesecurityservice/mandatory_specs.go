@@ -18,7 +18,7 @@ const (
 	clusterProtocol               = "http"
 	memoryLimit                   = "512Mi"
 	memoryRequest                 = "512Mi"
-	image                         = "aerogear/mobile-security-service:master"
+	image                         = "quay.io/aerogear/mobile-security-service:master"
 	containerName                 = "application"
 	oAuthImage                    = "docker.io/openshift/oauth-proxy:v1.1.0"
 	oAuthContainerName            = "oauth-proxy"
