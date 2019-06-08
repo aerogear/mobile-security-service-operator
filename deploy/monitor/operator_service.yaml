@@ -5,9 +5,6 @@ metadata:
   labels:
     name: mobile-security-service-operator
   name: mobile-security-service-operator
-  resourceVersion: '66190'
-  selfLink: >-
-    /api/v1/namespaces/mobile-security-service/services/mobile-security-service-operator
 spec:
   ports:
     - name: metrics
@@ -18,5 +15,3 @@ spec:
     name: mobile-security-service-operator
   sessionAffinity: None
   type: ClusterIP
-status:
-  loadBalancer: {}
