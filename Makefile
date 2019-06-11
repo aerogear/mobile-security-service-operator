@@ -158,10 +158,10 @@ install-monitoring:
 	@echo INFO: Installing service monitor in ${NAMESPACE} ...
 	- oc project ${NAMESPACE}
 	- kubectl label namespace ${NAMESPACE} monitoring-key=middleware
-	- kubectl create -f deploy/monitor/service_monitor.yaml
-	- kubectl create -f deploy/monitor/operator_service.yaml
-	- kubectl create -f deploy/monitor/prometheus-rule.yaml
-	- kubectl create -f deploy/monitor/grafana-dashboard.yaml
+	- kubectl apply -f deploy/monitor/service_monitor.yaml
+	- kubectl apply -f deploy/monitor/operator_service.yaml
+	- kubectl apply -f deploy/monitor/prometheus-rule.yaml
+	- kubectl apply -f deploy/monitor/grafana-dashboard.yaml
 
 .PHONY: uninstall-monitoring
 uninstall-monitoring:
