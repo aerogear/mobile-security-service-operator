@@ -452,6 +452,7 @@ NOTE: The image/tag used from https://github.com/aerogear/mobile-security-servic
 | *Command*                        | *Description*
 | `make run-local`                 | Run the operator locally for development purposes.
 | `make debug-setup`               | Setup environment for debug proposes.
+| `make refresh-operator-image`    | Delete and re-apply the operator to get new image.
 | `make vet`                       | Examines source code and reports suspicious constructs using https://golang.org/cmd/vet/[vet].
 | `make fmt`                       | Formats code using https://golang.org/cmd/gofmt/[gofmt].
 |===

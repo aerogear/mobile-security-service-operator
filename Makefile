@@ -53,6 +53,13 @@ fmt:
 	@echo go fmt
 	go fmt $$(go list ./... | grep -v /vendor/)
 
+.PHONY: refresh-operator-image
+refresh-operator-image:
+	@echo INFO: Deleting and re-applying the operator ...
+	- oc project ${NAMESPACE}
+	- kubectl delete -f deploy/operator.yaml
+	- kubectl create -f deploy/operator.yaml
+
 #########################################
 # CI                                    #
 #########################################
