@@ -61,7 +61,7 @@ refresh-operator-image:
 	- kubectl create -f deploy/operator.yaml
 
 #########################################
-# CI                                    #
+# Tests                                 #
 #########################################
 
 .PHONY: test
@@ -75,6 +75,10 @@ test-integration-cover:
 	GOCACHE=off $(foreach pkg,$(PACKAGES),\
 		go test -failfast -tags=integration -coverprofile=coverage.out -covermode=count $(addprefix $(PKG)/,$(pkg)) || exit 1;\
 		tail -n +2 coverage.out >> coverage-all.out;)
+
+#########################################
+# CI                                    #
+#########################################
 
 .PHONY: build-linux
 build-linux:
