@@ -16,7 +16,7 @@ jobs:
           name: Install dep
           command: curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
       - run: make setup
-      - run: make build_linux
+      - run: make build-linux
       - run: make test
       - run: make test-integration-cover
       - run: /go/bin/goveralls -coverprofile=coverage-all.out -service=circle-ci -repotoken=ycY6oBXw8F89TEabp46VXSRpVFjfYBujH
@@ -36,7 +36,7 @@ jobs:
       - run: make setup
       # circle ci key required for docker builds
       - setup_remote_docker
-      - run: make build_linux 
+      - run: make build-linux
       - run: make build-master
       - run: make push-master
 
@@ -57,8 +57,6 @@ jobs:
       - setup_remote_docker
       - run: make build-release
       - run: make push-release
-      - run: make build-latest
-      - run: make push-latest
 
 workflows:
   version: 2

@@ -71,13 +71,13 @@ $ minishift config set insecure-registry 172.30.0.0/16
 $ minishift start
 ----
 
-=== Installing Mobile Security Service by Operator
+=== Installing
 
 Use the following command to create the Operator, Service and its Database as apply the roles on the cluster.
 
 [source,shell]
 ----
-$ make create-all
+$ make install
 ----
 
 IMPORTANT: To create all you need be logged as admin. Use `oc login -u system:admin`.
@@ -114,10 +114,10 @@ mobile-security-service-operator-785cbdbf46-wq2lf   1/1       Running   0       
 +
 [source,shell]
 ----
-$ make create-app
+$ make apply-app-example
 ----
 
-NOTE: This command will just apply the link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml[MobileSecurityServiceApp CR] example with `kubectl create -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml`
+NOTE: This command will just apply the link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml[MobileSecurityServiceApp CR] example with `kubectl apply -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml`
 
 === Deleting/Unbinding an app
 
@@ -125,26 +125,26 @@ NOTE: This command will just apply the link:./deploy/crds/examples/mobile-securi
 +
 [source,shell]
 ----
-$ make delete-app
+$ make delete-app-example
 ----
 
 IMPORTANT: This command will just delete the link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml[MobileSecurityServiceApp CR] example with `kubectl delete -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml`
 NOTE: The Rest Service endpoint to delete it is called in the finalizer of the link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml[MobileSecurityServiceApp CR] and the CR will be just allowed to be removed when the app is no longer available in its Service.
 
-=== Removing
+=== Uninstall
 
-Use the following command to delete the Operator, the Service and its Database as roles from the cluster.
+Use the following command to delete the Operator, the Service and its Database and all related configuration applied by the `install` of this project.
 
 [source,shell]
 ----
-$ make delete-all
+$ make uninstall
 ----
 
 == Configuration and Options
 
 === Operator Namespace
 
-By using the make command `make create-all` the default namespace, e.g `mobile-security-service`, will be created and the operator will be installed in it. You are able to install the operator in another namespace as you wish, however, you need setup its roles (RBAC) to by applied on the namespace where the operator will be installed. The namespace name need to be changed in the link:./deploy/cluster_role_binding.yaml[Cluster Role Binding] file in the following line.
+By using the command `make install` the default namespace `mobile-security-service` defined in the link:./Makefile[Makefile] will be created and the operator will be installed in this namespace. You are able to install the operator in another namespace if you wish, however, you need to set up its roles (RBAC) in order to apply them on the namespace where the operator will be installed. The namespace name needs to be changed in the link:./deploy/cluster_role_binding.yaml[Cluster Role Binding] file. Note, that you also need to change the namespace in the link:./Makefile[Makefile] in order to use the command `make application/install` for another namespace.
 
 [source,yaml]
 ----
@@ -197,22 +197,22 @@ $ oc project mobile-security-service
 # Installation of ServiceMonitor
 
 $ kubectl label namespace mobile-security-service monitoring-key=middleware
-$ kubectl create -f deploy/monitor/service_monitor.yaml
-$ kubectl create -f deploy/monitor/operator_service.yaml
+$ kubectl apply -f deploy/monitor/service_monitor.yaml
+$ kubectl apply -f deploy/monitor/operator_service.yaml
 ----
 
 [source,shell]
 ----
 # Add AlertManager rules to prometheus
 
-$ kubectl create -f deploy/monitor/prometheus-rule.yaml
+$ kubectl apply -f deploy/monitor/prometheus-rule.yaml
 ----
 
 [source,shell]
 ----
 # Add Grafana dashboard
 
-$ kubectl create -f deploy/monitor/grafana-dashboard.yaml
+$ kubectl apply -f deploy/monitor/grafana-dashboard.yaml
 ----
 
 IMPORTANT: The namespaces are setup manually in the files link:./deploy/monitor/service_monitor.yaml[ServiceMonitor], link:./deploy/monitor/prometheus-rule.yaml[Prometheus Rules], link:./deploy/monitor/operator-service.yaml[Operator Service], and link:./deploy/monitor/grafana-dashboard[Grafana Dashboard]. Following an example from the link:./deploy/prometheus-rule.yaml[Prometheus Rules]. You should replace them if the operator is not installed in the default namespace.
@@ -434,36 +434,39 @@ NOTE: The image/tag used from https://github.com/aerogear/mobile-security-servic
 
 == Makefile command reference
 
+=== Operator
+
 |===
 | *Command*                        | *Description*
-| `make create-all`                | Create {namespace} namespace, operator, service and roles.
-| `make delete-all`                | Delete {namespace} namespace, operator, service and roles.
-| `make create-oper`               | Create {namespace}  namespace, operator and roles.
-| `make delete-oper`               | Delete {namespace}  namespace, operator and roles.
-| `make create-service-and-db`     | Create Mobile Security Service App and its database in the project.
-| `make create-service-only`       | Create Mobile Security Service App without its database.
-| `make delete-service-and-db`     | Delete Mobile Security Service App and its database.
-| `make delete-service-only`       | Delete Mobile Security Service App only.
-| `make create-db-only`            | Create Mobile Security Service Database without its application.
-| `make delete-db-only`            | Delete Mobile Security Service Database only.
-| `make create-app`                | Apply the App CR . (Create/Update app in the cluster and Service, also creates ConfigMap with the public host endpoint for the init config in the mobile device(SDK) ).
-| `make delete-app`                | Delete the App CR. (Delete app from the Service and SDKConfigMap).
-| `make build-dev`                 | Build operator dev image with tag `quay.io/aerogear/mobile-security-service-operator:<version>-dev`.
-| `make push-dev`                  | Push operator dev image to https://quay.io/repository/aerogear/mobile-security-service-operator[quay.io].
-| `make build-master`              | Used by CI to build operator image from `master` branch and add `:master` tag.
-| `make push-master`               | Used by CI to push image built by `make build-master` to https://quay.io/repository/aerogear/mobile-security-service-operator[quay.io registry].
-| `make build-release`             | Used by CI to build operator image from a tagged commit and add `:<version>` tag.
-| `make push-release`              | Used by CI to push image built by `make build-release` to https://quay.io/repository/aerogear/mobile-security-service-operator[quay.io registry].
-| `make build-latest`              | Used by CI to build operator image from a tagged commit and add `:latest` tag.
-| `make push-latest`               | Used by CI to push image built by `make build-latest` to https://quay.io/repository/aerogear/mobile-security-service-operator[quay.io registry].
-| `make run-local`                 | Run the operator locally for development purposes.
-| `make debug-setup`               | Setup environment for debug proposes.
+| `make install`                   | Create the namespace {namespace} and install the all
+| `make uninstall`                 | Delete the namespace {namespace} and all configurations
+| `make apply-app-example`         | Apply the App CR . (Create/Update app with the appId into Service side).
+| `make delete-app-example`        | Delete the App CR. (Delete app with the appId from the Service side).
 | `make install-monitoring`        | Install Monitoring Service in order to provide metrics
 | `make uninstall-monitoring`      | Uninstall Monitoring Service in order to provide metrics
+|===
+
+=== Local Development
+
+|===
+| *Command*                        | *Description*
+| `make run-local`                 | Run the operator locally for development purposes.
+| `make debug-setup`               | Setup environment for debug proposes.
 | `make vet`                       | Examines source code and reports suspicious constructs using https://golang.org/cmd/vet/[vet].
 | `make fmt`                       | Formats code using https://golang.org/cmd/gofmt/[gofmt].
 |===
 
+=== CI
+
+|===
+| *Command*                        | *Description*
+| `make build-master`              | Build an image with the tag `master` from the master branch.
+| `make push-master`               | Push the image with the tag `master` to https://quay.io/repository/aerogear/mobile-security-service-operator[quay.io registry].
+| `make build-release`             | Build an image with the new tag pushed to the repository
+| `make push-release`              | Push the image with the new tag pushed to the repository to https://quay.io/repository/aerogear/mobile-security-service-operator[quay.io registry].
+| `make test`                      | Runs unit tests.
+| `make test-integration-cover`    | Runs integration tests and outputs results to a log file.
+|===
 
 NOTE: The link:./Makefile[Makefile] is implemented with tasks which you should use to work with.
 
