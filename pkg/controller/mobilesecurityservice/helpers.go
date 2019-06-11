@@ -15,7 +15,7 @@ const (
 
 //getAppLabels returns an string map with the labels which wil be associated to the kubernetes/ocp resource which will be created and managed by this operator
 func getAppLabels(name string) map[string]string {
-	return map[string]string{"app": "mobilesecurityservice", "mobilesecurityservice_cr": name}
+	return map[string]string{"app": "mobilesecurityservice", "mobilesecurityservice_cr": name, "name": "mobilesecurityservice"}
 }
 
 //buildAppEnvVars is a helper to build the env vars which will be configured in the deployment of the Mobile Security Service Project
