@@ -461,10 +461,10 @@ NOTE: The image/tag used from https://github.com/aerogear/mobile-security-servic
 
 |===
 | *Command*                        | *Description*
-| `make build-master`              | Build an image with the tag `master` from the master branch.
-| `make push-master`               | Push the image with the tag `master` to https://quay.io/repository/aerogear/mobile-security-service-operator[quay.io registry].
-| `make build-release`             | Build an image with the new tag pushed to the repository
-| `make push-release`              | Push the image with the new tag pushed to the repository to https://quay.io/repository/aerogear/mobile-security-service-operator[quay.io registry].
+| `make build-master-image`              | Build an image with the tag `master` from the master branch.
+| `make push-master-image`               | Push the image with the tag `master` to https://quay.io/repository/aerogear/mobile-security-service-operator[quay.io registry].
+| `make build-release-image`             | Build an image with the new tag pushed to the repository
+| `make push-release-image`              | Push the image with the new tag pushed to the repository to https://quay.io/repository/aerogear/mobile-security-service-operator[quay.io registry].
 | `make test`                      | Runs unit tests.
 | `make test-integration-cover`    | Runs integration tests and outputs results to a log file.
 |===

@@ -37,8 +37,8 @@ jobs:
       # circle ci key required for docker builds
       - setup_remote_docker
       - run: make build-linux
-      - run: make build-master
-      - run: make push-master
+      - run: make build-master-image
+      - run: make push-master-image
 
   image_release:
     working_directory: /go/src/github.com/aerogear/mobile-security-service-operator
@@ -55,8 +55,8 @@ jobs:
       - run: make setup
       # circle ci key required for docker builds
       - setup_remote_docker
-      - run: make build-release
-      - run: make push-release
+      - run: make build-release-image
+      - run: make push-release-image
 
 workflows:
   version: 2

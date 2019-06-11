@@ -80,24 +80,24 @@ test-integration-cover:
 build-linux:
 	env GOOS=linux GOARCH=amd64 go build $(APP_FILE)
 
-.PHONY: build-master
-build-master:
+.PHONY: build-master-image
+build-master-image:
 	@echo Building operator with the tag: $(IMAGE_MASTER_TAG)
 	operator-sdk build $(IMAGE_MASTER_TAG)
 
-.PHONY: build-release
-build-release:
+.PHONY: build-release-image
+build-release-image:
 	@echo Building operator with the tag: $(IMAGE_RELEASE_TAG)
 	operator-sdk build $(IMAGE_RELEASE_TAG)
 
-.PHONY: push-master
-push-master:
+.PHONY: push-master-image
+push-master-image:
 	@echo Pushing operator with tag $(IMAGE_MASTER_TAG) to $(IMAGE_REGISTRY)
 	@docker login --username $(QUAY_USERNAME) --password $(QUAY_PASSWORD) quay.io
 	docker push $(IMAGE_MASTER_TAG)
 
-.PHONY: push-release
-push-release:
+.PHONY: push-release-image
+push-release-image:
 	@echo Pushing operator with tag $(IMAGE_RELEASE_TAG) to $(IMAGE_REGISTRY)
 	@docker login --username $(QUAY_USERNAME) --password $(QUAY_PASSWORD) quay.io
 	docker push $(IMAGE_RELEASE_TAG)
