@@ -389,52 +389,6 @@ debug the project using the following Visual Code launch config.
 }
 ----
 
-=== Publishing a new version
-
-To publish a new version of the operator:
-
-- bump the version TAG in the link:./Makefile[Makefile].
-- bump the version in the link:./version/version.go[version.go] file.
-- update the version number in the link:./deploy/operator.yaml[operator.yaml].
-- update the link:./CHANGELOG.md[CHANGELOG.md]
-- add a git tag to the commit you wish to build the release from
-- push the tag to github (this will trigger an automated release by the CI)
-
-Note: https://semver.org/[Semantic Versioning] should be followed.
-
-Images for the mobile-security-service-operator are published to https://quay.io/repository/aerogear/mobile-security-service-operator[Quay.io].
-
-==== Automated image publishing
-
-Images are automatically built and pushed to our https://quay.io/repository/aerogear/mobile-security-service-operator[image repository] in the following cases:
-
-- For every change merged to master a new image with the `master` tag is published. 
-- For every change merged that has a git tag a new image with the `<operator-version>` and `latest` tags are published.
-
-If the image does not get built and pushed automatically the job may be re-run manually via the https://circleci.com/gh/aerogear/mobile-security-service-operator[CI dashboard].
-
-==== Dev images
-
-The following commands will build the project and publish it to our https://quay.io/repository/aerogear/mobile-security-service-operator[image repository] with the tag <version>-dev.
-
-[source,shell]
-----
-$ make image/build/dev
-$ make image/push/dev
-----
-
-NOTE: You will require `quay.io` credentials and access to publish images to the `quay.io/aerogear` organisation.
-
-=== Using the dev tags
-
-To use the dev image update the image in the file link:./deploy/operator.yaml[operator.yaml] with the development tag as follows.
-
-[source,yaml]
-----
-# Replace this with the built image name
-image: aerogear/mobile-security-service-operator:0.1.0-dev
-----
-
 NOTE: The image/tag used from https://github.com/aerogear/mobile-security-service[Mobile Security Service] is defined in link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml] file.
 
 == Makefile command reference
@@ -457,8 +411,6 @@ NOTE: The image/tag used from https://github.com/aerogear/mobile-security-servic
 |===
 | `make code/run-local`                 | Runs the operator locally for development purposes.
 | `make setup/debug`               | Sets up environment for debugging proposes.
-| `make image/build/dev`                 | Builds operator dev image with tag `quay.io/aerogear/mobile-security-service-operator:<version>-dev`.
-| `make image/push/dev`                  | Pushes operator dev image to https://quay.io/repository/aerogear/mobile-security-service-operator[quay.io].
 | `make code/vet`                       | Examines source code and reports suspicious constructs using https://golang.org/cmd/vet/[vet].
 | `make code/fmt`                       | Formats code using https://golang.org/cmd/gofmt/[gofmt].
 |===
@@ -474,6 +426,41 @@ NOTE: The image/tag used from https://github.com/aerogear/mobile-security-servic
 | `make image/push/release`              | Used by CI to push the `release` and `latest` image to https://quay.io/repository/aerogear/mobile-security-service-operator[quay.io registry].
 
 NOTE: The link:./Makefile[Makefile] is implemented with tasks which you should use to work with.
+
+== Publishing images
+
+Images are automatically built and pushed to our https://quay.io/repository/aerogear/mobile-security-service-operator[image repository] in the following cases:
+
+- For every change merged to master a new image with the `master` tag is published.
+- For every change merged that has a git tag a new image with the `<operator-version>` and `latest` tags are published.
+
+If the image does not get built and pushed automatically the job may be re-run manually via the https://circleci.com/gh/aerogear/mobile-security-service-operator[CI dashboard].
+
+== Tags Release
+
+
+Following the steps
+
+* Create a new version tag following the http://semver.org/spec/v2.0.0.html[semver], for example `0.1.0`
+* Bump the version in the link:./version/version.go[version.go] file.
+* Update the the link:./CHANGELOG.MD[CHANGELOG.MD] with the new release.
+* Create a git tag with the version value, for example:
+
+[source,shell]
+----
+$ git tag -a 0.1.0 -m "version 0.1.0"
+----
+
+* Push the new tag to the upstream repository, this will trigger an automated release by the CI, for example:
+
+[source,shell]
+----
+$ git push upstream 0.1.0
+----
+
+NOTE: The image with the tag will be created and pushed to the https://quay.io/repository/aerogear/mobile-security-service[mobile-security-service image hosting repository] by the CI.
+
+WARNING: Do not use letters in the tag such as `v`. It will not work.
 
 == Supportability
 

@@ -8,12 +8,9 @@ TEST_PKGS = $(addprefix $(PKG)/,$(PACKAGES))
 APP_FILE=./cmd/manager/main.go
 BIN_DIR := $(GOPATH)/bin
 BINARY ?= mobile-security-service-operator
-TAG= 0.1.0
-DEV= dev
 IMAGE_REGISTRY=quay.io
 REGISTRY_ORG=aerogear
 REGISTRY_REPO=mobile-security-service-operator
-IMAGE_DEV_TAG=$(IMAGE_REGISTRY)/$(REGISTRY_ORG)/$(REGISTRY_REPO):$(TAG)-$(DEV)
 IMAGE_LATEST_TAG=$(IMAGE_REGISTRY)/$(REGISTRY_ORG)/$(REGISTRY_REPO):latest
 IMAGE_MASTER_TAG=$(IMAGE_REGISTRY)/$(REGISTRY_ORG)/$(REGISTRY_REPO):master
 IMAGE_RELEASE_TAG=$(IMAGE_REGISTRY)/$(REGISTRY_ORG)/$(REGISTRY_REPO):$(CIRCLE_TAG)
@@ -99,18 +96,6 @@ monitoring/uninstall:
 	- kubectl delete -f deploy/monitor/operator_service.yaml
 	- kubectl delete -f deploy/monitor/prometheus-rule.yaml
 	- kubectl delete -f deploy/monitor/grafana-dashboard.yaml
-
-#BUILD and PUSH
-.PHONY: image/build/dev
-image/build/dev:
-	@echo Building operator with the tag: $(IMAGE_DEV_TAG)
-	operator-sdk build $(IMAGE_DEV_TAG)
-
-.PHONY: image/push/dev
-image/push/dev:
-	@echo Pushing operator with tag $(IMAGE_DEV_TAG) to $(IMAGE_REGISTRY)
-	@docker login $(IMAGE_REGISTRY)
-	docker push $(IMAGE_DEV_TAG)
 
 .PHONY: image/build/master
 image/build/master:
