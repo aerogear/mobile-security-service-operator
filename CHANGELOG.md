@@ -8,5 +8,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Released 
  
-## [0.1.0] - Mon Apr 15 2019
-- First version of this project attending the main requirements ( Operator, roles, service and database with the bind, re-bind and unbind actions )
+## [0.1.0] - Wed Jun 12 2019
+- Initial version meeting requirements defined for the Operator which is managing the [MobileSecurityService](https://github.com/aerogear/mobile-security-service) and its database
