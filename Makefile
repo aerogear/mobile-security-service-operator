@@ -26,131 +26,63 @@ BINARY_LINUX_64 = ./dist/linux_amd64/$(BINARY)
 LDFLAGS=-ldflags "-w -s -X main.Version=${TAG}"
 
 
-.PHONY: setup-githooks
-setup-githooks:
-	@echo Setting up Git hooks:
-	ln -sf $$PWD/.githooks/* $$PWD/.git/hooks/
-
-.PHONY: setup
-setup: setup-githooks
-	dep ensure
-
-.PHONY: test
-test:
-	@echo Running tests:
-	GOCACHE=off go test -cover $(TEST_PKGS)
-
-.PHONY: test-integration-cover
-test-integration-cover:
-	echo "mode: count" > coverage-all.out
-	GOCACHE=off $(foreach pkg,$(PACKAGES),\
-		go test -failfast -tags=integration -coverprofile=coverage.out -covermode=count $(addprefix $(PKG)/,$(pkg)) || exit 1;\
-		tail -n +2 coverage.out >> coverage-all.out;)
-
-.PHONY: build_linux
-build_linux:
-	env GOOS=linux GOARCH=amd64 go build $(APP_FILE)
-
-.PHONY: create-app-ns
-create-app-ns:
-	@echo Creating the namespace ${APP_NAMESPACES}:
-	oc new-project ${APP_NAMESPACES}
-
-.PHONY: create-app
-create-app:
-	kubectl apply -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml
-
-.PHONY: delete-app
-delete-app:
-	kubectl delete -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml
-
-.PHONY: run-local
-run-local:
-	@echo Exporting env vars to run operator locally:
-	- . ./scripts/export_local_envvars.sh
-	@echo Installing ...
-	- make create-all
-	@echo Starting ...
-	- operator-sdk up local
-
-.PHONY: create-all
-create-all:
-	@echo Create Mobile Security Service Operator namespace ${NAMESPACE}:
+#INSTALL/UNINSTALL
+.PHONY: install
+install:
+	@echo ....... Creating namespace ....... 
 	- oc new-project ${NAMESPACE}
-	@echo Create Mobile Security Service Operator and Service in the namespace ${NAMESPACE}:
-	make create-oper
-	make create-service-and-db
+	@echo ....... Adding Mobile Security Service CRDS and Operator .......
+	- kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
+	- kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
+	- kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml
+	- kubectl apply -f deploy/cluster_role.yaml
+	- kubectl apply -f deploy/cluster_role_binding.yaml
+	- kubectl apply -f deploy/service_account.yaml
+	- kubectl apply -f deploy/operator.yaml
+	@echo ....... Creating the Mobile Security Service and Database .......
+	- kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
+	- kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
+	- oc new-project ${APP_NAMESPACES}
 
-.PHONY: delete-all
-delete-all:
-	@echo Delete Mobile Security Service Operator, Service and namespace ${NAMESPACE}:
-	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml
-	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
-	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
-	- kubectl delete -f deploy/cluster_role.yaml
-	- kubectl delete -f deploy/cluster_role_binding.yaml
-	- kubectl delete -f deploy/service_account.yaml
-	- kubectl delete -f deploy/operator.yaml
-	- kubectl delete namespace ${NAMESPACE}
-
-.PHONY: create-oper
-create-oper:
-	@echo Create Mobile Security Service Operator:
-	- oc new-project ${NAMESPACE}
-	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
-	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
-	- kubectl create -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml
-	- kubectl create -f deploy/cluster_role.yaml
-	- kubectl create -f deploy/cluster_role_binding.yaml
-	- kubectl create -f deploy/service_account.yaml
-	- kubectl create -f deploy/operator.yaml
-
-.PHONY: delete-oper
-delete-oper:
-	@echo Deleting Mobile Security Service Operator and namespace:
-	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
-	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
-	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml
-	- kubectl delete -f deploy/cluster_role.yaml
-	- kubectl delete -f deploy/cluster_role_binding.yaml
-	- kubectl delete -f deploy/service_account.yaml
-	- kubectl delete -f deploy/operator.yaml
-	- kubectl delete namespace ${NAMESPACE}
-
-.PHONY: create-service-and-db
-create-service-and-db:
-	@echo Creating Mobile Security Service and Database into project:
-	kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
-	kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
-
-.PHONY: create-service-only
-create-service-only:
-	@echo Creating Mobile Security Service App only:
-	kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
-
-.PHONY: create-db-only
-create-db-only:
-	@echo Creating Mobile Security Service Database only:
-	kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
-
-.PHONY: delete-service-and-db
-delete-service-and-db:
-	@echo Deleting Mobile Security Service and Database:
+.PHONY: uninstall
+uninstall:
+	@echo ....... Deleting the Mobile Security Service, Database and Operator .......
+	- oc project ${NAMESPACE}
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
+	- kubectl delete -f deploy/operator.yaml
+	@echo ....... Delete Operator and Service....... 
+	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml
+	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
+	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
+	- kubectl delete -f deploy/cluster_role.yaml
+	- kubectl delete -f deploy/cluster_role_binding.yaml
+	- kubectl delete -f deploy/service_account.yaml
+	@echo ....... Delete namespace ${NAMESPACE} ....... 
+	- kubectl delete namespace ${NAMESPACE}
+	@echo ....... Delete namespace ${APP_NAMESPACES} .......
+	- kubectl delete namespace ${APP_NAMESPACES}
 
-.PHONY: delete-service-only
-delete-service-only:
-	@echo Deleting Mobile Security Service App only:
-	kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
+.PHONY: refresh-operator-image
+refresh-operator-image:
+	@echo ....... Deleting and applying the operator in order to refresh the image when a tag is not changed \(development use\).......
+	- oc project ${NAMESPACE}
+	- kubectl delete -f deploy/operator.yaml
+	- kubectl create -f deploy/operator.yaml
 
-.PHONY: delete-db-only
-delete-db-only:
-	@echo Deleting Mobile Security Service Database only:
-	kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
+.PHONY: example-app/apply
+example-app/apply:
+	@echo ....... Applying the MobileSecurityServiceApp example in the current namespace  ......
+	@echo ....... An APP CR can only be applied in the namespaces configured in the operator\'s EnvVar APP_NAMESPACES.
+	- kubectl apply -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml
+	
+.PHONY: example-app/delete
+example-app/delete:
+	@echo ....... Deleting the MobileSecurityServiceApp example from the current app namespace  ......
+	- kubectl delete -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml
 
-.PHONY: install-monitoring
-install-monitoring:
+.PHONY: monitoring/install
+monitoring/install:
 	@echo Installing service monitor in ${NAMESPACE} :
 	- oc project ${NAMESPACE}
 	- kubectl label namespace ${NAMESPACE} monitoring-key=middleware
@@ -159,8 +91,8 @@ install-monitoring:
 	- kubectl create -f deploy/monitor/prometheus-rule.yaml
 	- kubectl create -f deploy/monitor/grafana-dashboard.yaml
 
-.PHONY: uninstall-monitoring
-uninstall-monitoring:
+.PHONY: monitoring/uninstall
+monitoring/uninstall:
 	@echo Uninstalling monitor service from ${NAMESPACE} :
 	- oc project ${NAMESPACE}
 	- kubectl delete -f deploy/monitor/service_monitor.yaml
@@ -168,63 +100,92 @@ uninstall-monitoring:
 	- kubectl delete -f deploy/monitor/prometheus-rule.yaml
 	- kubectl delete -f deploy/monitor/grafana-dashboard.yaml
 
-.PHONY: build-dev
-build-dev:
+#BUILD and PUSH
+.PHONY: image/build/dev
+image/build/dev:
 	@echo Building operator with the tag: $(IMAGE_DEV_TAG)
 	operator-sdk build $(IMAGE_DEV_TAG)
 
-.PHONY: build-master
-build-master:
-	@echo Building operator with the tag: $(IMAGE_MASTER_TAG)
-	operator-sdk build $(IMAGE_MASTER_TAG)
-
-.PHONY: build-release
-build-release:
-	@echo Building operator with the tag: $(IMAGE_RELEASE_TAG)
-	operator-sdk build $(IMAGE_RELEASE_TAG)
-
-.PHONY: build-latest
-build-latest:
-	@echo Building operator with the tag: $(IMAGE_LATEST_TAG)
-	operator-sdk build $(IMAGE_LATEST_TAG)
-	
-.PHONY: push-dev
-push-dev:
+.PHONY: image/push/dev
+image/push/dev:
 	@echo Pushing operator with tag $(IMAGE_DEV_TAG) to $(IMAGE_REGISTRY)
 	@docker login $(IMAGE_REGISTRY)
 	docker push $(IMAGE_DEV_TAG)
 
-.PHONY: push-master
-push-master:
+.PHONY: image/build/master
+image/build/master:
+	@echo Building operator with the tag: $(IMAGE_MASTER_TAG)
+	operator-sdk build $(IMAGE_MASTER_TAG)
+
+.PHONY: image/build/release
+image/build/release:
+	@echo Building operator with the tag: $(IMAGE_RELEASE_TAG)
+	operator-sdk build $(IMAGE_RELEASE_TAG)
+	operator-sdk build $(IMAGE_LATEST_TAG)
+
+.PHONY: image/push/master
+image/push/master:
 	@echo Pushing operator with tag $(IMAGE_MASTER_TAG) to $(IMAGE_REGISTRY)
 	@docker login --username $(QUAY_USERNAME) --password $(QUAY_PASSWORD) quay.io
 	docker push $(IMAGE_MASTER_TAG)
 
-.PHONY: push-release
-push-release:
+.PHONY: image/push/release
+image/push/release:
 	@echo Pushing operator with tag $(IMAGE_RELEASE_TAG) to $(IMAGE_REGISTRY)
 	@docker login --username $(QUAY_USERNAME) --password $(QUAY_PASSWORD) quay.io
 	docker push $(IMAGE_RELEASE_TAG)
-
-.PHONY: push-latest
-push-latest:
-	@echo Pushing operator with tag $(IMAGE_LATEST_TAG) to $(IMAGE_REGISTRY)
-	@docker login --username $(QUAY_USERNAME) --password $(QUAY_PASSWORD) quay.io
 	docker push $(IMAGE_LATEST_TAG)
 
-.PHONY: debug-setup
-debug-setup:
+.PHONY: setup/debug
+setup/debug:
 	@echo Exporting env vars to run operator locally:
 	- . ./scripts/export_local_envvars.sh
 	@echo Installing ...
-	- make create-all
+	- make install
 
-.PHONY: vet
-vet:
+.PHONY: setup/githooks
+setup/githooks:
+	@echo Installing errcheck dependence:
+	go get -u github.com/kisielk/errcheck
+	@echo Setting up Git hooks:
+	ln -sf $$PWD/.githooks/* $$PWD/.git/hooks/
+
+.PHONY: setup
+setup: setup/githooks
+	dep ensure
+
+.PHONY: test/run
+test/run:
+	@echo Running tests:
+	GOCACHE=off go test -cover $(TEST_PKGS)
+
+.PHONY: test/integration-cover
+test/integration-cover:
+	echo "mode: count" > coverage-all.out
+	GOCACHE=off $(foreach pkg,$(PACKAGES),\
+		go test -failfast -tags=integration -coverprofile=coverage.out -covermode=count $(addprefix $(PKG)/,$(pkg)) || exit 1;\
+		tail -n +2 coverage.out >> coverage-all.out;)
+
+.PHONY: code/build/linux
+code/build/linux:
+	env GOOS=linux GOARCH=amd64 go build $(APP_FILE)
+
+.PHONY: code/run/local
+code/run/local:
+	@echo Exporting env vars to run operator locally:
+	- . ./scripts/export_local_envvars.sh
+	@echo  ....... Installing ...
+	- make install
+	@echo Starting ...
+	- operator-sdk up local
+
+.PHONY: code/vet
+code/vet:
 	@echo go vet
 	go vet $$(go list ./... | grep -v /vendor/)
 
-.PHONY: fmt
-fmt:
+.PHONY: code/fmt
+code/fmt:
 	@echo go fmt
 	go fmt $$(go list ./... | grep -v /vendor/)
+
