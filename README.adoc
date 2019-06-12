@@ -71,23 +71,25 @@ $ minishift config set insecure-registry 172.30.0.0/16
 $ minishift start
 ----
 
-=== Installing Mobile Security Service
+=== Installing
 
 Use the following command to install the Operator, Service and its Database.
 
-NOTE: To install you need be logged in as a user with cluster priviledges like the `system:admin` user. E.g. By using: `oc login -u system:admin`.
+NOTE: To install you need be logged in as a user with cluster privileges like the `system:admin` user. E.g. By using: `oc login -u system:admin`.
 
 [source,shell]
 ----
 $ make install
 ----
 
-To verify the installation has been successful run the following
+To verify that the pods has been successful created you can run the following command.
+
 [source,shell]
 ----
-# check the project exists 
+# Go to the project namespace. E.g mobile-security-service
 $ oc project mobile-security-service
-# check the pods are deployed
+
+# Check the pods which are deployed
 $ oc get pods
 NAME                                                READY     STATUS    RESTARTS   AGE
 mobile-security-service-569d4f8d86-vp5hq            1/1       Running   2          1h
@@ -95,6 +97,34 @@ mobile-security-service-db-ccb5856f6-8qnvc          1/1       Running   0       
 mobile-security-service-operator-785cbdbf46-wq2lf   1/1       Running   0          1h
 
 ----
+
+To verify that the installation was successful completed you can check the `AppStatus=` status field of link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[Service CR] and the `DatabaseStatus=OK` status field of link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml[Database CR] in the cluster. For both are expected this status fields be added with the value "OK" when all installation process is finished and are all created successfully as the following example.
+
+[source,shell]
+----
+# To check the Service CR
+$ oc describe mobilesecurityservices.mobile-security-service.aerogear.com
+...
+  Route Name:                        route
+  Size:                              1
+Status:
+  App Status:       OK
+  Config Map Name:  mobile-security-service-config
+  Deployment Name:  mobile-security-service
+...
+
+# To check the Database CR
+$ oc describe mobilesecurityservicedbs.mobile-security-service.aerogear.com
+...
+  Size:                      1
+Status:
+  Database Status:  OK
+  Deployment Name:  mobile-security-service-db
+  Deployment Status:
+...
+----
+
+NOTE: To troubleshooting the installation if it does not complete successfully check the status of its CRs. Note that all objects which are managed by them has an respective status field on it. E.g `Deployment Status`
 
 === Creating/Binding an app
 
@@ -117,7 +147,7 @@ mobile-security-service-operator-785cbdbf46-wq2lf   1/1       Running   0       
 $ make example-app/apply
 ----
 
-NOTE: This command will just apply the link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml[MobileSecurityServiceApp CR] example with `kubectl apply -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml`
+NOTE: This command will execute `kubectl apply -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml` and apply the link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml[MobileSecurityServiceApp CR] example.
 
 === Deleting/Unbinding an app
 
@@ -128,7 +158,8 @@ NOTE: This command will just apply the link:./deploy/crds/examples/mobile-securi
 $ make example-app/delete
 ----
 
-IMPORTANT: This command will just delete the link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml[MobileSecurityServiceApp CR] example with `kubectl delete -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml`
+IMPORTANT: This command will execute `kubectl delete -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml` and delete the link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml[MobileSecurityServiceApp CR] example.
+
 NOTE: The Rest Service endpoint to delete it is called in the finalizer of the link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml[MobileSecurityServiceApp CR] and the CR will be just allowed to be removed when the app is no longer available in its Service.
 
 === Uninstalling
@@ -140,11 +171,23 @@ Use the following command to delete the Operator, the Service and its Database a
 $ make uninstall
 ----
 
-NOTE: To uninstall you need be logged in as a user with cluster priviledges like the `system:admin` user. E.g. By using: `oc login -u system:admin`.
+NOTE: To uninstall you need be logged in as a user with cluster privileges like the `system:admin` user. E.g. By using: `oc login -u system:admin`.
 
 == Configuration and Options
 
-=== Operator Namespace
+=== Customizing the Service
+
+The Mobile Security Service image and its parameters are configurable and specified by the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService CR].
+
+NOTE: Default values are applied by the operator in link:./mobile-security-service-operator/pkg/controller/mobilesecurityservice/mandatory_specs.go[mandatory_specs.go] are applied for the mandatory specifications which are not made in the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService CR].
+
+=== Customizing the Database
+
+The database image and its parameters are configurable and specified by the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml[MobileSecurityServiceDB CR].
+
+NOTE: Default values are applied by the operator in link:./mobile-security-service-operator/pkg/controller/mobilesecurityservicedb/mandatory_specs.go[mandatory_specs.go] are applied for the mandatory specifications which are not made in the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceddb_cr.yaml[MobileSecurityServiceDB CR].
+
+=== Changing the operator namespace
 
 By using the command `make install` the default namespace `mobile-security-service`,  defined in the link:./Makefile[Makefile] will be created and the operator will be installed in this namespace. You are able to install the operator in another namespace if you wish, however, you need to set up its roles (RBAC) in order to apply them on the namespace where the operator will be installed. The namespace name needs to be changed in the link:./deploy/cluster_role_binding.yaml[Cluster Role Binding] file. Note, that you also need to change the namespace in the link:./Makefile[Makefile] in order to use the command `make install` for another namespace. 
 
@@ -154,7 +197,7 @@ By using the command `make install` the default namespace `mobile-security-servi
   namespace: mobile-security-service
 ----
 
-=== Namespace to apply MobileSecurityServiceApp
+=== Managing valid namespaces to apply the MobileSecurityServiceApp
 
 Only namespaces specified in the environment variable `APP_NAMESPACES` can be used to apply Apps. If the link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml[MobileSecurityServiceApp CR] is applied to a namespace that is not specified in `APP_NAMESPACES` it will be ignored. Refer to configuration in the link:./deploy/operator.yaml[operator.yaml] file.
 
@@ -162,11 +205,7 @@ IMPORTANT: The values should be split by `;`. E.g `mobile-security-service-apps;
 
 NOTE: To run the project locally export the ENV VAR. E.g. `export APP_NAMESPACES=mobile-security-service-apps`
 
-=== Oauth Configuration
-
-An Oauth Proxy container and the required configuration will be setup by default by the operator to provide authentication to the Mobile Security Service.
-
-=== Environment Variables and ConfigMap
+=== Changing the Environment Variables values
 
 Environment Variables are used to configure the https://github.com/aerogear/mobile-security-service[Mobile Security Service] Application and Database. For further information on configuration see the https://github.com/aerogear/mobile-security-service#setup-and-configurations[Setup and Configuration] section.
 
@@ -217,9 +256,6 @@ $ kubectl create -f deploy/monitor/prometheus-rule.yaml
 $ kubectl create -f deploy/monitor/grafana-dashboard.yaml
 ----
 
-This operator will only working with the namespaces which are specified in the environment variable `APP_NAMESPACES`. Any link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml[MobileSecurityServiceApp CR] which is created/applied in a NAMESPACE which is not defined in `APP_NAMESPACES` will be ignored. See the EnvVar configuration into the link:./deploy/operator.yaml[operator.yaml] file. Also, note that the valid namespaces can be managed by the OCP UI.
-
-
 IMPORTANT: The namespaces are setup manually in the files link:./deploy/monitor/service_monitor.yaml[ServiceMonitor], link:./deploy/monitor/prometheus-rule.yaml[Prometheus Rules], link:./deploy/monitor/operator-service.yaml[Operator Service], and link:./deploy/monitor/grafana-dashboard[Grafana Dashboard]. Following an example from the link:./deploy/prometheus-rule.yaml[Prometheus Rules]. You should replace them if the operator is not installed in the default namespace.
 
 [source,yaml]
@@ -230,11 +266,7 @@ IMPORTANT: The namespaces are setup manually in the files link:./deploy/monitor/
 [source,shell]
 ----
 
-NOTE:  `make monitoring/uninstall` will uninstall the Service.
-
-=== Database image and parameters
-
-The database image and its parameters and their default values are configurable and specified by the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml[MobileSecurityServiceDB CR].
+NOTE: The command `make monitoring/uninstall` will uninstall the Monitor Service.
 
 == Development
 
@@ -317,6 +349,10 @@ NOTE: The operator, application and database will be installed in the namespace 
 | `SDKConfigMapName` | Name of the config map object created for the app with its SDK Config.
 |===
 
+==== Oauth Authentication
+
+An Oauth Proxy container and the required configuration will be setup by default by the operator to provide authentication to the Mobile Security Service.
+
 === Local Setup
 
 Run the following command to setup this project locally.
@@ -336,7 +372,6 @@ $ make code/run/local
 ----
 
 IMPORTANT: The local changes are applied when the command `operator-sdk up local --namespace={namespace}` is executed then it is not a hot deploy and to get the latest changes you need re-run the command.
-
 
 === Debugging
 
@@ -397,7 +432,7 @@ NOTE: The image/tag used from https://github.com/aerogear/mobile-security-servic
 
 |===
 | *Command*                        | *Description*
-| `install`                   | Creates the `{namespace}` namespace, application CRDS, cluster role and service account. Installs the operator and the Service and DB
+| `make install`                   | Creates the `{namespace}` namespace, application CRDS, cluster role and service account. Installs the operator and the Service and DB
 | `make uninstall`                 | Uninstalls the operator and the Service and DB. Deletes the `{namespace}`` namespace, application CRDS, cluster role and service account and the app namespace. i.e. all configuration applied by `make install`
 | `make example-app/apply`         | Applies the Example App CR . (Create/Update app in the cluster and Service, also creates ConfigMap with the public host endpoint for the init config in the mobile device(SDK) ).
 | `make example-app/delete`        | Deletes the Example App CR. (Delete app from the Service and SDKConfigMap).
@@ -410,7 +445,7 @@ NOTE: The image/tag used from https://github.com/aerogear/mobile-security-servic
 
 |===
 | `make code/run-local`                 | Runs the operator locally for development purposes.
-| `make setup/debug`               | Sets up environment for debugging proposes.
+| `make setup/debug`                    | Sets up environment for debugging proposes.
 | `make code/vet`                       | Examines source code and reports suspicious constructs using https://golang.org/cmd/vet/[vet].
 | `make code/fmt`                       | Formats code using https://golang.org/cmd/gofmt/[gofmt].
 |===
@@ -418,12 +453,20 @@ NOTE: The image/tag used from https://github.com/aerogear/mobile-security-servic
 === CI
 
 |===
-| `make test/run`                      | Runs test suite
-| `make test/integration-cover`    | Run coverage check
+| `make test/run`                        | Runs test suite
+| `make test/integration-cover`          | Run coverage check
 | `make image/build/master`              | Used by CI to build operator image from `master` branch and add `:master` tag.
 | `make image/push/master`               | Used by CI to push the `master` image to https://quay.io/repository/aerogear/mobile-security-service-operator[quay.io registry].
 | `make image/build/release`             | Used by CI to build operator image from a tagged commit and add `:<version>` and `latest` tag.
 | `make image/push/release`              | Used by CI to push the `release` and `latest` image to https://quay.io/repository/aerogear/mobile-security-service-operator[quay.io registry].
+|===
+
+=== Tests
+
+|===
+| `make test/run`                      | Runs test suite
+| `make test/integration-cover`        | Run coverage check
+|===
 
 NOTE: The link:./Makefile[Makefile] is implemented with tasks which you should use to work with.
 
@@ -437,7 +480,6 @@ Images are automatically built and pushed to our https://quay.io/repository/aero
 If the image does not get built and pushed automatically the job may be re-run manually via the https://circleci.com/gh/aerogear/mobile-security-service-operator[CI dashboard].
 
 == Tags Release
-
 
 Following the steps
 
