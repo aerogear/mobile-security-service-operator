@@ -9,4 +9,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Released 
  
 ## [0.1.0] - Wed Jun 12 2019
-- Initial version meeting requirements defined for the Operator which is managing the [MobileSecurityService](https://github.com/aerogear/mobile-security-service) and its database
+- Initial release of operator that meets requirements to manage [MobileSecurityService](https://github.com/aerogear/mobile-security-service) and its database.
