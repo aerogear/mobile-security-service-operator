@@ -22,8 +22,10 @@ BINARY_LINUX_64 = ./dist/linux_amd64/$(BINARY)
 
 LDFLAGS=-ldflags "-w -s -X main.Version=${TAG}"
 
+##############################
+# INSTALL/UNINSTALL          #
+##############################
 
-#INSTALL/UNINSTALL
 .PHONY: install
 install:
 	@echo ....... Creating namespace ....... 
@@ -97,6 +99,14 @@ monitoring/uninstall:
 	- kubectl delete -f deploy/monitor/prometheus-rule.yaml
 	- kubectl delete -f deploy/monitor/grafana-dashboard.yaml
 
+##############################
+# CI                         #
+##############################
+
+.PHONY: code/build/linux
+code/build/linux:
+	env GOOS=linux GOARCH=amd64 go build $(APP_FILE)
+
 .PHONY: image/build/master
 image/build/master:
 	@echo Building operator with the tag: $(IMAGE_MASTER_TAG)
@@ -119,7 +129,13 @@ image/push/release:
 	@echo Pushing operator with tag $(IMAGE_RELEASE_TAG) to $(IMAGE_REGISTRY)
 	@docker login --username $(QUAY_USERNAME) --password $(QUAY_PASSWORD) quay.io
 	docker push $(IMAGE_RELEASE_TAG)
+	@echo Pushing operator with tag $(IMAGE_LATEST_TAG) to $(IMAGE_REGISTRY)
 	docker push $(IMAGE_LATEST_TAG)
+
+
+##############################
+# Local Development          #
+##############################
 
 .PHONY: setup/debug
 setup/debug:
@@ -139,22 +155,6 @@ setup/githooks:
 setup: setup/githooks
 	dep ensure
 
-.PHONY: test/run
-test/run:
-	@echo Running tests:
-	GOCACHE=off go test -cover $(TEST_PKGS)
-
-.PHONY: test/integration-cover
-test/integration-cover:
-	echo "mode: count" > coverage-all.out
-	GOCACHE=off $(foreach pkg,$(PACKAGES),\
-		go test -failfast -tags=integration -coverprofile=coverage.out -covermode=count $(addprefix $(PKG)/,$(pkg)) || exit 1;\
-		tail -n +2 coverage.out >> coverage-all.out;)
-
-.PHONY: code/build/linux
-code/build/linux:
-	env GOOS=linux GOARCH=amd64 go build $(APP_FILE)
-
 .PHONY: code/run/local
 code/run/local:
 	@echo Exporting env vars to run operator locally:
@@ -173,4 +173,21 @@ code/vet:
 code/fmt:
 	@echo go fmt
 	go fmt $$(go list ./... | grep -v /vendor/)
+
+##############################
+# Tests                      #
+##############################
+
+.PHONY: test/run
+test/run:
+	@echo Running tests:
+	GOCACHE=off go test -cover $(TEST_PKGS)
+
+.PHONY: test/integration-cover
+test/integration-cover:
+	echo "mode: count" > coverage-all.out
+	GOCACHE=off $(foreach pkg,$(PACKAGES),\
+		go test -failfast -tags=integration -coverprofile=coverage.out -covermode=count $(addprefix $(PKG)/,$(pkg)) || exit 1;\
+		tail -n +2 coverage.out >> coverage-all.out;)
+
 
