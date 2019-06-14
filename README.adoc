@@ -373,6 +373,25 @@ $ make code/run/local
 
 IMPORTANT: The local changes are applied when the command `operator-sdk up local --namespace={namespace}` is executed then it is not a hot deploy and to get the latest changes you need re-run the command.
 
+=== Checking Database
+
+By the following commands you are able to connect in the Mobile Security Service Database. You can check it by OpenShift UI in the Database's pod terminal.
+
+[source,shell]
+----
+# Login into the the Postgres
+psql -U postgres
+
+# To connect into the default database
+\c mobile_security_service
+
+# To list the tables
+\dt
+
+# To select all data from the app table
+SELECT * FROM app;
+----
+
 === Debugging
 
 Follow the below steps to debug the project in some IDEs.
