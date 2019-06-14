@@ -13,6 +13,7 @@ import (
 // Request object not found, could have been deleted after reconcile request.
 // Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
 func (r *ReconcileMobileSecurityServiceDB) fetchDBInstance(reqLogger logr.Logger, request reconcile.Request) (*mobilesecurityservicev1alpha1.MobileSecurityServiceDB, error) {
+	reqLogger.Info("Checking if the MobileSecurityServiceDB already exists")
 	db := &mobilesecurityservicev1alpha1.MobileSecurityServiceDB{}
 	//Fetch the MobileSecurityServiceDB db
 	err := r.client.Get(context.TODO(), request.NamespacedName, db)

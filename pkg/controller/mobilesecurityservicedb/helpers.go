@@ -11,7 +11,7 @@ import (
 )
 
 func getDBLabels(name string) map[string]string {
-	return map[string]string{"app": "mobilesecurityservicedb", "mobilesecurityservicedb_cr": name, "name": "mobilesecurityservicedb"}
+	return map[string]string{"app": "mobilesecurityservice", "mobilesecurityservicedb_cr": name, "name": "mobilesecurityservicedb"}
 }
 
 func (r *ReconcileMobileSecurityServiceDB) getDatabaseNameEnvVar(db *mobilesecurityservicev1alpha1.MobileSecurityServiceDB, serviceConfigMapName string) corev1.EnvVar {
