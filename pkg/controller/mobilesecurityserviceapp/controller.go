@@ -138,7 +138,6 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 
 	reqLogger.Info("Valid namespace for MobileSecurityServiceApp", "Namespace", request.Namespace)
 	reqLogger.Info("Checking for MobileSecurityService instance ...")
-	mss := &mobilesecurityservicev1alpha1.MobileSecurityService{}
 
 	operatorNamespace, err := k8sutil.GetOperatorNamespace()
 
@@ -147,11 +146,8 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 		operatorNamespace = utils.OperatorNamespaceForLocalEnv
 	}
 
-	// GET MSS CR
-	r.client.Get(context.TODO(), types.NamespacedName{Name: utils.MobileSecurityServiceCRName, Namespace: operatorNamespace}, mss)
-
-	// Get the REST Service Endpoint
-	serviceAPI := utils.GetServiceAPIURL(mss)
+	// Fetch MSS Instance
+	mss := r.fetchMssInstance(reqLogger, operatorNamespace, request)
 
 	// Check if has Conditionals to be deleted and perform the actions required to allow it.
 	if hasConditionsToBeDeleted(mssApp, mss) {
@@ -167,6 +163,9 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 			//Stop the reconcile
 			return reconcile.Result{}, nil
 		}
+
+		// Get the REST Service Endpoint
+		serviceAPI := utils.GetServiceAPIURL(mss)
 
 		// If the CR was marked to be deleted before it finalizes the app need to be deleted from the Service Side
 		// Do request to get the app.ID to delete app
@@ -250,6 +249,9 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 		//Requeu in order to do a full validation
 		return reconcile.Result{Requeue: true}, nil
 	}
+
+	// Get the REST Service Endpoint
+	serviceAPI := utils.GetServiceAPIURL(mss)
 
 	// Fetch app
 	app, err := fetchBindAppRestServiceByAppID(serviceAPI, mssApp, reqLogger)
