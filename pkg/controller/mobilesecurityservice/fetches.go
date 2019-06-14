@@ -15,6 +15,7 @@ import (
 // Request object not found, could have been deleted after reconcile request.
 // Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
 func (r *ReconcileMobileSecurityService) fetchMssInstance(reqLogger logr.Logger, request reconcile.Request) (*mobilesecurityservicev1alpha1.MobileSecurityService, error) {
+	reqLogger.Info("Checking if the ReconcileMobileSecurityService already exists")
 	mss := &mobilesecurityservicev1alpha1.MobileSecurityService{}
 	//Fetch the MobileSecurityService mss
 	err := r.client.Get(context.TODO(), request.NamespacedName, mss)
