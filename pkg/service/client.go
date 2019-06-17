@@ -27,8 +27,11 @@ var DeleteAppFromServiceByRestAPI = func(serviceAPI string, id string, reqLogger
 	client := &http.Client{}
 	response, err := client.Do(req)
 
-	if err != nil || 204 != response.StatusCode {
-		reqLogger.Error(err, "HTTP StatusCode not expected", "HTTPMethod", http.MethodDelete, "url", url, "response.StatusCode", response.StatusCode)
+	if err != nil || response == nil || 204 != response.StatusCode {
+		if response != nil {
+			reqLogger.Error(err, "Unable to execute GET request", "HTTPMethod", http.MethodGet, "url", url, "response.StatusCode", response.StatusCode)
+		}
+		reqLogger.Error(err, "Unable to execute GET request", "HTTPMethod", http.MethodGet, "url", url)
 		return err
 	}
 
@@ -63,8 +66,11 @@ var CreateAppByRestAPI = func(serviceAPI string, app *models.App, reqLogger logr
 	client := &http.Client{}
 	response, err := client.Do(req)
 
-	if err != nil || 201 != response.StatusCode {
-		reqLogger.Error(err, "HTTP StatusCode not expected", "HTTPMethod", http.MethodPost, "url", url, "response.StatusCode", response.StatusCode)
+	if err != nil || response == nil || 201 != response.StatusCode {
+		if response != nil {
+			reqLogger.Error(err, "Unable to execute GET request", "HTTPMethod", http.MethodGet, "url", url, "response.StatusCode", response.StatusCode)
+		}
+		reqLogger.Error(err, "Unable to execute GET request", "HTTPMethod", http.MethodGet, "url", url)
 		return err
 	}
 
@@ -99,7 +105,10 @@ func GetAppFromServiceByRestApi(serviceAPI string, appId string, reqLogger logr.
 	client := &http.Client{}
 	response, err := client.Do(req)
 	if err != nil {
-		reqLogger.Error(err, "Unable to execute GET request", "HTTPMethod", http.MethodGet, "url", url, "response.StatusCode", response.StatusCode)
+		if response != nil {
+			reqLogger.Error(err, "Unable to execute GET request", "HTTPMethod", http.MethodGet, "url", url, "response.StatusCode", response.StatusCode)
+		}
+		reqLogger.Error(err, "Unable to execute GET request", "HTTPMethod", http.MethodGet, "url", url)
 		return nil, err
 	}
 
@@ -147,8 +156,11 @@ var UpdateAppNameByRestAPI = func(serviceAPI string, app *models.App, reqLogger 
 	//Do the request
 	client := &http.Client{}
 	response, err := client.Do(req)
-	if err != nil || 204 != response.StatusCode {
-		reqLogger.Error(err, "HTTP StatusCode not expected", "HTTPMethod", http.MethodPatch, "url", url, "response.StatusCode", response.StatusCode)
+	if err != nil || response == nil || 204 != response.StatusCode {
+		if response != nil {
+			reqLogger.Error(err, "HTTP StatusCode not expected", "HTTPMethod", http.MethodPatch, "url", url, "response.StatusCode", response.StatusCode)
+		}
+		reqLogger.Error(err, "HTTP StatusCode not expected", "HTTPMethod", http.MethodPatch, "url", url)
 		return err
 	}
 	defer response.Body.Close()
