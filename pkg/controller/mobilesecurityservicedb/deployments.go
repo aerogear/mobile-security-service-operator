@@ -15,10 +15,6 @@ func (r *ReconcileMobileSecurityServiceDB) buildDBDeployment(db *mobilesecuritys
 	auto := true
 	replicas := db.Spec.Size
 	dep := &v1beta1.Deployment{
-		TypeMeta: metav1.TypeMeta{
-			APIVersion: "extensions/v1beta1",
-			Kind:       "Deployment",
-		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      db.Name,
 			Namespace: db.Namespace,
