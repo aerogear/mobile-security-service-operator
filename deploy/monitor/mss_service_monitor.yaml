@@ -4,11 +4,11 @@ kind: ServiceMonitor
 metadata:
   labels:
     monitoring-key: middleware
-  name: mobile-security-service-operator
+  name: mobile-security-service
 spec:
   endpoints:
-    - path: /metrics
-      port: metrics
+    - path: /api/metrics
+      port: server
   selector:
     matchLabels:
-      name: mobile-security-service-operator
+      app: mobilesecurityservice
