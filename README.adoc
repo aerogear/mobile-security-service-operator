@@ -213,7 +213,7 @@ Environment Variables are used to configure the https://github.com/aerogear/mobi
 
 The application-monitoring stack provisioned by the
 https://github.com/integr8ly/application-monitoring-operator[application-monitoring-operator] on https://github.com/integr8ly[Integr8ly]
-can be used to gather metrics from this operator. These metrics can be used by Integr8ly's application monitoring to generate Prometheus metrics, AlertManager alerts and a Grafana dashboard.
+can be used to gather metrics from this operator and the mobile security service. These metrics can be used by Integr8ly's application monitoring to generate Prometheus metrics, AlertManager alerts and a Grafana dashboard.
 
 It is required that the https://github.com/integr8ly/grafana-operator[integr8ly/Grafana] and https://github.com/coreos/prometheus-operator[Prometheus] operators are installed. For further detail see https://github.com/integr8ly/application-monitoring-operator[integr8ly/application-monitoring-operator].
 
@@ -235,10 +235,11 @@ $ oc project mobile-security-service
 
 [source,shell]
 ----
-# Installation of ServiceMonitor
+# Installation of ServiceMonitor for Operator and Mobile-Security-Service
 
 $ kubectl label namespace mobile-security-service monitoring-key=middleware
 $ kubectl create -f deploy/monitor/service_monitor.yaml
+$ kubectl create -f deploy/monitor/mss_service_monitor.yaml
 $ kubectl create -f deploy/monitor/operator_service.yaml
 ----
 
