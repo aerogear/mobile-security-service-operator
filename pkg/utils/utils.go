@@ -20,7 +20,6 @@ const (
 	OperatorNamespaceForLocalEnv   = "mobile-security-service"
 	ProxyServiceInstanceName       = "mobile-security-service-proxy"
 	ApplicationServiceInstanceName = "mobile-security-service-application"
-	InitEndpoint                   = "/init"
 	ApiEndpoint                    = "/api"
 	// The MobileSecurityServiceCRName has the name of the CR which should not be changed.
 	MobileSecurityServiceCRName = "mobile-security-service"
@@ -28,9 +27,9 @@ const (
 
 var log = logf.Log.WithName("mobile-security-service-operator.utils")
 
-//GetInitPublicURL returns the public service init endpoint URL for the Rest Service
-func GetInitPublicURL(route *routev1.Route, mss *mobilesecurityservicev1alpha1.MobileSecurityService) string {
-	return fmt.Sprintf("%v://%v%v", mss.Spec.ClusterProtocol, route.Status.Ingress[0].Host, InitEndpoint)
+// GetPublicURL returns the public service URL for the Rest Service
+func GetPublicURL(route *routev1.Route, mss *mobilesecurityservicev1alpha1.MobileSecurityService) string {
+	return fmt.Sprintf("%v://%v", mss.Spec.ClusterProtocol, route.Status.Ingress[0].Host)
 }
 
 //Return REST Service API
