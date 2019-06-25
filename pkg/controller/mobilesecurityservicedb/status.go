@@ -110,6 +110,7 @@ func (r *ReconcileMobileSecurityServiceDB) updateServiceStatus(reqLogger logr.Lo
 
 		// Set the data
 		instance.Status.ServiceName = serviceStatus.Name
+		instance.Status.ServiceStatus = serviceStatus.Status
 
 		// Update the CR
 		err = r.client.Status().Update(context.TODO(), instance)
