@@ -221,40 +221,7 @@ The following commands will enable the monitoring service where the operator has
 
 [source,shell]
 ----
-make install
-----
-
-Also, you are allowed to setup it manually as follows.
-
-[source,shell]
-----
-# Go to the operator namespace
-
-$ oc project mobile-security-service
-----
-
-[source,shell]
-----
-# Installation of ServiceMonitor for Operator and Mobile-Security-Service
-
-$ kubectl label namespace mobile-security-service monitoring-key=middleware
-$ kubectl create -f deploy/monitor/service_monitor.yaml
-$ kubectl create -f deploy/monitor/mss_service_monitor.yaml
-$ kubectl create -f deploy/monitor/operator_service.yaml
-----
-
-[source,shell]
-----
-# Add AlertManager rules to prometheus
-
-$ kubectl create -f deploy/monitor/prometheus-rule.yaml
-----
-
-[source,shell]
-----
-# Add Grafana dashboard
-
-$ kubectl create -f deploy/monitor/grafana-dashboard.yaml
+make monitoring/install
 ----
 
 IMPORTANT: The namespaces are setup manually in the files link:./deploy/monitor/service_monitor.yaml[ServiceMonitor], link:./deploy/monitor/prometheus-rule.yaml[Prometheus Rules], link:./deploy/monitor/operator-service.yaml[Operator Service], and link:./deploy/monitor/grafana-dashboard[Grafana Dashboard]. Following an example from the link:./deploy/prometheus-rule.yaml[Prometheus Rules]. You should replace them if the operator is not installed in the default namespace.
