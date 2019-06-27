@@ -96,6 +96,7 @@ monitoring/install:
 	- kubectl create -f deploy/monitor/operator_service.yaml
 	- kubectl create -f deploy/monitor/prometheus-rule.yaml
 	- kubectl create -f deploy/monitor/grafana-dashboard.yaml
+	- kubectl create -f deploy/monitor/mss_grafana_dashboard.yaml
 
 .PHONY: monitoring/uninstall
 monitoring/uninstall:
@@ -106,6 +107,7 @@ monitoring/uninstall:
 	- kubectl delete -f deploy/monitor/mss_service_monitor.yaml
 	- kubectl delete -f deploy/monitor/prometheus-rule.yaml
 	- kubectl delete -f deploy/monitor/grafana-dashboard.yaml
+	- kubectl delete -f deploy/monitor/mss_grafana_dashboard.yaml
 
 ##############################
 # CI                         #
