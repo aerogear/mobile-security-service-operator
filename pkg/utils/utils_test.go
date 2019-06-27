@@ -193,7 +193,7 @@ func TestIsValidOperatorNamespace(t *testing.T) {
 	}
 }
 
-func TestGetInitPublicURL(t *testing.T) {
+func TestGetPublicURL(t *testing.T) {
 	type args struct {
 		instance *mobilesecurityservicev1alpha1.MobileSecurityService
 		route    *routev1.Route
@@ -209,14 +209,14 @@ func TestGetInitPublicURL(t *testing.T) {
 				instance: &mssInstance,
 				route:    &route,
 			},
-			want: "http://testhost/init",
+			want: "http://testhost",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := GetInitPublicURL(tt.args.route, tt.args.instance)
+			got := GetPublicURL(tt.args.route, tt.args.instance)
 			if got != tt.want {
-				t.Errorf("TestGetInitPublicURL() = %v, want %v", got, tt.want)
+				t.Errorf("TestGetPublicURL() = %v, want %v", got, tt.want)
 			}
 		})
 	}
