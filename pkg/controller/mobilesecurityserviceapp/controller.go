@@ -210,13 +210,13 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 		return reconcile.Result{}, err
 	}
 
-	// Get the Public Service API URL which will be used to build the SDKConfigMap json
-	publicServiceURLAPI := utils.GetInitPublicURL(route, mss)
+	// Get the Public URL which will be used to build the SDKConfigMap json
+	apiURL := utils.GetPublicURL(route, mss)
 
 	reqLogger.Info("Checking if the configMap already exists ...")
 	// Check if ConfigMap for the app exist, if not create one.
 	if _, err := r.fetchConfigMap(reqLogger, mssApp); err != nil {
-		if err := r.create(mssApp, ConfigMap, publicServiceURLAPI, reqLogger, request); err != nil {
+		if err := r.create(mssApp, ConfigMap, apiURL, reqLogger, request); err != nil {
 			return reconcile.Result{}, err
 		}
 	}
