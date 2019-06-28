@@ -34,7 +34,7 @@ func (r *ReconcileMobileSecurityServiceBackup) fetchCronJob(reqLogger logr.Logge
 }
 
 // fetchCronJob return the cronJob created pod created by eMobileSecurityServiceDBBackup
-func (r *ReconcileMobileSecurityServiceBackup) fetchSecret(reqLogger logr.Logger, secretName, secretNamespace string) (*corev1.Secret, error) {
+func (r *ReconcileMobileSecurityServiceBackup) fetchSecret(reqLogger logr.Logger, secretNamespace, secretName string) (*corev1.Secret, error) {
 	reqLogger.Info("Checking if the secret already exists", "secret.name", secretName, "secret.Namespace", secretNamespace)
 	secret := &corev1.Secret{}
 	err := r.client.Get(context.TODO(), types.NamespacedName{Name: secretName, Namespace: secretNamespace}, secret)
