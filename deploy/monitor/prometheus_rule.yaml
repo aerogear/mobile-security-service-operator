@@ -7,7 +7,6 @@ metadata:
     prometheus: application-monitoring
     role: alert-rules
   name: application-monitoring
-  namespace: [[ .Namespace ]]
 spec:
   selector:
     matchLabels:
@@ -15,20 +14,22 @@ spec:
   groups:
     - name: general.rules
       rules:
-      - alert: MobileSecurityServiceInstanceDown
+      - alert: MobileSecurityServiceOperatorDown
         expr: absent(up{job="mobile-security-service-operator"} == 1)
         for: 5m
         labels:
           severity: critical
         annotations:
           description: "The mobile-security-service-operator has been down for more than 5 minutes. "
-          summary: "The mobile-security-service-operator is down. For more information see on the MMS operator https://github.com/aerogear/mobile-security-service-operator"
+          summary: "The mobile-security-service-operator is down. For more information see on the MSS operator https://github.com/aerogear/mobile-security-service-operator"
+          sop_url: "https://github.com/aerogear/mobile-security-service-operator/SOP/SOP-operator.md"
       - alert: MobileSecurityServicePodcount
         annotations:
           description: The Pod count for the mobile-security-service has changed in the last 5 minutes.
-          summary: Pod count for namespace mobile-security-service is {{ printf "%.0f" $value }}. Expected exactly 3 pods. For more information see on the MMS operator https://github.com/aerogear/mobile-security-service-operator"
+          summary: Pod count for namespace mobile-security-service is {{ printf "%.0f" $value }}. Expected 3 pods. For more information see on the MSS operator https://github.com/aerogear/mobile-security-service-operator"
+          sop_url: "https://github.com/aerogear/mobile-security-service-operator/SOP/SOP-operator.md"
         expr: |
           (1-absent(kube_pod_status_ready{condition="true", namespace="mobile-security-service"})) or sum(kube_pod_status_ready{condition="true", namespace="mobile-security-service"}) != 3
         for: 5m
         labels:
-          severity: critical
+          severity: warning

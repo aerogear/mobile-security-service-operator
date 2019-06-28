@@ -1103,7 +1103,7 @@ spec:
           "datasource": "Prometheus",
           "format": "s",
           "gauge": {
-            "maxValue": 4000,
+            "maxValue": 40,
             "minValue": 0,
             "show": true,
             "thresholdLabels": true,
@@ -1159,7 +1159,7 @@ spec:
               "refId": "A"
             }
           ],
-          "thresholds": "2500,3000",
+          "thresholds": "25,30",
           "title": "Max API Requests Duration",
           "type": "singlestat",
           "valueFontSize": "80%",
@@ -1233,7 +1233,7 @@ spec:
           "tableColumn": "",
           "targets": [
             {
-              "expr": "min(api_requests_duration_seconds{job='mobile-security-service-application'})*1000",
+              "expr": "min(api_requests_duration_seconds{job='mobile-security-service-application'})",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 1,
