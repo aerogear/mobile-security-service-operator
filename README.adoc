@@ -236,24 +236,105 @@ IMPORTANT: The namespaces are setup manually in the files link:./deploy/monitor/
 
 NOTE: The command `make monitoring/uninstall` will uninstall the Monitor Service.
 
-== Development
+=== Configuring the Backup Service
 
-=== Architecture
+==== Backup
+
+===== Install
+The backup service is implemented by using  https://github.com/integr8ly/backup-container-image[integr8ly/backup-container-image]. It will do the backup of the database and the APP CRs which are data required to be restore in the case of failures. Following the steps to enable it.
+
+. Setup the AWS in order to store the backup outside of the cluster. You need to add your AWS details to link:./mobile-security-service-operator/deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebackup_cr.yaml[MobileSecurityServiceBackup] as follows or add the name of the secret which has already this data in the cluster.
++
+[source,yaml]
+----
+  # ---------------------------------
+  # Stored Host - AWS
+  # ----------------------------
+
+  awsS3BucketName: "example-awsS3BucketName"
+  awsAccessKeyId: "example-awsAccessKeyId"
+  awsSecretAccessKey: "example-awsSecretAccessKey"
+----
++
+IMPORTANT: Also, you can add the name of the secret which is created already in the cluster.
++
+. Run the command `make backup/install` in the same namespace where the MobileSecurityService Database is installed in order to apply the CronJob which will do this process.
++
+. Add the label `integreatly-middleware-service=true` in all namespaces defined in the ENV VAR APP_NAMESPACES in the link:./deploy/operator.yaml[operator.yaml]. (E.g  oc label ns/mobile-security-service-apps integreatly-middleware-service=true`). It will backup all link:./deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml[MobileSecurityServiceApp CR] applied on them.
+
+NOTE: To install you need be logged in as a user with cluster privileges like the `system:admin` user. E.g. By using: `oc login -u system:admin`.
+
+===== Verifying
+
+To verify that the backup has been successful created you can run the following command in the namespace where the operator is installed.
+
+[source,shell]
+----
+$ oc get cronjob.batch/mobile-security-service-backup
+NAME                             SCHEDULE      SUSPEND   ACTIVE    LAST SCHEDULE   AGE
+mobile-security-service-backup   0 * * * *   False     0         13s             12m
+----
+
+To check the jobs executed you can run the command `oc get jobs` in the namespace where the operator is installed as the following example.
+
+[source,shell]
+----
+$ oc get jobs
+NAME                                        DESIRED   SUCCESSFUL   AGE
+mobile-security-service-backup-1561588320   1         0            6m
+mobile-security-service-backup-1561588380   1         0            5m
+mobile-security-service-backup-1561588440   1         0            4m
+mobile-security-service-backup-1561588500   1         0            3m
+mobile-security-service-backup-1561588560   1         0            2m
+mobile-security-service-backup-1561588620   1         0            1m
+mobile-security-service-backup-1561588680   1         0            43s
+----
+
+NOTE: In the above example the schedule was made to run this job each minute (`*/1 * * * *`)
+
+To check the logs and troubleshooting you can run the command `oc logs $podName -f` in the namespace where the operator is installed as the following example.
+
+[source,shell]
+----
+ $ oc logs job.batch/mobile-security-service-backup-1561589040 -f
+dumping mobile_security_service
+dumping postgres
+==> Component data dump completed
+/tmp/intly/archives/mobile-security-service.mobile_security_service-22_46_06.pg_dump.gz
+WARNING: mobile-security-service.mobile_security_service-22_46_06.pg_dump.gz: Owner username not known. Storing UID=1001 instead.
+upload: '/tmp/intly/archives/mobile-security-service.mobile_security_service-22_46_06.pg_dump.gz' -> 's3://camilabkp/backups/mss/postgres/2019/06/26/mobile-security-service.mobile_security_service-22_46_06.pg_dump.gz'  [1 of 1]
+ 1213 of 1213   100% in    1s   955.54 B/s  done
+ERROR: S3 error: 403 (RequestTimeTooSkewed): The difference between the request time and the current time is too large.
+----
+
+==== Restore
+
+Following the steps required to be performed in case of be required do the restore based in the backup service.
+
+. Install the Mobile Security Service by following the steps in <<Installing>>.
+. Restore the database with the dump which was stored in the AWS S3 bucket.
++
+NOTE: To restore we should run `gunzip -c filename.gz | psql dbname`
++
+. It is required re-apply all APP CRs which has an backup in the AWS bucket as well.
+
+== Architecture
 
 This operator is `cluster-scoped`. For further information see the https://github.com/operator-framework/operator-sdk/blob/master/doc/user-guide.md#operator-scope[Operator Scope] section in the Operator Framework documentation. Also, check its roles in link:./deploy/[Deploy] directory.
 
 NOTE: The operator, application and database will be installed in the namespace `{namespace}` which will be created by this project.
 
-==== CRD Definitions
+=== CRD Definitions
 
 |===
 | *CustomResourceDefinition*    | *Description*
 | link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml[MobileSecurityService]             | Packages, manages, installs and configures the https://github.com/aerogear/mobile-security-service[Mobile Security Service] on the cluster.
 | link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml[MobileSecurityServiceDB]             | Packages, manages, installs and configures the https://github.com/aerogear/mobile-security-service[Mobile Security Service] Database on the cluster.
 | link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml[MobileSecurityServiceApp]             | Creates and update the app in the Service REST API and create the SDK Config Map.
+| link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebackup_crd.yaml[MobileSecurityServiceBackup]             | Packages, manages, installs and configures the CronJob to do the backup using the image https://github.com/integr8ly/backup-container-image[backup-container-image]
 |===
 
-==== Resources managed by each CRD Controller
+=== Resources managed by each CRD Controller
 
 * *link:./pkg/controller/mobilesecurityservice/controller.go[Mobile Security Service]*
 +
@@ -281,7 +362,21 @@ NOTE: The operator, application and database will be installed in the namespace 
 | link:./pkg/controller/mobilesecurityserviceapp/configmaps.go[configmaps.go]           | Define the ConfigMap resources managed by the Bind. It creates the ConfigMap with the config JSON for the SDK and the app with the REST API. Note that each application has our own Bind CR applied.
 |===
 
-==== Status Definition per Types
+* *link:./pkg/controller/mobilesecurityservicebackup/controller.go[Mobile Security Service Backup]*
++
+|===
+| *Resource*    | *Description*
+| link:./pkg/controller/mobilesecurityservicebackup/cronjobs.go[cronjobs.go]           | Define the CronJob resources in order to do the Backup.
+| link:./pkg/controller/mobilesecurityservicebackup/secrets.go[cronjobs.go]           | Define the database and AWS secrets resources created.
+|===
+
+=== Oauth Authentication
+
+An Oauth Proxy container and the required configuration will be setup by default by the operator to provide authentication to the Mobile Security Service.
+
+== Administration
+
+=== Status Definition per Types
 
 * link:./pkg/apis/mobilesecurityservice/v1alpha1/mobilesecurityservice_types.go[MobileSecurityService]
 +
@@ -317,9 +412,27 @@ NOTE: The operator, application and database will be installed in the namespace 
 | `SDKConfigMapName` | Name of the config map object created for the app with its SDK Config.
 |===
 
-==== Oauth Authentication
+* link:./pkg/apis/mobilesecurityservice/v1alpha1/mobilesecurityservicebackup_types.go[MobileSecurityServiceBackup]
++
+|===
+| *Status*    | *Description*
+| `backupStatus` | Should show `OK` when everything is created successfully.
+| `cronJobName` | Name of cronJob resource  created by it.
+| `cronJobStatus` | CronJob Status from ks8 API (https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.10/#cronjobstatus-v1beta1-batch[k8s.io/api/batch/v1beta1/CronJobStatus]).
+| `dbSecretName` | Name of database secret resource created in order to allow the https://github.com/integr8ly/backup-container-image[integr8ly/backup-container-image] connect to the database .
+| `dbSecretData` | Data used into the secret to connect to the database .
+| `awsSecretName` | Name of AWS S3 bucket secret resource used in order to allow the https://github.com/integr8ly/backup-container-image[integr8ly/backup-container-image] connect to AWS to send the backup .
+| `awsSecretData` | Data used to in the secret to send the backup files to the AWS S3.
+| `awsSecretDataNamespace` | Namespace where the backup image will looking for the of the Aws Secret  used.
+| `encryptionKeySecretName` | Name of the EncryptionKey used.
+| `encryptionKeySecretNamespace` | Namespace where the backup image will looking for the of the EncryptionKey used.
+| `encryptionKeySecretData` | Data used into the EncryptionKey.
+| `hasEncryptionKey` | Expected true when it was configured to use an EncryptionKey secret
+| `databasePodFound` | The value expected here is true which shows that the database pod was found.
+| `servicePodFound` | The value expected here is true which shows that the database service was found.
+|===
 
-An Oauth Proxy container and the required configuration will be setup by default by the operator to provide authentication to the Mobile Security Service.
+== Development
 
 === Local Setup
 
@@ -426,6 +539,8 @@ NOTE: The image/tag used from https://github.com/aerogear/mobile-security-servic
 | `make refresh-operator-image`    | Deletes and applies the operator in order to refresh the image when a tag is not changed (development use)
 | `make monitoring/install`        | Installs Monitoring Service in order to provide metrics
 | `make monitoring/uninstall`      | Uninstalls Monitoring Service in order to provide metrics, i.e. all configuration applied by `make monitoring/install`
+| `make backup/install`            | Installs the backup Service in the operator's namespace
+| `make backup/uninstall`          | Uninstalls the backup Service from the operator's namespace.
 |===
 
 === Local Development

@@ -3,6 +3,12 @@ kind: ClusterRole
 metadata:
   name: mobile-security-service-operator
 rules:
+- apiGroups: ['*']
+  resources: ['*']
+  verbs: ['get', 'list']
+- apiGroups: ['']
+  resources: ['pods/exec']
+  verbs: ['create']
 - apiGroups:
   - "*"
   resources:
