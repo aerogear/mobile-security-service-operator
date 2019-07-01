@@ -13,7 +13,7 @@ spec:
 
   size: 1
   # The clusterProtocol is required and used to generated the Public Host URL
-  clusterProtocol: "http" # Options [http or https]
+  clusterProtocol: "https" # Options [http or https]
   configMapName: "mobile-security-service-config"
   routeName: "route"
 
