@@ -1,0 +1,158 @@
+ifdef::env-github[]
+:status:
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+:table-caption!:
+endif::[]
+
+:toc:
+:toc-placement!:
+
+= Mobile Security Service - Standard Operating Procedures
+
+:toc:
+toc::[]
+
+
+== Critical
+
+=== MobileSecurityServiceConsoleDown or MobileSecurityServiceDown
+
+Troubleshoot using the following steps via either the console or the cli:
+
+==== Console:
+
+. Check that the Mobile Security Service CR is deployed in the same namespace as the operator
+. Check the status of the Mobile Security Service CR
+.. Go to `Resources -> Other Resources -> Choose a resource to list -> Mobile Security Service -> Actions -> Edit yaml`
++
+NOTE: Check that the status are as expected as described in the https://github.com/aerogear/mobile-security-service-operator#status-definition-per-types[Status Definitions per Types in the README]
++
+. Check the status of the Mobile Security Service DB CR. If the Database Pod is not available this will cause the Service pod to error
+.. Go to `Resources -> Other Resources -> Choose a resource to list -> Mobile Security Service DV -> Actions -> Edit yaml`
++
+NOTE: Check that the status are as expected as described in the https://github.com/aerogear/mobile-security-service-operator#status-definition-per-types[Status Definitions per Types in the README]
++
+. Check the environment variables of the Database
+.. Go to : `Applications -> Pods -> mobile-security-service-db-<xyz123> -> Environment Variables`
+.. By default it should use the values defined in the ConfigMap created by the operator `mobile-security-service-config`. For a further information see link:.https://github.com/aerogear/mobile-security-service-operator#changing-the-environment-variables-values[Changing the Environment Variables values in the README]
+. Check the logs of the OAuth Proxy Container
+.. Go to : `Applications -> Pods -> mobile-security-service-<xyz123> -> Logs -> Container -> oauth-proxy`
+. Check the logs of the Application Container
+.. Go to : `Applications -> Pods -> mobile-security-service-<xyz123> -> Logs -> Container -> application`
+. Check the `pod/mobile-security-service-<xyz123>` events, see if was possible to pull the MSS image.
+. Check the operator pod is present as it is responsible for managing the service pod as described in https://github.com/aerogear/mobile-security-service-operator/blob/0.1.4/SOP/SOP-operator.adoc[MobileSecurityServiceOperatorDown]
+
+NOTE: If resolving the MobileSecurityServiceOperatorDown doesn't resolve the issue, please continue with the below steps
+
+==== CLI
+
+. Check that the Mobile Security Service CR is deployed in the same namespace as the operator
+. Check the status of the Mobile Security Service CR
+.. Run `oc describe customresourcedefinition.apiextensions.k8s.io/mobilesecurityservices.mobile-security-service.aerogear.com`
++
+NOTE: Check that the status are as expected as described in the https://github.com/aerogear/mobile-security-service-operator#status-definition-per-types[Status Definitions per Types in the README]
++
+. Check the status of the Mobile Security Service DB Custom Resource. If the Database Pod is not available this will cause the Service pod to error
+.. Run `oc describe customresourcedefinition.apiextensions.k8s.io/mobilesecurityservicedbs.mobile-security-service.aerogear.com`
++
+NOTE: Check that the status are as expected as described in the https://github.com/aerogear/mobile-security-service-operator#status-definition-per-types[Status Definitions per Types in the README]
++
+. Check the environment variables of the Database
+.. Run `oc describe pod/mobile-security-service-db-<xyz123>`
+.. By default it should use the values defined in the ConfigMap created by the operator `mobile-security-service-config`. For a further information see https://github.com/aerogear/mobile-security-service-operator#changing-the-environment-variables-values[Changing the Environment Variables values in the README]
+
+. Check the logs of the OAuth Proxy Container
+.. Get the service pod name -> `oc get pods | grep mobile-security-service`
+.. Run `oc logs <service-podname> -c oauth-proxy`
+.. Save the logs by running `oc logs <service-podname> -c oauth-proxy > <filename>.log`
+. Check the logs of the Application Container
+.. Run `oc logs <service-podname> -c application`
+.. Save the logs by running `oc logs <service-podname> -c application > <filename>.log`
+. See the `pod/mobile-security-service-<xyz123>` logs. See if was possible to pull the MSS image.
+. Check the operator pod is present as it is responsible for managing the service pod as described in https://github.com/aerogear/mobile-security-service-operator/blob/0.1.4/SOP/SOP-operator.adoc[MobileSecurityServiceOperatorDown]
+
+=== MobileSecurityServiceDatabaseDown
+
+Troubleshoot using the following steps via either the console or the cli:
+
+==== Console
+
+. Check that the Database Pod is deployed in the same namespace as the operator
+. Check the status of the Mobile Security Service DB CR. If the Database Pod is not available this will cause the Service pod to error
+.. Go to: `Resources -> Other Resources -> Choose a resource to list -> Mobile Security Service DB-> Actions -> Edit yaml`
++
+NOTE: Check that the status are as expected as described in the https://github.com/aerogear/mobile-security-service-operator#status-definition-per-types[Status Definitions per Types in the README]
++
+. Check the environment variables of the Database
+.. Go to : `Applications -> Pods -> mobile-security-service-db-<xyz123> -> Environment Variables`
+.. By default it should use the values defined in the ConfigMap created by the operator `mobile-security-service-config`. For a further information see link:.https://github.com/aerogear/mobile-security-service-operator#changing-the-environment-variables-values[Changing the Environment Variables values in the README]
+. Check the pod logs
+.. Navigate to `Applications -> Pods -> mobile-security-service-db-<xyz123> -> Logs
+. Check the `pod/mobile-security-service-db-<xyz123>` events, see if was possible to pull the Database image.
+. Check the operator pod is present as it is responsible for managing the service pod as described in https://github.com/aerogear/mobile-security-service-operator/SOP/SOP-operator.md[MobileSecurityServiceOperatorDown]
+
+==== CLI`
+
+. Check that the Database Pod is deployed in the same namespace as the operator
+. Check the status of the Mobile Security Service DB CR. If the Database Pod is not available this will cause the Service pod to error
+.. Run `oc describe customresourcedefinition.apiextensions.k8s.io/mobilesecurityservicedbs.mobile-security-service.aerogear.com`
++
+NOTE: Check that the status are as expected as described in the https://github.com/aerogear/mobile-security-service-operator#status-definition-per-types[Status Definitions per Types in the README]
++
+.. Run `oc describe pod/mobile-security-service-db-<xyz123>`
+.. By default it should use the values defined in the ConfigMap created by the operator `mobile-security-service-config`. For a further information see link:.https://github.com/aerogear/mobile-security-service-operator#changing-the-environment-variables-values[Changing the Environment Variables values in the README]
+. Check the pod logs
+.. Get the service pod name -> `oc get pods | grep mobile-security-service-db`
+.. `oc logs <database-podname>`
+.. Save the logs by running `oc logs <database-podname> > <filename>.log`
+. Check the `pod/mobile-security-service-db-<xyz123>` logs, see if was possible to pull the Database image.
+. Check the operator pod is present as it is responsible for managing the service pod as described in https://github.com/aerogear/mobile-security-service-operator/blob/0.1.4/SOP/SOP-operator.adoc[MobileSecurityServiceOperatorDown]
+
+== Warning
+
+=== MobileSecurityServicePodCPUHigh or MobileSecurityServicePodMemoryHigh
+
+. Capture a snapshot of the 'Mobile Security Service Application' Grafana dashboard and track it over time. The metrics can be useful for identifying performance issues over time.
+. Increase the log level of the Service pod (`pod/mobile-security-service-<xyz123>`)
+.. Go to `Applications -> Deployment`
+.. Click on in the `mobile-security-service`
+.. Go to the `Environment` tab
+.. Remove the `Env Var` `LOG_LEVEL`
+.. Add a new `Env Var` `LOG_LEVEL` with the value `debug`
+.. After saving the re-deploy of the service will be done automatically then you will be able to get further information
+
+=== MobileSecurityServiceApiHighRequestDuration, MobileSecurityServiceApiHighRequestFailure , MobileSecurityServiceApiHighConcurrentRequests
+
+Troubleshoot using the following steps via either the console and/or the cli:
+
+. Capture a snapshot of the 'Mobile Security Service Application' Grafana dashboard and track it over time. The metrics can be useful for identifying performance issues over time.
+
+==== Console:
+
+. Capture application logs for analysis.
+.. Go to : `Applications -> Pods -> mobile-security-service-<xyz123> -> Logs -> Container -> application`
+.. Go to : `Applications -> Pods -> mobile-security-service-<xyz123> -> Logs -> Container -> oauth-proxy`
+. Increase the log level of the Service pod (`pod/mobile-security-service-<xyz123>`)
+.. Go to `Applications -> Deployment`
+.. Click on in the `mobile-security-service`
+.. Go to the `Environment` tab
+.. Remove the `Env Var` `LOG_LEVEL`
+.. Add new `Env Var` `LOG_LEVEL` with the value `debug`
+.. After saving the re-deploy of the service will be done automatically then you will be able to get further information
+. If necessary, recreate the service pod to restore service.
+.. Navigate to `Application -> Pods -> mobile-security-service-<xyz123> -> Actions -> Delete -> Delete`
+
+==== CLI:
+
+. Capture application logs for analysis.
+.. Get the service pod name -> `oc get pods | grep mobile-security-service`
+.. `oc logs <service-podname> -c application`
+.. Save the logs by running `oc logs <service-podname> -c application > <filename>.log`
+. Increase the log level of the Service pod (`pod/mobile-security-service-<xyz123>`) 
+. If necessary, recreate the service pod to restore service.
+. Get the service pod name -> `oc get pods | grep mobile-security-service`
+. oc delete pod <service-podname>
