@@ -44,7 +44,7 @@ NOTE: Check that the status are as expected as described in the https://github.c
 . Check the logs of the Application Container
 .. Go to : `Applications -> Pods -> mobile-security-service-<xyz123> -> Logs -> Container -> application`
 . Check the `pod/mobile-security-service-<xyz123>` events, see if was possible to pull the MSS image.
-. Check the operator pod is present as it is responsible for managing the service pod as described in https://github.com/aerogear/mobile-security-service-operator/blob/0.1.4/SOP/SOP-operator.adoc[MobileSecurityServiceOperatorDown]
+. Check the operator pod is present as it is responsible for managing the service pod as described in https://github.com/aerogear/mobile-security-service-operator/blob/0.2.0/SOP/SOP-operator.adoc[MobileSecurityServiceOperatorDown]
 
 NOTE: If resolving the MobileSecurityServiceOperatorDown doesn't resolve the issue, please continue with the below steps
 
@@ -73,7 +73,7 @@ NOTE: Check that the status are as expected as described in the https://github.c
 .. Run `oc logs <service-podname> -c application`
 .. Save the logs by running `oc logs <service-podname> -c application > <filename>.log`
 . See the `pod/mobile-security-service-<xyz123>` logs. See if was possible to pull the MSS image.
-. Check the operator pod is present as it is responsible for managing the service pod as described in https://github.com/aerogear/mobile-security-service-operator/blob/0.1.4/SOP/SOP-operator.adoc[MobileSecurityServiceOperatorDown]
+. Check the operator pod is present as it is responsible for managing the service pod as described in https://github.com/aerogear/mobile-security-service-operator/blob/0.2.0/SOP/SOP-operator.adoc[MobileSecurityServiceOperatorDown]
 
 === MobileSecurityServiceDatabaseDown
 
@@ -110,7 +110,7 @@ NOTE: Check that the status are as expected as described in the https://github.c
 .. `oc logs <database-podname>`
 .. Save the logs by running `oc logs <database-podname> > <filename>.log`
 . Check the `pod/mobile-security-service-db-<xyz123>` logs, see if was possible to pull the Database image.
-. Check the operator pod is present as it is responsible for managing the service pod as described in https://github.com/aerogear/mobile-security-service-operator/blob/0.1.4/SOP/SOP-operator.adoc[MobileSecurityServiceOperatorDown]
+. Check the operator pod is present as it is responsible for managing the service pod as described in https://github.com/aerogear/mobile-security-service-operator/blob/0.2.0/SOP/SOP-operator.adoc[MobileSecurityServiceOperatorDown]
 
 == Warning
 
