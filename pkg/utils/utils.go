@@ -22,7 +22,8 @@ const (
 	ApplicationServiceInstanceName = "mobile-security-service-application"
 	ApiEndpoint                    = "/api"
 	// The MobileSecurityServiceCRName has the name of the CR which should not be changed.
-	MobileSecurityServiceCRName = "mobile-security-service"
+	MobileSecurityServiceCRName   = "mobile-security-service"
+	MobileSecurityServiceDBCRName = "mobile-security-service-db"
 )
 
 var log = logf.Log.WithName("mobile-security-service-operator.utils")
