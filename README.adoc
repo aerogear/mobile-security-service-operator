@@ -588,6 +588,7 @@ Following the steps
 * Create a new version tag following the http://semver.org/spec/v2.0.0.html[semver], for example `0.1.0`
 * Bump the version in the link:./version/version.go[version.go] file.
 * Update the the link:./CHANGELOG.MD[CHANGELOG.MD] with the new release.
+* Looking for the SOPs and update the tag for the them in all files (e.g `https://github.com/aerogear/mobile-security-service-operator/blob/0.1.4/SOP/SOP-operator.adoc`)
 * Create a git tag with the version value, for example:
 
 [source,shell]
