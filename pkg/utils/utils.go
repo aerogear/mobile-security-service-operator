@@ -20,7 +20,8 @@ const (
 	OperatorNamespaceForLocalEnv   = "mobile-security-service"
 	ProxyServiceInstanceName       = "mobile-security-service-proxy"
 	ApplicationServiceInstanceName = "mobile-security-service-application"
-	ApiEndpoint                    = "/api"
+	APIEndpoint                    = "/api"
+	APIRequestProtocol             = "http"
 	// The MobileSecurityServiceCRName has the name of the CR which should not be changed.
 	MobileSecurityServiceCRName   = "mobile-security-service"
 	MobileSecurityServiceDBCRName = "mobile-security-service-db"
@@ -28,14 +29,14 @@ const (
 
 var log = logf.Log.WithName("mobile-security-service-operator.utils")
 
-// GetPublicURL returns the public service URL for the Rest Service
+// GetPublicURL returns the public service URL for the Service
 func GetPublicURL(route *routev1.Route, mss *mobilesecurityservicev1alpha1.MobileSecurityService) string {
 	return fmt.Sprintf("%v://%v", mss.Spec.ClusterProtocol, route.Status.Ingress[0].Host)
 }
 
 //Return REST Service API
 func GetServiceAPIURL(mss *mobilesecurityservicev1alpha1.MobileSecurityService) string {
-	return mss.Spec.ClusterProtocol + "://" + ApplicationServiceInstanceName + ":" + fmt.Sprint(mss.Spec.Port) + ApiEndpoint
+	return APIRequestProtocol + "://" + ApplicationServiceInstanceName + ":" + fmt.Sprint(mss.Spec.Port) + APIEndpoint
 }
 
 // GetAppNamespaces returns the namespace the operator should be watching for changes

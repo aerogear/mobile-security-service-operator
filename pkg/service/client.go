@@ -3,11 +3,12 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/aerogear/mobile-security-service/pkg/models"
-	"github.com/go-logr/logr"
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/aerogear/mobile-security-service/pkg/models"
+	"github.com/go-logr/logr"
 )
 
 //DeleteAppFromServiceByRestAPI delete the app object in the service
