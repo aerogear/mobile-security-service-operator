@@ -94,7 +94,7 @@ spec:
             "format": "percent",
             "gauge": {
               "maxValue": 100,
-              "minValue": 80,
+              "minValue": 95,
               "show": true,
               "thresholdLabels": true,
               "thresholdMarkers": true
@@ -142,14 +142,14 @@ spec:
             "tableColumn": "",
             "targets": [
               {
-                "expr": "((sum(avg_over_time(up{job='mobile-security-service-operator'}[1m])))/(count(avg_over_time(up{job='mobile-security-service-operator'}[30m]))))*100",
+                "expr": "(avg(up{job='mobile-security-service-operator'}))*100",
                 "format": "time_series",
                 "intervalFactor": 1,
                 "refId": "A"
               }
             ],
-            "thresholds": "95,98",
-            "title": "Daily Percentage Uptime",
+            "thresholds": "98,99",
+            "title": "Average Percentage Uptime",
             "transparent": false,
             "type": "singlestat",
             "valueFontSize": "70%",
