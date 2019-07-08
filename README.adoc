@@ -367,12 +367,16 @@ NOTE: The operator, application and database will be installed in the namespace 
 |===
 | *Resource*    | *Description*
 | link:./pkg/controller/mobilesecurityservicebackup/cronjobs.go[cronjobs.go]           | Define the CronJob resources in order to do the Backup.
-| link:./pkg/controller/mobilesecurityservicebackup/secrets.go[cronjobs.go]           | Define the database and AWS secrets resources created.
+| link:./pkg/controller/mobilesecurityservicebackup/secrets.go[secrets.go]           | Define the database and AWS secrets resources created.
 |===
 
 === Oauth Authentication
 
 An Oauth Proxy container and the required configuration will be setup by default by the operator to provide authentication to the Mobile Security Service.
+
+=== Design Pattern
+
+The Design Pattern adopted to build the objects in its controllers is http://tmrts.com/go-patterns/creational/factory.html[Factory Method Pattern].
 
 == Administration
 
@@ -550,6 +554,7 @@ NOTE: The image/tag used from https://github.com/aerogear/mobile-security-servic
 | `make setup/debug`                    | Sets up environment for debugging proposes.
 | `make code/vet`                       | Examines source code and reports suspicious constructs using https://golang.org/cmd/vet/[vet].
 | `make code/fmt`                       | Formats code using https://golang.org/cmd/gofmt/[gofmt].
+| `make code/gen`                       | It will automatically generated/update the files by using the operator-sdk based on the CR status and spec definitions.
 |===
 
 === CI
