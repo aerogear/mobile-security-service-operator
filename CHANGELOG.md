@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+- Add schema validation by OpenAPI [PR149](https://github.com/aerogear/mobile-security-service-operator/pull/149)
 
 ## Released 
 

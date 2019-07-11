@@ -1,0 +1,59 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: mobilesecurityserviceapps.mobilesecurityservice.aerogear.com
+spec:
+  group: mobilesecurityservice.aerogear.com
+  names:
+    kind: MobileSecurityServiceApp
+    listKind: MobileSecurityServiceAppList
+    plural: mobilesecurityserviceapps
+    singular: mobilesecurityserviceapp
+  scope: Namespaced
+  validation:
+    openAPIV3Schema:
+      properties:
+        apiVersion:
+          description: 'APIVersion defines the versioned schema of this representation
+            of an object. Servers should convert recognized schemas to the latest
+            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources'
+          type: string
+        kind:
+          description: 'Kind is a string value representing the REST resource this
+            object represents. Servers may infer this from the endpoint the client
+            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds'
+          type: string
+        metadata:
+          type: object
+        spec:
+          properties:
+            appId:
+              description: Unique Identifier for the app which will be created in
+                the Service side
+              type: string
+            appName:
+              description: Name of the app which will be created in the Service side
+              type: string
+          required:
+          - appName
+          - appId
+          type: object
+        status:
+          properties:
+            bindStatus:
+              description: 'Will be as "OK when all objects are created successfully
+                More info: https://github.com/aerogear/mobile-security-service-operator#status-definition-per-types'
+              type: string
+            sdkConfigMapName:
+              description: 'Name of the ConfigMap create to share the URL to access
+                the public host of the service More info: https://github.com/aerogear/mobile-security-service-operator#status-definition-per-types'
+              type: string
+          required:
+          - sdkConfigMapName
+          - bindStatus
+          type: object
+  version: v1alpha1
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true

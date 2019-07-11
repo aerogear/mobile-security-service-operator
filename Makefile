@@ -180,6 +180,7 @@ setup/githooks:
 .PHONY: setup
 setup: setup/githooks
 	dep ensure
+	make code/gen
 
 .PHONY: code/run/local
 code/run/local:
@@ -199,6 +200,11 @@ code/vet:
 code/fmt:
 	@echo go fmt
 	go fmt $$(go list ./... | grep -v /vendor/)
+
+.PHONY: code/gen
+code/gen:
+	operator-sdk generate k8s
+	operator-sdk generate openapi
 
 ##############################
 # Tests                      #

@@ -550,6 +550,7 @@ NOTE: The image/tag used from https://github.com/aerogear/mobile-security-servic
 | `make setup/debug`                    | Sets up environment for debugging proposes.
 | `make code/vet`                       | Examines source code and reports suspicious constructs using https://golang.org/cmd/vet/[vet].
 | `make code/fmt`                       | Formats code using https://golang.org/cmd/gofmt/[gofmt].
+| `make code/gen`                       | It will automatically generated/update the files by using the operator-sdk based on the CR status and spec definitions.
 |===
 
 === CI
