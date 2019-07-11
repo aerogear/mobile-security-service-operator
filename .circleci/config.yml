@@ -15,6 +15,9 @@ jobs:
       - run:
           name: Install dep
           command: curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+      - run:
+          name: Install operator-sdk to run make setup
+          command: curl -Lo operator-sdk https://github.com/operator-framework/operator-sdk/releases/download/v0.8.1/operator-sdk-v0.8.1-x86_64-linux-gnu && chmod +x operator-sdk && sudo mv operator-sdk /usr/local/bin/
       - run: make setup
       - run: make code/build/linux
       - run: make test/run
