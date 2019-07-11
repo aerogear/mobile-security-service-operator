@@ -64,7 +64,7 @@ spec:
   # See here how to create this key : https://help.github.com/en/articles/generating-a-new-gpg-key
 
   # base64 encoded public opengpg cert
-  #cpgPublicKey: "example-cpgPublicKey"
+  #gpgPublicKey: "example-gpgPublicKey"
   #gpgEmail: "email@gmai.com"
   #gpgTrustModel: "always"
 

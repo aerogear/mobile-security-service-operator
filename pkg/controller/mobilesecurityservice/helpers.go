@@ -49,6 +49,7 @@ func getAppEnvVarsMap(mss *mobilesecurityservicev1alpha1.MobileSecurityService) 
 		"PGDATABASE":                       mss.Spec.DatabaseName,
 		"PGPASSWORD":                       mss.Spec.DatabasePassword,
 		"PGUSER":                           mss.Spec.DatabaseUser,
+		"PORT":                             string(mss.Spec.Port),
 	}
 }
 

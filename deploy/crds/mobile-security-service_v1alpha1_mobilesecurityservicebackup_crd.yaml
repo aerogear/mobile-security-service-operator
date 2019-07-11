@@ -45,7 +45,7 @@ spec:
               type: string
             encryptionKeySecretNamespace:
               type: string
-            cpgPublicKey:
+            gpgPublicKey:
               type: string
             gpgEmail:
               type: string
