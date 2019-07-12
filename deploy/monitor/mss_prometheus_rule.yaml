@@ -15,7 +15,7 @@ spec:
     - name: general.rules
       rules:
       - alert: MobileSecurityServiceDown
-        expr: absent(up{job="mobile-security-service-application"} == 1)
+        expr: absent(kube_pod_container_status_running{namespace="mobile-security-service",container="application"}==1)
         for: 5m
         labels:
           severity: critical
