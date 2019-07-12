@@ -18,56 +18,16 @@ toc::[]
 
 == MobileSecurityServiceOperatorDown
 
-Troubleshoot using the following steps via either the console or the cli:
-
-=== Console:
-
-. Log into the OpenShift console
-. Switch to the Mobile Security Service namespace
-. Go to `Deployments -> mobile-security-service-operator >> Events` and check if was possible pull the image
-. Check the logs of the pod for any errors
-.. Navigate to `Applications -> Pods -> mobile-security-service-operator-<xyz123> -> Logs`
-.. Check for any errors in the logs
-. Try to scale up the pod if it is not present
-.. Navigate to `Overview -> Click Dropdown for Deployment mobile-security-service-operator -> Click on up arrow to scale the pod to 1`
-
-=== CLI:
-
-. Login
-.. Run `oc login <openshift-url>:8443 -u <username> -p <password>`
-. Switch to the Mobile Security Service namespace
-.. Run `oc project mobile-security-service`
-. If the operator pod is present check the logs of the pod for any errors
-. Get the operator pod name -> `oc get pods | grep operator`
-. `oc logs <operator-podname>`
-. Save the logs by running `oc logs <operator-podname> > <filename>.log`
-. If the operator pod is not preset scale up the pod
-.. `oc scale deployments mobile-security-service-operator --replicas=1`
-
+. Switch to the Mobile Security Service namespace by running `oc project mobile-security-service`
+. Check if the operator pod to is present by running `oc get pods | grep operator`
+. Check its logs by running `oc logs <operator-podname>`
++
+NOTE: You can save the logs by running `oc logs <operator-podname> > <filename>.log`
+. If the operator pod is not preset check its installation. May will be required re-install the project or just the link:./deploy/operator.yaml[operator.yaml] file.
 
 == MobileSecurityServicePodCount
 
-Troubleshoot using the following steps via either the console or the cli:
+. Switch to the Mobile Security Service namespace by running `oc project mobile-security-service`
+. Check if it has at least 3 pods (Service, Database and Operator) by running `oc get pods`. See in the https://github.com/aerogear/mobile-security-service-operator#Installing[Installing section on the README] the expected results.
 
-=== Console:
-. Log into the OpenShift cluster
-. Switch to the Mobile Security Service namespace
-. Navigate to the Overview using the side navigation
-. Check the following
-.. There is one pod running under the application mobilesecurityservice
-.. There is one pod running under the application mobilesecurityservicedb
-.. There is one pod running under the Other Resources
-
-=== CLI:
-
-. Login
-.. Run `oc login <openshift-url>:8443 -u <username> -p <password>`
-. Switch to the Mobile Security Service namespace
-.. Run `oc project mobile-security-service`
-. Check the following
-. Run `oc get pods`
-.. There is one pod running under READY for pod mobile-security-service-<xyz123>
-.. There is one pod running under READY for pod mobile-security-service-db-<xyz123>
-.. There is one pod running under READY for pod mobile-security-service-operator<xyz123>
-. The operator should  maintain the number of pods running for the mobilesecurity service, please resolve the operator pod numbers first by scaling it up or down as necessary.
-.. `oc scale deployments mobile-security-service-operator --replicas=1`
+NOTE: The operator should  maintain the number of pods running for the Mobile Security Service and its Database.
