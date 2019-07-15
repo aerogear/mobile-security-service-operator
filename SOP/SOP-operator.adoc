@@ -18,16 +18,23 @@ toc::[]
 
 == MobileSecurityServiceOperatorDown
 
-. Switch to the Mobile Security Service namespace by running `oc project mobile-security-service`
-. Check if the operator pod to is present by running `oc get pods | grep operator`
+. Switch to the Mobile Security Service namespace by running `oc project <namespace>`. E.g `oc project mobile-security-service`
+. Check if the operator pod to is present by running `oc get pods | grep operator`. Following an example of the expected result.
++
+[source,shell]
+----
+$ oc get pods | grep operator
+mobile-security-service-operator-785cbdbf46-wrhzq   1/1       Running   3          7d
+----
 . Check its logs by running `oc logs <operator-podname>`
 +
-NOTE: You can save the logs by running `oc logs <operator-podname> > <filename>.log`
+NOTE: You can save the logs by running `oc logs <operator-podname> > <filename>.log`. The logs may provide to you the required information in order to allow you identify the root cause of this issue as it is a required information for its maintainers are able to help you with.
+. Check if the Mobile Security Service operator image was pulled successfully. Its images are published in https://quay.io/repository/aerogear/mobile-security-service-operator[https://quay.io/repository/aerogear/mobile-security-service-operator].
 . If the operator pod is not preset check its installation. May will be required re-install the project or just the link:./deploy/operator.yaml[operator.yaml] file.
 
 == MobileSecurityServicePodCount
 
-. Switch to the Mobile Security Service namespace by running `oc project mobile-security-service`
+. Switch to the Mobile Security Service namespace by running `oc project <namespace>`. E.g `oc project mobile-security-service`
 . Check if it has at least 3 pods (Service, Database and Operator) by running `oc get pods`. See in the https://github.com/aerogear/mobile-security-service-operator#Installing[Installing section on the README] the expected results.
 
 NOTE: The operator should  maintain the number of pods running for the Mobile Security Service and its Database.

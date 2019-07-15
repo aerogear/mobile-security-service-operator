@@ -20,28 +20,59 @@ toc::[]
 
 === MobileSecurityServiceConsoleDown or MobileSecurityServiceDown
 
-. Check that the Mobile Security Service CR is deployed in the same namespace as the operator by running `oc get MobileSecurityService`
+. Check that the Mobile Security Service CR is deployed in the same namespace as the operator by running `oc get MobileSecurityService`. Following an expected result.
++
+[source,shell]
+----
+$ oc get MobileSecurityService
+NAME                      AGE
+mobile-security-service   7d
+----
++
+NOTE: The MobileSecurityService need to be applied in order to allow the operator be able to create/manage the MSS Service pod.
++
 . Check the status of the Mobile Security Service CR by running `oc describe MobileSecurityService`
 +
 NOTE: Check that the status are as expected as described in the https://github.com/aerogear/mobile-security-service-operator#status-definition-per-types[Status Definitions per Types in the README]
 +
+IMPORTANT: By the CR status you are able to identify what is missing as it is an important information to be send to its maintainers in the case you need their help with.
++
+. Check if the MobileSecurityService pod is present and running by running `oc get pods`. See in the link:.https://github.com/aerogear/mobile-security-service-operator#Installing[Installing section in the README the expected results]
 . Check if the Mobile Security Service image was pulled successfully.
 . Check the operator pod is present as it is responsible for managing the service pod as described in https://github.com/aerogear/mobile-security-service-operator/blob/0.2.0/SOP/SOP-operator.adoc[MobileSecurityServiceOperatorDown]
 
 === MobileSecurityServiceDatabaseDown
 
-. Check that the Mobile Security Service DB CR is deployed in the same namespace as the operator by running `oc get MobileSecurityServiceDB`
+. Check that the Mobile Security Service DB CR is deployed in the same namespace as the operator by running `oc get MobileSecurityServiceDB`. Following an expected result.
++
+[source,shell]
+----
+$ oc get MobileSecurityServiceDB
+NAME                      AGE
+mobile-security-service-db   7d
+----
++
+NOTE: The MobileSecurityServiceDB need to be applied in order to allow the operator be able to create/manage the Database pod.
++
 . Check the status of the Mobile Security Service CR by running `oc describe MobileSecurityServiceDB`
 +
 NOTE: Check that the status are as expected as described in the https://github.com/aerogear/mobile-security-service-operator#status-definition-per-types[Status Definitions per Types in the README]
 +
-.. Run `oc get pods | grep mobile-security-service-db`
+IMPORTANT: By the CR status you are able to identify what is missing as it is an important information to be send to its maintainers in the case you need their help with.
++
+.. Run `oc get pods | grep mobile-security-service-db`. Following the expected result.
++
+[source,shell]
+----
+$ oc get pods | grep mobile-security-service-db
+mobile-security-service-db-56d7cb55b-8p6cz          1/1       Running   1          7d
+----
 +
 NOTE: By default it should use the values defined in the ConfigMap created by the operator `mobile-security-service-config`. For a further information see link:.https://github.com/aerogear/mobile-security-service-operator#changing-the-environment-variables-values[Changing the Environment Variables values in the README]
 +
 . Check the pod logs by running `oc logs <database-podname>`
 +
-NOTE: You can save the logs by running `oc logs <database-podname> > <filename>.log`
+NOTE: You can save the logs by running `oc logs <database-podname> > <filename>.log`. The logs can provided to you useful information in order to identify the root cause of the issue as they are required information to be send to its maintainers in the case it need to be checked by them.
 +
 . Check the operator pod is present as it is responsible for managing the service pod as described in https://github.com/aerogear/mobile-security-service-operator/blob/0.2.0/SOP/SOP-operator.adoc[MobileSecurityServiceOperatorDown]
 
@@ -80,7 +111,9 @@ The following steps would be performed by the Console (OCP UI)
 .. Go to the `Environment` tab
 .. Remove the `Env Var` `LOG_LEVEL` and add a new `Env Var` `LOG_LEVEL` with the value `debug`
 .. After saving the re-deploy of the service will be done automatically then you will be able to get further information
-
++
+NOTE: Improve the level of the logs may bring an useful information for its maintainers are able to do improvements and/or fixed required in order to avoid this scenario.
++
 The following steps which can be performed by CLI:
 
 NOTE: You are able to the the logs by the Console (OCP UI) as well.
@@ -88,8 +121,8 @@ NOTE: You are able to the the logs by the Console (OCP UI) as well.
 . Capture application logs for analysis.
 .. Get the pod names by running `oc get pods`
 .. Save the logs by running `oc logs <database-podname> > <filename>.log` for each pod
-
-NOTE: If necessary, you can recreate the service pod to restore service oc delete pod <service-podname>`.
++
+IMPORTANT: By the CR status you are able to identify what is missing as it is an important information to be send to its maintainers in the case you need their help with. Check that the status are as expected as described in the https://github.com/aerogear/mobile-security-service-operator#status-definition-per-types[Status Definitions per Types in the README]. Also, note that capture the logs can help you to identify the root cause of the issue as provided a required information for its maintainers in order to allow them do fixes and/or improvements with the purpose of avoid this scenario.
 
 == Scaling the pods
 
@@ -97,7 +130,7 @@ You can scale the MSS pod by changing the spec size in the Mobile Security Servi
 
 . Run `oc edit MobileSecurityService` and add the new spec size for it. Also, you can delete and re-apply the link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml[MobileSecurityService CR]
 
-NOTE: The architecture of Mobile Security Service do not allow scale its database.
+NOTE: The architecture of Mobile Security Service do not allow scale its database. However, scale the MSS Service pod may will solve the performance issues faced.
 
 
 
