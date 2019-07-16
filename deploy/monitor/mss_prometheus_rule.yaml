@@ -15,7 +15,7 @@ spec:
     - name: general.rules
       rules:
       - alert: MobileSecurityServiceDown
-        expr: absent(up{job="mobile-security-service-application"} == 1)
+        expr: absent(kube_pod_container_status_running{namespace="mobile-security-service",container="application"}>=1)
         for: 5m
         labels:
           severity: critical
@@ -24,7 +24,7 @@ spec:
           summary: "The mobile-security-service is down. For more information see on the MSS at https://github.com/aerogear/mobile-security-service"
           sop_url: "https://github.com/aerogear/mobile-security-service-operator/blob/0.2.0/SOP/SOP-mss.adoc"
       - alert: MobileSecurityServiceConsoleDown
-        expr: absent(kube_endpoint_address_available{endpoint="mobile-security-service-application"} == 1)
+        expr: absent(kube_endpoint_address_available{endpoint="mobile-security-service-application"} >= 1)
         for: 5m
         labels:
           severity: critical
