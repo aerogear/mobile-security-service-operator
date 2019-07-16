@@ -16,9 +16,50 @@ endif::[]
 :toc:
 toc::[]
 
-== MobileSecurityServiceOperatorDown
+== Overview
+
+The following guide outlines the steps required to manage and solve issues over https://github.com/aerogear/mobile-security-service-operator[Mobile Security Service Operator].
+
+== Reference Articles
+
+- https://github.com/aerogear/mobile-security-service-operator/blob/master/README.adoc[Mobile Security Service Operator]
+- https://prometheus.io/docs/practices/alerting/[Prometheus Alerts documentation]
+- https://github.com/operator-framework[operator-framework]
+
+== Success Indicators
+
+All alerts should appears as green in the Prometheus Alert Monitoring.
+
+== Prometheus Alerts Procedures
+
+The following guide outlines the steps required to solve issues which will be alert by the Prometheus alerts configured to monitoring the https://github.com/aerogear/mobile-security-service-operator[Mobile Security Service Operator]. This configuration is made by enable the https://github.com/aerogear/mobile-security-service-operator/blob/master/README.adoc#monitoring-service-metrics[Monitoring Service (Metrics)] for this project.
+
+=== Critical
+
+==== MobileSecurityServiceOperatorDown
 
 . Switch to the Mobile Security Service namespace by running `oc project <namespace>`. E.g `oc project mobile-security-service`
+. Following the <<Validate>> steps.
+. Check if the Mobile Security Service operator image was pulled successfully. Its images are published in https://quay.io/repository/aerogear/mobile-security-service-operator[https://quay.io/repository/aerogear/mobile-security-service-operator].
+. Check its logs by running `oc logs <operator-podname>`
++
+NOTE: You can save the logs by running `oc logs <operator-podname> > <filename>.log`. The logs may provide to you useful information to lead you the root cause as it is a required information for its maintainers are able to help you with.
++
+IMPORTANT: If the operator pod is not preset check its installation. See https://github.com/aerogear/mobile-security-service-operator#Installing[Installing] README section.
++
+TIP: May will be required re-install the project or just the link:./deploy/operator.yaml[operator.yaml] file if all kinds of CR and CRD's are applied in the namespace. See the https://github.com/aerogear/mobile-security-service-operator#crd-definitions[CRD Definitions] to know all kinds.
+
+=== Warning
+
+==== MobileSecurityServicePodCount
+
+. Switch to the Mobile Security Service namespace by running `oc project <namespace>`. E.g `oc project mobile-security-service`
+. Check if it has at least 3 pods (Service, Database and Operator) by running `oc get pods`. See https://github.com/aerogear/mobile-security-service-operator#Installing[Installing] README section to check the expected results.
+
+NOTE: The operator should  maintain the number of pods running for the MSS Service and its Database.
+
+== Validate
+
 . Check if the operator pod to is present by running `oc get pods | grep operator`. Following an example of the expected result.
 +
 [source,shell]
@@ -26,15 +67,7 @@ toc::[]
 $ oc get pods | grep operator
 mobile-security-service-operator-785cbdbf46-wrhzq   1/1       Running   3          7d
 ----
-. Check its logs by running `oc logs <operator-podname>`
-+
-NOTE: You can save the logs by running `oc logs <operator-podname> > <filename>.log`. The logs may provide to you the required information in order to allow you identify the root cause of this issue as it is a required information for its maintainers are able to help you with.
-. Check if the Mobile Security Service operator image was pulled successfully. Its images are published in https://quay.io/repository/aerogear/mobile-security-service-operator[https://quay.io/repository/aerogear/mobile-security-service-operator].
-. If the operator pod is not preset check its installation. May will be required re-install the project or just the link:./deploy/operator.yaml[operator.yaml] file.
 
-== MobileSecurityServicePodCount
+== Monitoring
 
-. Switch to the Mobile Security Service namespace by running `oc project <namespace>`. E.g `oc project mobile-security-service`
-. Check if it has at least 3 pods (Service, Database and Operator) by running `oc get pods`. See in the https://github.com/aerogear/mobile-security-service-operator#Installing[Installing section on the README] the expected results.
-
-NOTE: The operator should  maintain the number of pods running for the Mobile Security Service and its Database.
+If the https://github.com/aerogear/mobile-security-service-operator/blob/master/README.adoc#monitoring-service-metrics[Monitoring Service (Metrics)] is enabled for your installation you are able to check its Grafana Dashboard, `Mobile Security Service Operator`, and the Prometheus Monitoring instance used for it.
