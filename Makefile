@@ -29,42 +29,41 @@ LDFLAGS=-ldflags "-w -s -X main.Version=${TAG}"
 .PHONY: install
 install:
 	@echo ....... Creating namespace ....... 
-	- oc new-project ${NAMESPACE}
+	- kubectl create namespace ${NAMESPACE}
 	@echo ....... Applying Mobile Security Service CRDS and Operator .......
-	- kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
-	- kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
-	- kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml
-	- kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebackup_crd.yaml
+	- kubectl apply -n ${NAMESPACE} -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
+	- kubectl apply -n ${NAMESPACE} -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
+	- kubectl apply -n ${NAMESPACE} -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml
+	- kubectl apply -n ${NAMESPACE} -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebackup_crd.yaml
 	@echo ....... Applying Rules and Service Account .......
-	- kubectl apply -f deploy/cluster_role.yaml
-	- kubectl apply -f deploy/cluster_role_binding.yaml
-	- kubectl apply -f deploy/service_account.yaml
+	- kubectl apply -n ${NAMESPACE} -f deploy/cluster_role.yaml
+	- kubectl apply -n ${NAMESPACE} -f deploy/cluster_role_binding.yaml
+	- kubectl apply -n ${NAMESPACE} -f deploy/service_account.yaml
 	@echo ....... Applying Mobile Security Service Operator .......
-	- kubectl apply -f deploy/operator.yaml
+	- kubectl apply -n ${NAMESPACE} -f deploy/operator.yaml
 	@echo ....... Creating the Mobile Security Service and Database .......
-	- kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
-	- kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
+	- kubectl apply -n ${NAMESPACE} -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
+	- kubectl apply -n ${NAMESPACE} -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
 	@echo ....... Creating namespace ${APP_NAMESPACES} .......
-	- oc new-project ${APP_NAMESPACES}
+	- kubectl create namespace ${APP_NAMESPACES}
 
 .PHONY: uninstall
 uninstall:
 	@echo ....... Uninstalling .......
-	- oc project ${NAMESPACE}
 	@echo ....... Deleting the Mobile Security Service and Database .......
-	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
-	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
+	- kubectl delete -n ${NAMESPACE} -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
+	- kubectl delete -n ${NAMESPACE} -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
 	@echo ....... Deleting CRDs.......
-	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml
-	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
-	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
-	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebackup_crd.yaml
+	- kubectl delete -n ${NAMESPACE} -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml
+	- kubectl delete -n ${NAMESPACE} -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
+	- kubectl delete -n ${NAMESPACE} -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
+	- kubectl delete -n ${NAMESPACE} -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebackup_crd.yaml
 	@echo ....... Deleting Rules and Service Account .......
-	- kubectl delete -f deploy/cluster_role.yaml
-	- kubectl delete -f deploy/cluster_role_binding.yaml
-	- kubectl delete -f deploy/service_account.yaml
+	- kubectl delete -n ${NAMESPACE} -f deploy/cluster_role.yaml
+	- kubectl delete -n ${NAMESPACE} -f deploy/cluster_role_binding.yaml
+	- kubectl delete -n ${NAMESPACE} -f deploy/service_account.yaml
 	@echo ....... Deleting Mobile Security Service Operator .......
-	- kubectl apply -f deploy/operator.yaml
+	- kubectl delete -n ${NAMESPACE}  -f deploy/operator.yaml
 	@echo ....... Deleting namespace ${NAMESPACE}.......
 	- kubectl delete namespace ${NAMESPACE}
 	@echo ....... Delete namespace ${APP_NAMESPACES} .......
@@ -73,9 +72,8 @@ uninstall:
 .PHONY: refresh-operator-image
 refresh-operator-image:
 	@echo ....... Deleting and applying the operator in order to refresh the image when a tag is not changed \(development use\).......
-	- oc project ${NAMESPACE}
-	- kubectl delete -f deploy/operator.yaml
-	- kubectl create -f deploy/operator.yaml
+	- kubectl delete -n ${NAMESPACE} -f deploy/operator.yaml
+	- kubectl create -n ${NAMESPACE} -f deploy/operator.yaml
 
 .PHONY: example-app/apply
 example-app/apply:
@@ -116,8 +114,7 @@ monitoring/uninstall:
 .PHONY: backup/install
 backup/install:
 	@echo Installing backup service in ${NAMESPACE} :
-	- oc project ${NAMESPACE}
-	- kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebackup_cr.yaml
+	- kubectl apply -n ${NAMESPACE} -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebackup_cr.yaml
 
 .PHONY: backup/uninstall
 backup/uninstall:

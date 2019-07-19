@@ -173,6 +173,8 @@ $ make uninstall
 
 NOTE: To uninstall you need be logged in as a user with cluster privileges like the `system:admin` user. E.g. By using: `oc login -u system:admin`.
 
+WARNING: May the `make uninstall` get stuck which is caused by the https://github.com/kubernetes/kubernetes/issues/60538[k8s issue]. You can solve this scenario manually by running `kubectl patch -n mobile-security-service -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml  -p '{"metadata":{"finalizers":[]}}' --type=merge` and then re-running the `make uninstall`.
+
 == Configuration and Options
 
 === Customizing the Service
