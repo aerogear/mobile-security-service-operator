@@ -3,7 +3,7 @@
 # ---------------------------------
 
 # Usage: Shows how to define the object to create/update the applications in the service side
-apiVersion: mobile-security-service.aerogear.com/v1alpha1
+apiVersion: mobile-security-service.aerogear.org/v1alpha1
 kind: MobileSecurityServiceApp
 metadata:
   name: mobile-security-service-app
