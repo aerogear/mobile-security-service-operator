@@ -2,28 +2,28 @@ package mobilesecurityservicedb
 
 import (
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
 //Returns the Deployment object for the Mobile Security Service Database
-func (r *ReconcileMobileSecurityServiceDB) buildDBDeployment(db *mobilesecurityservicev1alpha1.MobileSecurityServiceDB, serviceConfigMapName string) *v1beta1.Deployment {
+func (r *ReconcileMobileSecurityServiceDB) buildDBDeployment(db *mobilesecurityservicev1alpha1.MobileSecurityServiceDB, serviceConfigMapName string) *appsv1.Deployment {
 	ls := getDBLabels(db.Name)
 	auto := true
 	replicas := db.Spec.Size
-	dep := &v1beta1.Deployment{
+	dep := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      db.Name,
 			Namespace: db.Namespace,
 			Labels:    ls,
 		},
-		Spec: v1beta1.DeploymentSpec{
+		Spec: appsv1.DeploymentSpec{
 			Replicas: &replicas,
-			Strategy: v1beta1.DeploymentStrategy{
-				Type: v1beta1.RecreateDeploymentStrategyType,
+			Strategy: appsv1.DeploymentStrategy{
+				Type: appsv1.RecreateDeploymentStrategyType,
 			},
 			Selector: &metav1.LabelSelector{
 				MatchLabels: ls,

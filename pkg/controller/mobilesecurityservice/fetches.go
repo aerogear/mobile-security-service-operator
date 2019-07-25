@@ -6,8 +6,8 @@ import (
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/go-logr/logr"
 	routev1 "github.com/openshift/api/route/v1"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
@@ -47,9 +47,9 @@ func (r *ReconcileMobileSecurityService) fetchService(reqLogger logr.Logger, mss
 }
 
 //fetchDeployment returns the deployment resource created for this instance
-func (r *ReconcileMobileSecurityService) fetchDeployment(reqLogger logr.Logger, mss *mobilesecurityservicev1alpha1.MobileSecurityService) (*v1beta1.Deployment, error) {
+func (r *ReconcileMobileSecurityService) fetchDeployment(reqLogger logr.Logger, mss *mobilesecurityservicev1alpha1.MobileSecurityService) (*appsv1.Deployment, error) {
 	reqLogger.Info("Checking if the deployment already exists")
-	deployment := &v1beta1.Deployment{}
+	deployment := &appsv1.Deployment{}
 	err := r.client.Get(context.TODO(), types.NamespacedName{Name: mss.Name, Namespace: mss.Namespace}, deployment)
 	return deployment, err
 }

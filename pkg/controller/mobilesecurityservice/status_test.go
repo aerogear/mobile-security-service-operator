@@ -6,8 +6,8 @@ import (
 
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	routev1 "github.com/openshift/api/route/v1"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -24,7 +24,7 @@ func TestReconcileMobileSecurityService_updateStatus(t *testing.T) {
 	type args struct {
 		request            reconcile.Request
 		configMap          *corev1.ConfigMap
-		deployment         *v1beta1.Deployment
+		deployment         *appsv1.Deployment
 		proxyService       *corev1.Service
 		applicationService *corev1.Service
 		route              *routev1.Route
@@ -50,7 +50,7 @@ func TestReconcileMobileSecurityService_updateStatus(t *testing.T) {
 					},
 				},
 				configMap:          &configMap,
-				deployment:         &v1beta1.Deployment{},
+				deployment:         &appsv1.Deployment{},
 				proxyService:       &corev1.Service{},
 				applicationService: &corev1.Service{},
 				route:              &routev1.Route{},

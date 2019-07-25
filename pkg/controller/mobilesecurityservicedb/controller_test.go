@@ -7,8 +7,8 @@ import (
 
 	"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes/scheme"
@@ -154,7 +154,7 @@ func TestReconcileMobileSecurityServiceDB_buildFactory(t *testing.T) {
 				serviceInstance: &serviceInstance,
 				kind:            Deployment,
 			},
-			want: reflect.TypeOf(&v1beta1.Deployment{}),
+			want: reflect.TypeOf(&appsv1.Deployment{}),
 		},
 		{
 			name: "should create a Persistent Volume Claim",
@@ -242,7 +242,7 @@ func TestReconcileMobileSecurityServiceDB_Reconcile(t *testing.T) {
 		t.Fatalf("reconcile: (%v)", err)
 	}
 
-	deployment := &v1beta1.Deployment{}
+	deployment := &appsv1.Deployment{}
 	err = r.client.Get(context.TODO(), req.NamespacedName, deployment)
 	if err != nil {
 		t.Fatalf("get deployment: (%v)", err)
@@ -346,7 +346,7 @@ func TestReconcileMobileSecurityServiceDB_Reconcile_UsingMSSConfigMapToCreateEnv
 		t.Fatalf("reconcile: (%v)", err)
 	}
 
-	deployment := &v1beta1.Deployment{}
+	deployment := &appsv1.Deployment{}
 	err = r.client.Get(context.TODO(), req.NamespacedName, deployment)
 	if err != nil {
 		t.Fatalf("get deployment: (%v)", err)
@@ -431,7 +431,7 @@ func TestReconcileMobileSecurityServiceDB_Reconcile_ReplicasSizes(t *testing.T) 
 		t.Fatalf("reconcile: (%v)", err)
 	}
 
-	deployment := &v1beta1.Deployment{}
+	deployment := &appsv1.Deployment{}
 	err = r.client.Get(context.TODO(), req.NamespacedName, deployment)
 	if err != nil {
 		t.Fatalf("get deployment: (%v)", err)
@@ -456,7 +456,7 @@ func TestReconcileMobileSecurityServiceDB_Reconcile_ReplicasSizes(t *testing.T) 
 		t.Fatalf("reconcile: (%v)", err)
 	}
 
-	deployment = &v1beta1.Deployment{}
+	deployment = &appsv1.Deployment{}
 	err = r.client.Get(context.TODO(), req.NamespacedName, deployment)
 	if err != nil {
 		t.Fatalf("get deployment: (%v)", err)
@@ -489,7 +489,7 @@ func TestReconcileMobileSecurityServiceDB_Reconcile_InstanceWithoutSpec(t *testi
 		t.Fatalf("reconcile: (%v)", err)
 	}
 
-	deployment := &v1beta1.Deployment{}
+	deployment := &appsv1.Deployment{}
 	err = r.client.Get(context.TODO(), req.NamespacedName, deployment)
 	if err != nil {
 		t.Fatalf("get deployment: (%v)", err)
