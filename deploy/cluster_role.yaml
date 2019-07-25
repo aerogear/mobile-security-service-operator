@@ -3,64 +3,107 @@ kind: ClusterRole
 metadata:
   name: mobile-security-service-operator
 rules:
-- apiGroups: ['*']
-  resources: ['*']
-  verbs: ['get', 'list']
-- apiGroups: ['']
-  resources: ['pods/exec']
-  verbs: ['create']
+
+# The resources in this group are the CRs that the controllers in this
+# operator react to. Nothing in the operator is expected to create or
+# delete CRs, so those permissions are not given.
 - apiGroups:
-  - "*"
+  - mobile-security-service.aerogear.org
   resources:
-  - "*"
-  verbs:
-  - "*"
-- apiGroups:
-  - apps
-  resources:
-  - deployments
-  - daemonsets
-  - replicasets
-  - statefulsets
-  - serviceaccounts
-  - rolebindings
-  - routes
-  - oauthclients
-  verbs:
-  - "*"
-- apiGroups:
-  - oauth.openshift.io
-  resources:
-  - oauthclients
-  verbs:
-  - "*"
-- apiGroups:
-  - monitoring.coreos.com
-  resources:
-  - servicemonitors
+  - '*'
   verbs:
   - get
-  - create
-- apiGroups:
-  - apps
-  resourceNames:
-  - mobile-security-service-operator
-  - mobile-security-service-db
-  - mobile-security-service
-  - mobile-security-service-app
-  resources:
-  - deployments/finalizers
-  verbs:
+  - list
+  - watch
   - update
+
+# For "secondary resources", the operator needs to be able to do
+# pretty much everything. The "deletecollection" permission is the
+# only one not given here (if it needs to delete more than one
+# instance of a kind, it can do them one-by-one.
 - apiGroups:
-  - mobile-security-service.aerogear.com
+  - ""
   resources:
-  - '*'
+  - services
+  - persistentvolumeclaims
+  - events
+  - configmaps
+  - secrets
+  - serviceaccounts
   verbs:
-  - '*'
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - batch
+  resources:
+  - cronjobs
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
 - apiGroups:
   - route.openshift.io
   resources:
   - routes
   verbs:
-  - "*"
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+
+# For some reason, pods are listed
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+
+# These are additional permissions, needed to be able to run the
+# operator itself
+- apiGroups:
+  - apps
+  resources:
+  - replicasets
+  verbs:
+  - get
+- apiGroups:
+  - apps
+  resourceNames:
+  - mobile-security-service-operator
+  resources:
+  - deployments/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  verbs:
+  - get
