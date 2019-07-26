@@ -2,8 +2,8 @@ package v1alpha1
 
 import (
 	routev1 "github.com/openshift/api/route/v1"
+	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -96,7 +96,7 @@ type MobileSecurityServiceStatus struct {
 	DeploymentName string `json:"deploymentName"`
 	// Status of the Deployment created and managed by it to provided the Service Application
 	// More info: https://github.com/aerogear/mobile-security-service-operator#status-definition-per-types
-	DeploymentStatus v1beta1.DeploymentStatus `json:"deploymentStatus"`
+	DeploymentStatus appsv1.DeploymentStatus `json:"deploymentStatus"`
 	// Name of the Service created and managed by it to expose the Service Application
 	// More info: https://github.com/aerogear/mobile-security-service-operator#status-definition-per-types
 	ServiceName string `json:"serviceName"`

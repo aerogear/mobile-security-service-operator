@@ -1,5 +1,5 @@
 # This CR defines the specs of the PostgreSQL Database which will be installed/managed by the Operator
-apiVersion: mobile-security-service.aerogear.com/v1alpha1
+apiVersion: mobile-security-service.aerogear.org/v1alpha1
 kind: MobileSecurityServiceDB
 metadata:
   name: mobile-security-service-db

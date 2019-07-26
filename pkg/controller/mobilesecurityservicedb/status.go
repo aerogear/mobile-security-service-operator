@@ -4,14 +4,14 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-logr/logr"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/api/extensions/v1beta1"
 	"reflect"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
-//updateAppStatus returns error when status regards the all required resources could not be updated
-func (r *ReconcileMobileSecurityServiceDB) updateDBStatus(reqLogger logr.Logger, deploymentStatus *v1beta1.Deployment, serviceStatus *corev1.Service, pvcStatus *corev1.PersistentVolumeClaim, request reconcile.Request) error {
+//updateDBStatus returns error when status regards the all required resources could not be updated
+func (r *ReconcileMobileSecurityServiceDB) updateDBStatus(reqLogger logr.Logger, deploymentStatus *appsv1.Deployment, serviceStatus *corev1.Service, pvcStatus *corev1.PersistentVolumeClaim, request reconcile.Request) error {
 	reqLogger.Info("Updating App Status for the MobileSecurityServiceDB")
 
 	//Get the latest version of the CR
@@ -50,7 +50,7 @@ func (r *ReconcileMobileSecurityServiceDB) updateDBStatus(reqLogger logr.Logger,
 }
 
 //updateDeploymentStatus returns error when status regards the Deployment resource could not be updated
-func (r *ReconcileMobileSecurityServiceDB) updateDeploymentStatus(reqLogger logr.Logger, request reconcile.Request) (*v1beta1.Deployment, error) {
+func (r *ReconcileMobileSecurityServiceDB) updateDeploymentStatus(reqLogger logr.Logger, request reconcile.Request) (*appsv1.Deployment, error) {
 	reqLogger.Info("Updating Deployment Status for the MobileSecurityServiceDB")
 	// Get the latest version of the instance CR
 	instance, err := r.fetchDBInstance(reqLogger, request)
@@ -160,7 +160,7 @@ func (r *ReconcileMobileSecurityServiceDB) updatePvcStatus(reqLogger logr.Logger
 	return pvcStatus, nil
 }
 
-// updateBindStatusWithInvalidNamespace returns error when status regards the all required resources could not be updated
+// updateStatusWithInvalidNamespace returns error when status regards the all required resources could not be updated
 func (r *ReconcileMobileSecurityServiceDB) updateStatusWithInvalidNamespace(reqLogger logr.Logger, request reconcile.Request) error {
 	reqLogger.Info("Updating App Status for the MobileSecurityServiceDB")
 

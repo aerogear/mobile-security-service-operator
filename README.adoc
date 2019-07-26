@@ -103,7 +103,7 @@ To verify that the installation was successful completed you can check the `AppS
 [source,shell]
 ----
 # To check the Service CR
-$ oc describe mobilesecurityservices.mobile-security-service.aerogear.com
+$ oc describe mobilesecurityservices
 ...
   Route Name:                        route
   Size:                              1
@@ -114,7 +114,7 @@ Status:
 ...
 
 # To check the Database CR
-$ oc describe mobilesecurityservicedbs.mobile-security-service.aerogear.com
+$ oc describe mobilesecurityservicedbs
 ...
   Size:                      1
 Status:
