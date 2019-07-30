@@ -49,15 +49,6 @@ IMPORTANT: If the operator pod is not preset check its installation. See https:/
 +
 TIP: May will be required re-install the project or just the link:./deploy/operator.yaml[operator.yaml] file if all kinds of CR and CRD's are applied in the namespace. See the https://github.com/aerogear/mobile-security-service-operator#crd-definitions[CRD Definitions] to know all kinds.
 
-=== Warning
-
-==== MobileSecurityServicePodCount
-
-. Switch to the Mobile Security Service namespace by running `oc project <namespace>`. E.g `oc project mobile-security-service`
-. Check if it has at least 3 pods (Service, Database and Operator) by running `oc get pods`. See https://github.com/aerogear/mobile-security-service-operator#Installing[Installing] README section to check the expected results.
-
-NOTE: The operator should  maintain the number of pods running for the MSS Service and its Database.
-
 == Validate
 
 . Check if the operator pod to is present by running `oc get pods | grep operator`. Following an example of the expected result.
