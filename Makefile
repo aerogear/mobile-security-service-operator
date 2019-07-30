@@ -31,10 +31,10 @@ install:
 	@echo ....... Creating namespace ....... 
 	- oc new-project ${NAMESPACE}
 	@echo ....... Applying Mobile Security Service CRDS and Operator .......
-	- kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
-	- kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
-	- kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml
-	- kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebackup_crd.yaml
+	- kubectl apply -f deploy/crds/mobilesecurityservice_v1alpha1_mobilesecurityservice_crd.yaml
+	- kubectl apply -f deploy/crds/mobilesecurityservice_v1alpha1_mobilesecurityservicedb_crd.yaml
+	- kubectl apply -f deploy/crds/mobilesecurityservice_v1alpha1_mobilesecurityserviceapp_crd.yaml
+	- kubectl apply -f deploy/crds/mobilesecurityservice_v1alpha1_mobilesecurityservicebackup_crd.yaml
 	@echo ....... Applying Rules and Service Account .......
 	- kubectl apply -f deploy/cluster_role.yaml
 	- kubectl apply -f deploy/cluster_role_binding.yaml
@@ -42,8 +42,8 @@ install:
 	@echo ....... Applying Mobile Security Service Operator .......
 	- kubectl apply -f deploy/operator.yaml
 	@echo ....... Creating the Mobile Security Service and Database .......
-	- kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
-	- kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
+	- kubectl apply -f deploy/crds/mobilesecurityservice_v1alpha1_mobilesecurityservice_cr.yaml
+	- kubectl apply -f deploy/crds/mobilesecurityservice_v1alpha1_mobilesecurityservicedb_cr.yaml
 	@echo ....... Creating namespace ${APP_NAMESPACES} .......
 	- oc new-project ${APP_NAMESPACES}
 
@@ -52,13 +52,13 @@ uninstall:
 	@echo ....... Uninstalling .......
 	- oc project ${NAMESPACE}
 	@echo ....... Deleting the Mobile Security Service and Database .......
-	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_cr.yaml
-	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_cr.yaml
+	- kubectl delete -f deploy/crds/mobilesecurityservice_v1alpha1_mobilesecurityservice_cr.yaml
+	- kubectl delete -f deploy/crds/mobilesecurityservice_v1alpha1_mobilesecurityservicedb_cr.yaml
 	@echo ....... Deleting CRDs.......
-	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml
-	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml
-	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
-	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebackup_crd.yaml
+	- kubectl delete -f deploy/crds/mobilesecurityservice_v1alpha1_mobilesecurityserviceapp_crd.yaml
+	- kubectl delete -f deploy/crds/mobilesecurityservice_v1alpha1_mobilesecurityservice_crd.yaml
+	- kubectl delete -f deploy/crds/mobilesecurityservice_v1alpha1_mobilesecurityservicedb_crd.yaml
+	- kubectl delete -f deploy/crds/mobilesecurityservice_v1alpha1_mobilesecurityservicebackup_crd.yaml
 	@echo ....... Deleting Rules and Service Account .......
 	- kubectl delete -f deploy/cluster_role.yaml
 	- kubectl delete -f deploy/cluster_role_binding.yaml
@@ -81,12 +81,12 @@ refresh-operator-image:
 example-app/apply:
 	@echo ....... Applying the MobileSecurityServiceApp example in the current namespace  ......
 	@echo ....... An APP CR can only be applied in the namespaces configured in the operator\'s EnvVar APP_NAMESPACES.
-	- kubectl apply -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml
+	- kubectl apply -f deploy/crds/examples/mobilesecurityservice_v1alpha1_mobilesecurityserviceapp_cr.yaml
 	
 .PHONY: example-app/delete
 example-app/delete:
 	@echo ....... Deleting the MobileSecurityServiceApp example from the current app namespace  ......
-	- kubectl delete -f deploy/crds/examples/mobile-security-service_v1alpha1_mobilesecurityserviceapp_cr.yaml
+	- kubectl delete -f deploy/crds/examples/mobilesecurityservice_v1alpha1_mobilesecurityserviceapp_cr.yaml
 
 .PHONY: monitoring/install
 monitoring/install:
@@ -117,13 +117,13 @@ monitoring/uninstall:
 backup/install:
 	@echo Installing backup service in ${NAMESPACE} :
 	- oc project ${NAMESPACE}
-	- kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebackup_cr.yaml
+	- kubectl apply -f deploy/crds/mobilesecurityservice_v1alpha1_mobilesecurityservicebackup_cr.yaml
 
 .PHONY: backup/uninstall
 backup/uninstall:
 	@echo Uninstalling backup service from ${NAMESPACE} :
 	- oc project ${NAMESPACE}
-	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebackup_cr.yaml
+	- kubectl delete -f deploy/crds/mobilesecurityservice_v1alpha1_mobilesecurityservicebackup_cr.yaml
 
 ##############################
 # CI                         #
