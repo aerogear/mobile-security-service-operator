@@ -1,9 +1,9 @@
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
-  name: mobilesecurityservicedbs.mobilesecurityservice.aerogear.org
+  name: mobilesecurityservicedbs.mobilesecurityservice.aerogear.com
 spec:
-  group: mobilesecurityservice.aerogear.org
+  group: mobilesecurityservice.aerogear.com
   names:
     kind: MobileSecurityServiceDB
     listKind: MobileSecurityServiceDBList

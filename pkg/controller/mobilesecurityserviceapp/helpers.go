@@ -10,7 +10,7 @@ import (
 )
 
 const SdkConfigMapSufix = "-security"
-const FinalizerMetadata = "finalizer.mobile-security-service.aerogear.org"
+const FinalizerMetadata = "finalizer.mobile-security-service.aerogear.com"
 
 // Returns an string map with the labels which wil be associated to the kubernetes/openshift objects
 // which will be created and managed by this operator

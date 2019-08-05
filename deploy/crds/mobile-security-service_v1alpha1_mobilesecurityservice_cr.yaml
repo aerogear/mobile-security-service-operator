@@ -1,5 +1,5 @@
 # This CR defines the specs of the Mobile Security Service which will be installed/managed by the Operator
-apiVersion: mobile-security-service.aerogear.org/v1alpha1
+apiVersion: mobile-security-service.aerogear.com/v1alpha1
 kind: MobileSecurityService
 metadata:
   name: mobile-security-service
