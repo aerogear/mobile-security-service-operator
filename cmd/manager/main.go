@@ -4,6 +4,8 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"os"
 	"runtime"
 
@@ -98,10 +100,15 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Add to the below struct any other metrics ports you want to expose.
+	servicePorts := []v1.ServicePort{
+		{Port: metricsPort, Name: metrics.OperatorPortName, Protocol: v1.ProtocolTCP, TargetPort: intstr.IntOrString{Type: intstr.Int, IntVal: metricsPort}},
+	}
+
 	// Create Service object to expose the metrics port.
-	_, err = metrics.ExposeMetricsPort(ctx, metricsPort)
+	_, err = metrics.CreateMetricsService(context.TODO(), cfg, servicePorts)
 	if err != nil {
-		log.Info(err.Error())
+		// handle error
 	}
 
 }
