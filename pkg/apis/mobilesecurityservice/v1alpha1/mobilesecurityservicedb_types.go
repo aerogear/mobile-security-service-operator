@@ -1,8 +1,8 @@
 package v1alpha1
 
 import (
-	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -79,7 +79,7 @@ type MobileSecurityServiceDBStatus struct {
 	DeploymentName string `json:"deploymentName"`
 	// Status of the Database Deployment created and managed by it
 	// More info: https://github.com/aerogear/mobile-security-service-operator#status-definition-per-types
-	DeploymentStatus appsv1.DeploymentStatus `json:"deploymentStatus"`
+	DeploymentStatus v1beta1.DeploymentStatus `json:"deploymentStatus"`
 	// Name of the Database Service created and managed by it
 	// More info: https://github.com/aerogear/mobile-security-service-operator#status-definition-per-types
 	ServiceName string `json:"serviceName"`

@@ -8,8 +8,8 @@ import (
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	routev1 "github.com/openshift/api/route/v1"
-	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes/scheme"
@@ -175,7 +175,7 @@ func TestReconcileMobileSecurityService_buildFactory(t *testing.T) {
 			fields: fields{
 				scheme: scheme.Scheme,
 			},
-			want: reflect.TypeOf(&appsv1.Deployment{}),
+			want: reflect.TypeOf(&v1beta1.Deployment{}),
 			args: args{
 				instance: &mssInstance,
 				kind:     Deployment,
@@ -312,7 +312,7 @@ func TestReconcileMobileSecurityService_Reconcile(t *testing.T) {
 	}
 
 	// check if the deployment has been created
-	dep := &appsv1.Deployment{}
+	dep := &v1beta1.Deployment{}
 	err = r.client.Get(context.TODO(), req.NamespacedName, dep)
 	if err != nil {
 		t.Fatalf("get deployment: (%v)", err)
@@ -430,7 +430,7 @@ func TestReconcileMobileSecurityService_Reconcile_UnknownNamespace(t *testing.T)
 	}
 
 	// check if the deployment has been created
-	dep := &appsv1.Deployment{}
+	dep := &v1beta1.Deployment{}
 	err = r.client.Get(context.TODO(), req.NamespacedName, dep)
 	if err == nil {
 		t.Error("Should not create the Deployment since it is an invalid namespace")
@@ -465,7 +465,7 @@ func TestReconcileMobileSecurityService_Reconcile_ReplicaSize(t *testing.T) {
 	}
 
 	// check if the deployment has been created
-	dep := &appsv1.Deployment{}
+	dep := &v1beta1.Deployment{}
 	err = r.client.Get(context.TODO(), req.NamespacedName, dep)
 	if err != nil {
 		t.Fatalf("get deployment: (%v)", err)
@@ -498,7 +498,7 @@ func TestReconcileMobileSecurityService_Reconcile_ReplicaSize(t *testing.T) {
 	}
 
 	// check if the deployment has been created
-	dep = &appsv1.Deployment{}
+	dep = &v1beta1.Deployment{}
 	err = r.client.Get(context.TODO(), req.NamespacedName, dep)
 	if err != nil {
 		t.Fatalf("get deployment: (%v)", err)
@@ -550,7 +550,7 @@ func TestReconcileMobileSecurityService_Reconcile_WithInstanceWithoutSpecDefined
 	}
 
 	// check if the deployment has been created
-	dep := &appsv1.Deployment{}
+	dep := &v1beta1.Deployment{}
 	err = r.client.Get(context.TODO(), req.NamespacedName, dep)
 	if err != nil {
 		t.Fatalf("get deployment: (%v)", err)

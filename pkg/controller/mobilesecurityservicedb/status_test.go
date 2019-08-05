@@ -5,8 +5,8 @@ import (
 	"reflect"
 	"testing"
 
-	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -20,7 +20,7 @@ func TestReconcileMobileSecurityServiceDB_updateDBStatus(t *testing.T) {
 		scheme *runtime.Scheme
 	}
 	type args struct {
-		deploymentStatus *appsv1.Deployment
+		deploymentStatus *v1beta1.Deployment
 		serviceStatus    *corev1.Service
 		pvcStatus        *corev1.PersistentVolumeClaim
 		request          reconcile.Request
@@ -44,7 +44,7 @@ func TestReconcileMobileSecurityServiceDB_updateDBStatus(t *testing.T) {
 						Namespace: dbInstance.Namespace,
 					},
 				},
-				deploymentStatus: &appsv1.Deployment{},
+				deploymentStatus: &v1beta1.Deployment{},
 				serviceStatus:    &corev1.Service{},
 				pvcStatus:        &corev1.PersistentVolumeClaim{},
 			},
@@ -63,7 +63,7 @@ func TestReconcileMobileSecurityServiceDB_updateDBStatus(t *testing.T) {
 						Namespace: dbInstance.Namespace,
 					},
 				},
-				deploymentStatus: &appsv1.Deployment{
+				deploymentStatus: &v1beta1.Deployment{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "DeploymentName",
 					},
@@ -118,7 +118,7 @@ func TestReconcileMobileSecurityServiceDB_updateDeploymentStatus(t *testing.T) {
 				},
 			},
 			wantErr: true,
-			want:    reflect.TypeOf(&appsv1.Deployment{}),
+			want:    reflect.TypeOf(&v1beta1.Deployment{}),
 		},
 		{
 			name: "Should not find the Deployment",
@@ -135,7 +135,7 @@ func TestReconcileMobileSecurityServiceDB_updateDeploymentStatus(t *testing.T) {
 				},
 			},
 			wantErr: true,
-			want:    reflect.TypeOf(&appsv1.Deployment{}),
+			want:    reflect.TypeOf(&v1beta1.Deployment{}),
 		},
 	}
 	for _, tt := range tests {
