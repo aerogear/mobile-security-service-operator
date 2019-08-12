@@ -24,8 +24,6 @@ import (
 
 var log = logf.Log.WithName("controller_mobilesecurityserviceapp")
 
-const ConfigMap = "ConfigMap"
-
 // Add creates a new MobileSecurityServiceApp Controller and adds it to the Manager. The Manager will set fields on the Controller
 // and Start it when the Manager is Started.
 func Add(mgr manager.Manager) error {
@@ -51,12 +49,6 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 		return err
 	}
 
-	/** Watch for changes to secondary resources and create the owner MobileSecurityService **/
-	//ConfigMap
-	if err := watchConfigMap(c); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -79,30 +71,6 @@ type ReconcileMobileSecurityServiceApp struct {
 	// that reads objects from the cache and writes to the apiserver
 	client client.Client
 	scheme *runtime.Scheme
-}
-
-// Build the object, cluster resource, and add the object in the queue to reconcile
-func (r *ReconcileMobileSecurityServiceApp) create(mssApp *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, kind string, serviceURL string, reqLogger logr.Logger, request reconcile.Request) error {
-	obj := r.buildFactory(reqLogger, mssApp, kind, serviceURL)
-	reqLogger.Info("Creating a new ", "kind", kind, "Instance.Namespace", mssApp.Namespace, "Instance.Name", mssApp.Name)
-	err := r.client.Create(context.TODO(), obj)
-	if err != nil {
-		reqLogger.Error(err, "Failed to create new ", "kind", kind, "Instance.Namespace", mssApp.Namespace, "Instance.Name", mssApp.Name)
-	}
-	reqLogger.Info("Created successfully", "kind", kind, "Instance.Namespace", mssApp.Namespace, "Instance.Name", mssApp.Name)
-	return err
-}
-
-// buildFactory will return the resource according to the kind defined
-func (r *ReconcileMobileSecurityServiceApp) buildFactory(reqLogger logr.Logger, mssApp *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, kind string, serviceURL string) runtime.Object {
-	reqLogger.Info("Building Object ", "kind", kind, "MobileSecurityServiceApp.Namespace", mssApp.Namespace, "MobileSecurityServiceApp.Name", mssApp.Name)
-	switch kind {
-	case ConfigMap:
-		return r.buildAppSDKConfigMap(mssApp, serviceURL)
-	default:
-		msg := "Failed to recognize type of object" + kind + " into the MobileSecurityServiceApp.Namespace " + mssApp.Namespace
-		panic(msg)
-	}
 }
 
 // Reconcile reads that state of the cluster for a MobileSecurityServiceApp object and makes changes based on the state read
@@ -210,46 +178,6 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 		return reconcile.Result{}, err
 	}
 
-	// Get the Public URL which will be used to build the SDKConfigMap json
-	apiURL := utils.GetPublicURL(route, mss)
-
-	reqLogger.Info("Checking if the configMap already exists ...")
-	// Check if ConfigMap for the app exist, if not create one.
-	if _, err := r.fetchConfigMap(reqLogger, mssApp); err != nil {
-		if err := r.create(mssApp, ConfigMap, apiURL, reqLogger, request); err != nil {
-			return reconcile.Result{}, err
-		}
-	}
-
-	reqLogger.Info("Checking if a configMap for the same appId already exists with another name ...")
-	// Check if has already a confgMap for the same appId, if yes and the name is not the same then remove it
-	if list, err := r.fetchConfigMapListByLabels(reqLogger, mssApp); err == nil && len(list.Items) > 0 {
-		for i := 0; i < len(list.Items); i++ {
-			cmItem := list.Items[i]
-
-			// If found a ConfigMap with the same appID but different name then remove.
-			if cmItem.Name != getSDKConfigMapName(mssApp) {
-				if err := r.delete(&cmItem, reqLogger); err != nil {
-					return reconcile.Result{}, err
-				}
-			}
-		}
-	}
-
-	reqLogger.Info("Checking if has more than one configMap for the same appId ...")
-	//Ensure that it has always just one configMap for each appId
-	if list, err := r.fetchConfigMapListByLabels(reqLogger, mssApp); err == nil && len(list.Items) > 1 {
-		// Remove all and leave just one
-		for i := 0; i < len(list.Items)-1; i++ {
-			cmItem := list.Items[i]
-			if err := r.delete(&cmItem, reqLogger); err != nil {
-				return reconcile.Result{}, err
-			}
-		}
-		//Requeu in order to do a full validation
-		return reconcile.Result{Requeue: true}, nil
-	}
-
 	// Get the REST Service Endpoint
 	serviceAPI := utils.GetServiceAPIURL(mss)
 
@@ -288,14 +216,8 @@ func (r *ReconcileMobileSecurityServiceApp) Reconcile(request reconcile.Request)
 		}
 	}
 
-	//Update status for SDKConfigMap
-	SDKConfigMapStatus, err := r.updateConfigMapStatus(reqLogger, request)
-	if err != nil {
-		return reconcile.Result{}, err
-	}
-
 	//Update status for BindStatus
-	if err := r.updateBindStatus(serviceAPI, reqLogger, SDKConfigMapStatus, request); err != nil {
+	if err := r.updateBindStatus(serviceAPI, reqLogger, mssApp, request); err != nil {
 		return reconcile.Result{}, err
 	}
 

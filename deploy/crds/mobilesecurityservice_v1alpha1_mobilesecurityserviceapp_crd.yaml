@@ -44,12 +44,7 @@ spec:
               description: 'Will be as "OK when all objects are created successfully
                 More info: https://github.com/aerogear/mobile-security-service-operator#status-definition-per-types'
               type: string
-            sdkConfigMapName:
-              description: 'Name of the ConfigMap create to share the URL to access
-                the public host of the service More info: https://github.com/aerogear/mobile-security-service-operator#status-definition-per-types'
-              type: string
           required:
-          - sdkConfigMapName
           - bindStatus
           type: object
   version: v1alpha1

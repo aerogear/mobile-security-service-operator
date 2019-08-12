@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
-	routev1 "github.com/openshift/api/route/v1"
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 )
@@ -28,11 +27,6 @@ const (
 )
 
 var log = logf.Log.WithName("mobile-security-service-operator.utils")
-
-// GetPublicURL returns the public service URL for the Service
-func GetPublicURL(route *routev1.Route, mss *mobilesecurityservicev1alpha1.MobileSecurityService) string {
-	return fmt.Sprintf("%v://%v", mss.Spec.ClusterProtocol, route.Status.Ingress[0].Host)
-}
 
 //Return REST Service API
 func GetServiceAPIURL(mss *mobilesecurityservicev1alpha1.MobileSecurityService) string {
