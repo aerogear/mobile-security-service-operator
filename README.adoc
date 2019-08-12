@@ -27,7 +27,7 @@ toc::[]
 
 == Overview
 
-An https://commons.openshift.org/sig/OpenshiftOperators.html[Operator] based on the https://github.com/operator-framework/operator-sdk[Operator SDK] to run the https://github.com/aerogear/mobile-security-service[Mobile Security Service] protected by https://github.com/openshift/oauth-proxy[OAuth] on a OpenShift cluster.
+An https://commons.openshift.org/sig/OpenshiftOperators.html[Operator] developed using the https://github.com/operator-framework[Operator Framework] to package, to install, to manage and config the https://github.com/aerogear/mobile-security-service[Mobile Security Service] protected by https://github.com/openshift/oauth-proxy[OAuth] on a OpenShift cluster.
 
 image::https://user-images.githubusercontent.com/7708031/55628052-9ad02d00-57a7-11e9-8a53-f1d5c845358a.png[Create Server,align="center"]
 
@@ -125,6 +125,36 @@ Status:
 ----
 
 NOTE: To troubleshooting the installation if it does not complete successfully check the status of its CRs. Note that all objects which are managed by them has an respective status field on it. E.g `Deployment Status`
+
+Following all an expected result from the command `oc get all` executed in the namespace where the operator was installed after all required resources managed by it be crated with success.
+
+[source,shell]
+----
+$ oc get all
+NAME                                                    READY     STATUS    RESTARTS   AGE
+pod/mobile-security-service-bcbd4d49f-k48dj             1/2       Running   2          45s
+pod/mobile-security-service-db-56d7cb55b-v8cxd          1/1       Running   0          17s
+pod/mobile-security-service-operator-689dd57855-m8wm7   1/1       Running   0          1m
+
+NAME                                               TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)             AGE
+service/mobile-security-service-application        ClusterIP   172.30.4.110     <none>        3000/TCP            45s
+service/mobile-security-service-db                 ClusterIP   172.30.60.249    <none>        5432/TCP            17s
+service/mobile-security-service-operator-metrics   ClusterIP   172.30.105.246   <none>        8383/TCP,8686/TCP   47s
+service/mobile-security-service-proxy              ClusterIP   172.30.182.214   <none>        80/TCP              45s
+
+NAME                                               DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/mobile-security-service            1         1         1            0           47s
+deployment.apps/mobile-security-service-db         1         1         1            1           17s
+deployment.apps/mobile-security-service-operator   1         1         1            1           1m
+
+NAME                                                          DESIRED   CURRENT   READY     AGE
+replicaset.apps/mobile-security-service-bcbd4d49f             1         1         0         46s
+replicaset.apps/mobile-security-service-db-56d7cb55b          1         1         1         17s
+replicaset.apps/mobile-security-service-operator-689dd57855   1         1         1         1m
+
+NAME                             HOST/PORT                                            PATH      SERVICES                        PORT      TERMINATION   WILDCARD
+route.route.openshift.io/route   route-mobile-security-service.192.168.64.30.nip.io             mobile-security-service-proxy   web       edge          None
+----
 
 === Creating/Binding an app
 
