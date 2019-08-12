@@ -172,14 +172,12 @@ setup/debug:
 
 .PHONY: setup/githooks
 setup/githooks:
-	@echo Installing errcheck dependence:
-	go get -u github.com/kisielk/errcheck
 	@echo Setting up Git hooks:
 	ln -sf $$PWD/.githooks/* $$PWD/.git/hooks/
 
 .PHONY: setup
 setup: setup/githooks
-	dep ensure
+	go mod tidy
 	make code/gen
 
 .PHONY: code/run/local
@@ -213,12 +211,12 @@ code/gen:
 .PHONY: test/run
 test/run:
 	@echo Running tests:
-	GOCACHE=off go test -cover $(TEST_PKGS)
+	go test -cover $(TEST_PKGS)
 
 .PHONY: test/integration-cover
 test/integration-cover:
 	echo "mode: count" > coverage-all.out
-	GOCACHE=off $(foreach pkg,$(PACKAGES),\
+	$(foreach pkg,$(PACKAGES),\
 		go test -failfast -tags=integration -coverprofile=coverage.out -covermode=count $(addprefix $(PKG)/,$(pkg)) || exit 1;\
 		tail -n +2 coverage.out >> coverage-all.out;)
 

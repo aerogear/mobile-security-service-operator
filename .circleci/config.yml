@@ -7,8 +7,9 @@ jobs:
     working_directory: /go/src/github.com/aerogear/mobile-security-service-operator
 
     docker:
-      - image: circleci/golang:1.10
-
+      - image: circleci/golang:1.12
+        environment:
+          GO111MODULE=on
     steps:
       - checkout
       - run: go get github.com/mattn/goveralls
@@ -17,9 +18,10 @@ jobs:
           command: curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
       - run:
           name: Install operator-sdk to run make setup
-          command: curl -Lo operator-sdk https://github.com/operator-framework/operator-sdk/releases/download/v0.8.1/operator-sdk-v0.8.1-x86_64-linux-gnu && chmod +x operator-sdk && sudo mv operator-sdk /usr/local/bin/
-      - run: make setup
+          command: curl -Lo operator-sdk https://github.com/operator-framework/operator-sdk/releases/download/v0.10.0/operator-sdk-v0.10.0-x86_64-linux-gnu && chmod +x operator-sdk && sudo mv operator-sdk /usr/local/bin/
+      - run: go mod tidy
       - run: make code/build/linux
+      - run: GO111MODULE=off go get github.com/mattn/goveralls
       - run: make test/run
       - run: make test/integration-cover
       - run: /go/bin/goveralls -coverprofile=coverage-all.out -service=circle-ci -repotoken=ycY6oBXw8F89TEabp46VXSRpVFjfYBujH
@@ -27,7 +29,9 @@ jobs:
   image_push_master:
     working_directory: /go/src/github.com/aerogear/mobile-security-service-operator
     docker:
-      - image: circleci/golang:1.10
+    - image: circleci/golang:1.12
+      environment:
+        GO111MODULE=on
     steps:
       - checkout
       - run: 
@@ -35,8 +39,8 @@ jobs:
           command: curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
       - run:
           name: Install operator-sdk to build image
-          command: curl -Lo operator-sdk https://github.com/operator-framework/operator-sdk/releases/download/v0.8.1/operator-sdk-v0.8.1-x86_64-linux-gnu && chmod +x operator-sdk && sudo mv operator-sdk /usr/local/bin/
-      - run: make setup
+          command: curl -Lo operator-sdk https://github.com/operator-framework/operator-sdk/releases/download/v0.10.0/operator-sdk-v0.10.0-x86_64-linux-gnu && chmod +x operator-sdk && sudo mv operator-sdk /usr/local/bin/
+      - run: go mod tidy
       # circle ci key required for docker builds
       - setup_remote_docker
       - run: make code/build/linux
@@ -46,7 +50,7 @@ jobs:
   image_release:
     working_directory: /go/src/github.com/aerogear/mobile-security-service-operator
     docker:
-      - image: circleci/golang:1.10
+      - image: circleci/golang:1.12
     steps:
       - checkout
       - run: 
@@ -54,8 +58,8 @@ jobs:
           command: curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
       - run:
           name: Install operator-sdk to build image
-          command: curl -Lo operator-sdk https://github.com/operator-framework/operator-sdk/releases/download/v0.8.1/operator-sdk-v0.8.1-x86_64-linux-gnu && chmod +x operator-sdk && sudo mv operator-sdk /usr/local/bin/
-      - run: make setup
+          command: curl -Lo operator-sdk https://github.com/operator-framework/operator-sdk/releases/download/v0.10.0/operator-sdk-v0.10.0-x86_64-linux-gnu && chmod +x operator-sdk && sudo mv operator-sdk /usr/local/bin/
+      - run: go mod tidy
       # circle ci key required for docker builds
       - setup_remote_docker
       - run: make image/build/release

@@ -5,7 +5,7 @@
 # Check if the Go code is formatted
 check_code_format (){
     {
-       go fmt  $(go list ./... | grep -v /vendor/)
+       go fmt  $(go list ./... )
     } || {
         exitStatus=$?
 
@@ -19,7 +19,7 @@ check_code_format (){
 # Check all files for suspicious constructs
 check_go_vet (){
     {
-        go vet $(go list ./... | grep -v vendor/)
+        go vet $(go list ./... )
     } || {
         exitStatus=$?
 
