@@ -34,7 +34,7 @@ All alerts need to be green in the `Prometheus Alert Monitoring`.
 
 The following guide outlines the steps required to solve issues which will be alert by the Prometheus alerts configured to monitoring the https://github.com/aerogear/mobile-security-service[Mobile Security Service] when it is managed, installed and configured via the https://github.com/aerogear/mobile-security-service-operator[Mobile Security Service Operator].
 
-IMPORTANT: Before check any following steps see if the operator pod is running successful. More info: https://github.com/aerogear/mobile-security-service-operator/blob/0.2.0/SOP/SOP-operator.adoc[MobileSecurityServiceOperatorDown]
+IMPORTANT: Before check any following steps see if the operator pod is running successful. More info: https://github.com/aerogear/mobile-security-service-operator/blob/0.4.0/SOP/SOP-operator.adoc[MobileSecurityServiceOperatorDown]
 
 TIP: By the CR status you are able to identify what is missing. Also, it is an important information to be send to its maintainers in the case you need their help with. See the status descriptions in the https://github.com/aerogear/mobile-security-service-operator#status-definition-per-types[Status Definitions per Types in the README]
 

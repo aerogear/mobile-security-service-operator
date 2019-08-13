@@ -5,10 +5,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## [0.4.0] - 2019-08-13
 - Remove MobileSecurityServicePodCount since it was considered duplicated [#157](https://github.com/aerogear/mobile-security-service-operator/pull/157)
 - Fix the chart `Mobile Security Service Application - Uptime` on Grafana application dashboard [#164](https://github.com/aerogear/mobile-security-service-operator/pull/164)
 - Fix Grafana application resources dashboard [#165](https://github.com/aerogear/mobile-security-service-operator/pull/165)
 - Fix Monitor Operator metrics which were not working because the `service/mobile-security-service-operator` was not been created by the operator [#166](https://github.com/aerogear/mobile-security-service-operator/pull/166)
+- Removed the creation of a config map created for each MobileSecurityServiceApp CR as it is not needed. [#167](https://github.com/aerogear/mobile-security-service-operator/pull/167)
 
 ## [0.3.0] - 2019-07-26
 - Fixed Prometheus Rules for MobileSecurityServicePodCount and MobileSecurityServiceDown [#151](https://github.com/aerogear/mobile-security-service-operator/pull/151)
