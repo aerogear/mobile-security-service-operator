@@ -151,7 +151,7 @@ NOTE: This command will execute `kubectl apply -f deploy/crds/examples/mobile-se
 
 === Deleting/Unbinding an app
 
-* Run the following command to delete/unbind the app from the service and remove its SDKConfigMap.
+* Run the following command to delete/unbind the app from the service.
 +
 [source,shell]
 ----
@@ -330,7 +330,7 @@ NOTE: The operator, application and database will be installed in the namespace 
 | *CustomResourceDefinition*    | *Description*
 | link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservice_crd.yaml[MobileSecurityService]             | Packages, manages, installs and configures the https://github.com/aerogear/mobile-security-service[Mobile Security Service] on the cluster.
 | link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml[MobileSecurityServiceDB]             | Packages, manages, installs and configures the https://github.com/aerogear/mobile-security-service[Mobile Security Service] Database on the cluster.
-| link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml[MobileSecurityServiceApp]             | Creates and update the app in the Service REST API and create the SDK Config Map.
+| link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml[MobileSecurityServiceApp]             | Creates and update the app in the REST API.
 | link:./deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebackup_crd.yaml[MobileSecurityServiceBackup]             | Packages, manages, installs and configures the CronJob to do the backup using the image https://github.com/integr8ly/backup-container-image[backup-container-image]
 |===
 
@@ -353,13 +353,6 @@ NOTE: The operator, application and database will be installed in the namespace 
 | link:./pkg/controller/mobilesecurityservicedb/deployments.go[deployments.go]           | Define the Deployment resource of Mobile Security Service Database. (E.g container and resources definitions)
 | link:./pkg/controller/mobilesecurityservicedb/pvs.go[pvs.go]                           | Define the PersistentVolumeClaim resource used by its Database.
 | link:./pkg/controller/mobilesecurityservice/services.go[services.go]                   | Define the Service resource of Mobile Security Service Database.
-|===
-
-* *link:./pkg/controller/mobilesecurityserviceapp/controller.go[Mobile Security Service App]*
-+
-|===
-| *Resource*    | *Description*
-| link:./pkg/controller/mobilesecurityserviceapp/configmaps.go[configmaps.go]           | Define the ConfigMap resources managed by the Bind. It creates the ConfigMap with the config JSON for the SDK and the app with the REST API. Note that each application has our own Bind CR applied.
 |===
 
 * *link:./pkg/controller/mobilesecurityservicebackup/controller.go[Mobile Security Service Backup]*
@@ -412,8 +405,7 @@ The Design Pattern adopted to build the objects in its controllers is http://tmr
 +
 |===
 | *Status*    | *Description*
-| `bindStatus` | For this status is expected the value `OK` which means that the app was created in the Rest Service API as its SDKConfigMap.
-| `SDKConfigMapName` | Name of the config map object created for the app with its SDK Config.
+| `bindStatus` | For this status is expected the value `OK` which means that the app was created in the API Service.
 |===
 
 * link:./pkg/apis/mobilesecurityservice/v1alpha1/mobilesecurityservicebackup_types.go[MobileSecurityServiceBackup]
@@ -538,8 +530,8 @@ NOTE: The image/tag used from https://github.com/aerogear/mobile-security-servic
 | *Command*                        | *Description*
 | `make install`                   | Creates the `{namespace}` namespace, application CRDS, cluster role and service account. Installs the operator and the Service and DB
 | `make uninstall`                 | Uninstalls the operator and the Service and DB. Deletes the `{namespace}`` namespace, application CRDS, cluster role and service account and the app namespace. i.e. all configuration applied by `make install`
-| `make example-app/apply`         | Applies the Example App CR . (Create/Update app in the cluster and Service, also creates ConfigMap with the public host endpoint for the init config in the mobile device(SDK) ).
-| `make example-app/delete`        | Deletes the Example App CR. (Delete app from the Service and SDKConfigMap).
+| `make example-app/apply`         | Applies the Example App CR (Create/Update app in the cluster and Service.).
+| `make example-app/delete`        | Deletes the Example App CR (Delete app from the Service).
 | `make refresh-operator-image`    | Deletes and applies the operator in order to refresh the image when a tag is not changed (development use)
 | `make monitoring/install`        | Installs Monitoring Service in order to provide metrics
 | `make monitoring/uninstall`      | Uninstalls Monitoring Service in order to provide metrics, i.e. all configuration applied by `make monitoring/install`

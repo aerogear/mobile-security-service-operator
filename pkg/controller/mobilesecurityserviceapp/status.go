@@ -5,51 +5,13 @@ import (
 	"fmt"
 	"reflect"
 
+	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
 	"github.com/go-logr/logr"
-	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
-//updateConfigMapStatus returns error when status regards the ConfigMap resource could not be updated
-func (r *ReconcileMobileSecurityServiceApp) updateConfigMapStatus(reqLogger logr.Logger, request reconcile.Request) (*corev1.ConfigMap, error) {
-	reqLogger.Info("Updating SDKConfigMap Status for the MobileSecurityServiceApp")
-
-	// Get the latest version of CR
-	mssApp, err := r.fetchMssAppInstance(reqLogger, request)
-	if err != nil {
-		return &corev1.ConfigMap{}, err
-	}
-
-	// Get SDKConfigMap object
-	SDKConfigMapStatus, err := r.fetchConfigMap(reqLogger, mssApp)
-	if err != nil {
-		reqLogger.Error(err, "Failed to get SDKConfigMap for Status", "MobileSecurityServiceApp.Namespace", mssApp.Namespace, "MobileSecurityServiceApp.Name", mssApp.Name)
-		return SDKConfigMapStatus, err
-	}
-
-	//Update CR Status with SDKConfigMap name
-	if SDKConfigMapStatus.Name != mssApp.Status.SDKConfigMapName {
-		// Get the latest version of CR
-		mssApp, err := r.fetchMssAppInstance(reqLogger, request)
-		if err != nil {
-			return &corev1.ConfigMap{}, err
-		}
-
-		// Set the data
-		mssApp.Status.SDKConfigMapName = SDKConfigMapStatus.Name
-
-		// Update the CR
-		err = r.client.Status().Update(context.TODO(), mssApp)
-		if err != nil {
-			reqLogger.Error(err, "Failed to update SDKConfigMap Status for the MobileSecurityServiceApp")
-			return SDKConfigMapStatus, err
-		}
-	}
-	return SDKConfigMapStatus, nil
-}
-
 //updateAppStatus returns error when status regards the all required resources could not be updated
-func (r *ReconcileMobileSecurityServiceApp) updateBindStatus(serviceURL string, reqLogger logr.Logger, SDKConfigMapStatus *corev1.ConfigMap, request reconcile.Request) error {
+func (r *ReconcileMobileSecurityServiceApp) updateBindStatus(serviceURL string, reqLogger logr.Logger, mssApp *mobilesecurityservicev1alpha1.MobileSecurityServiceApp, request reconcile.Request) error {
 	reqLogger.Info("Updating Bind App Status for the MobileSecurityServiceApp")
 
 	// Get the latest version of CR
@@ -65,9 +27,9 @@ func (r *ReconcileMobileSecurityServiceApp) updateBindStatus(serviceURL string, 
 		return err
 	}
 
-	// Check if the ConfigMap and the App is created in the Rest Service
-	if len(SDKConfigMapStatus.UID) < 1 && app.ID == "" {
-		err := fmt.Errorf("Failed to get OK Status for MobileSecurityService Bind.")
+	// Check if the App is created in the Rest Service
+	if len(mssApp.UID) < 1 && app.ID == "" {
+		err := fmt.Errorf("failed to get OK Status for MobileSecurityService Bind")
 		reqLogger.Error(err, "One of the resources are not created", "MobileSecurityServiceApp.Namespace", mssApp.Namespace, "MobileSecurityServiceApp.Name", mssApp.Name)
 		return err
 	}

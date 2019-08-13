@@ -193,35 +193,6 @@ func TestIsValidOperatorNamespace(t *testing.T) {
 	}
 }
 
-func TestGetPublicURL(t *testing.T) {
-	type args struct {
-		instance *mobilesecurityservicev1alpha1.MobileSecurityService
-		route    *routev1.Route
-	}
-	tests := []struct {
-		name string
-		args args
-		want string
-	}{
-		{
-			name: "should check and return true",
-			args: args{
-				instance: &mssInstance,
-				route:    &route,
-			},
-			want: "http://testhost",
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := GetPublicURL(tt.args.route, tt.args.instance)
-			if got != tt.want {
-				t.Errorf("TestGetPublicURL() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func TestGetServiceAPIURL(t *testing.T) {
 	type args struct {
 		instance *mobilesecurityservicev1alpha1.MobileSecurityService

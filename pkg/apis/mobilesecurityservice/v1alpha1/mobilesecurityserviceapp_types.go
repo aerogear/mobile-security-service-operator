@@ -27,9 +27,6 @@ type MobileSecurityServiceAppStatus struct {
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
 
-	// Name of the ConfigMap create to share the URL to access the public host of the service
-	// More info: https://github.com/aerogear/mobile-security-service-operator#status-definition-per-types
-	SDKConfigMapName string `json:"sdkConfigMapName"`
 	// Will be as "OK when all objects are created successfully
 	// More info: https://github.com/aerogear/mobile-security-service-operator#status-definition-per-types
 	BindStatus string `json:"bindStatus"`
