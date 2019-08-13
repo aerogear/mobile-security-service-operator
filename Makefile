@@ -64,7 +64,7 @@ uninstall:
 	- kubectl delete -f deploy/cluster_role_binding.yaml
 	- kubectl delete -f deploy/service_account.yaml
 	@echo ....... Deleting Mobile Security Service Operator .......
-	- kubectl apply -f deploy/operator.yaml
+	- kubectl delete -f deploy/operator.yaml
 	@echo ....... Deleting namespace ${NAMESPACE}.......
 	- kubectl delete namespace ${NAMESPACE}
 	@echo ....... Delete namespace ${APP_NAMESPACES} .......
@@ -95,7 +95,6 @@ monitoring/install:
 	- kubectl label namespace ${NAMESPACE} monitoring-key=middleware
 	- kubectl create -f deploy/monitor/service_monitor.yaml
 	- kubectl create -f deploy/monitor/mss_service_monitor.yaml
-	- kubectl create -f deploy/monitor/operator_service.yaml
 	- kubectl create -f deploy/monitor/prometheus_rule.yaml
 	- kubectl create -f deploy/monitor/mss_prometheus_rule.yaml
 	- kubectl create -f deploy/monitor/grafana_dashboard.yaml
@@ -106,7 +105,6 @@ monitoring/uninstall:
 	@echo Uninstalling monitor service from ${NAMESPACE} :
 	- oc project ${NAMESPACE}
 	- kubectl delete -f deploy/monitor/service_monitor.yaml
-	- kubectl delete -f deploy/monitor/operator_service.yaml
 	- kubectl delete -f deploy/monitor/mss_service_monitor.yaml
 	- kubectl delete -f deploy/monitor/prometheus_rule.yaml
 	- kubectl delete -f deploy/monitor/mss_prometheus_rule.yaml
