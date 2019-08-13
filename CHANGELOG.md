@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fix Grafana application resources dashboard [#165](https://github.com/aerogear/mobile-security-service-operator/pull/165)
 - Fix Monitor Operator metrics which were not working because the `service/mobile-security-service-operator` was not been created by the operator [#166](https://github.com/aerogear/mobile-security-service-operator/pull/166)
 - Removed the creation of a config map created for each MobileSecurityServiceApp CR as it is not needed. [#167](https://github.com/aerogear/mobile-security-service-operator/pull/167)
+- Upgrade the version of Mobile Security Service used by default from 0.1.0 to 0.2.2 [#168](https://github.com/aerogear/mobile-security-service-operator/pull/168)
 
 ## [0.3.0] - 2019-07-26
 - Fixed Prometheus Rules for MobileSecurityServicePodCount and MobileSecurityServiceDown [#151](https://github.com/aerogear/mobile-security-service-operator/pull/151)
