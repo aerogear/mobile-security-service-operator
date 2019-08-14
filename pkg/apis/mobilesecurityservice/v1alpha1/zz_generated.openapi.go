@@ -735,7 +735,7 @@ func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceSpec(re
 					},
 					"image": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Service image:tag E.g quay.io/aerogear/mobile-security-service:0.1.0",
+							Description: "Service image:tag E.g quay.io/aerogear/mobile-security-service:0.2.2",
 							Type:        []string{"string"},
 							Format:      "",
 						},

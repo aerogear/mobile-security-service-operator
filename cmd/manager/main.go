@@ -104,7 +104,6 @@ func main() {
 		os.Exit(1)
 	}
 
-
 }
 
 //addSchemeToManager will register the schemas for each manager

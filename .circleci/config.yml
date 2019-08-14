@@ -22,8 +22,7 @@ jobs:
       - run: make code/build/linux
       - run: make test/run
       - run: make test/integration-cover
-    # fixme: disable it because the coveralls is down for more than one day and it blocking the tasks
-    # - run: /go/bin/goveralls -coverprofile=coverage-all.out -service=circle-ci -repotoken=ycY6oBXw8F89TEabp46VXSRpVFjfYBujH
+      - run: /go/bin/goveralls -coverprofile=coverage-all.out -service=circle-ci -repotoken=ycY6oBXw8F89TEabp46VXSRpVFjfYBujH
 
   image_push_master:
     working_directory: /go/src/github.com/aerogear/mobile-security-service-operator
