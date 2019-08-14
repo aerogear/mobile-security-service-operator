@@ -647,12 +647,13 @@ spec:
               "refId": "A"
             },
             {
-              "expr": "kube_pod_container_resource_requests_memory_bytes{namespace=\"mobile-security-service\", container=\"application\"}",
+              "expr": "kube_pod_container_resource_requests_memory_bytes{namespace='mobile-security-service', container='application'}",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "Memory Usage",
               "refId": "B",
-              "step": 2
+              "step": 2,
+              "hide": false
             },
             {
               "expr": "kube_pod_container_resource_limits_memory_bytes{namespace='mobile-security-service', container='application'}",
