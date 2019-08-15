@@ -36,8 +36,8 @@ install:
 	- kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml
 	- kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebackup_crd.yaml
 	@echo ....... Applying Rules and Service Account .......
-	- kubectl apply -f deploy/cluster_role.yaml
-	- kubectl apply -f deploy/cluster_role_binding.yaml
+	- kubectl apply -f deploy/role.yaml
+	- kubectl apply -f deploy/role_binding.yaml
 	- kubectl apply -f deploy/service_account.yaml
 	@echo ....... Applying Mobile Security Service Operator .......
 	- kubectl apply -f deploy/operator.yaml
@@ -60,8 +60,8 @@ uninstall:
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebackup_crd.yaml
 	@echo ....... Deleting Rules and Service Account .......
-	- kubectl delete -f deploy/cluster_role.yaml
-	- kubectl delete -f deploy/cluster_role_binding.yaml
+	- kubectl delete -f deploy/role.yaml
+	- kubectl delete -f deploy/role_binding.yaml
 	- kubectl delete -f deploy/service_account.yaml
 	@echo ....... Deleting Mobile Security Service Operator .......
 	- kubectl delete -f deploy/operator.yaml
