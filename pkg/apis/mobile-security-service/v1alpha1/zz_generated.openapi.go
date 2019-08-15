@@ -11,22 +11,22 @@ import (
 
 func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
 	return map[string]common.OpenAPIDefinition{
-		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityService":             schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityService(ref),
-		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceApp":          schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceApp(ref),
-		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceAppSpec":      schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceAppSpec(ref),
-		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceAppStatus":    schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceAppStatus(ref),
-		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceBackup":       schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceBackup(ref),
-		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceBackupSpec":   schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceBackupSpec(ref),
-		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceBackupStatus": schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceBackupStatus(ref),
-		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceDB":           schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceDB(ref),
-		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceDBSpec":       schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceDBSpec(ref),
-		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceDBStatus":     schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceDBStatus(ref),
-		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceSpec":         schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceSpec(ref),
-		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceStatus":       schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceStatus(ref),
+		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1.MobileSecurityService":             schema_pkg_apis_mobile_security_service_v1alpha1_MobileSecurityService(ref),
+		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1.MobileSecurityServiceApp":          schema_pkg_apis_mobile_security_service_v1alpha1_MobileSecurityServiceApp(ref),
+		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1.MobileSecurityServiceAppSpec":      schema_pkg_apis_mobile_security_service_v1alpha1_MobileSecurityServiceAppSpec(ref),
+		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1.MobileSecurityServiceAppStatus":    schema_pkg_apis_mobile_security_service_v1alpha1_MobileSecurityServiceAppStatus(ref),
+		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1.MobileSecurityServiceBackup":       schema_pkg_apis_mobile_security_service_v1alpha1_MobileSecurityServiceBackup(ref),
+		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1.MobileSecurityServiceBackupSpec":   schema_pkg_apis_mobile_security_service_v1alpha1_MobileSecurityServiceBackupSpec(ref),
+		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1.MobileSecurityServiceBackupStatus": schema_pkg_apis_mobile_security_service_v1alpha1_MobileSecurityServiceBackupStatus(ref),
+		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1.MobileSecurityServiceDB":           schema_pkg_apis_mobile_security_service_v1alpha1_MobileSecurityServiceDB(ref),
+		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1.MobileSecurityServiceDBSpec":       schema_pkg_apis_mobile_security_service_v1alpha1_MobileSecurityServiceDBSpec(ref),
+		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1.MobileSecurityServiceDBStatus":     schema_pkg_apis_mobile_security_service_v1alpha1_MobileSecurityServiceDBStatus(ref),
+		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1.MobileSecurityServiceSpec":         schema_pkg_apis_mobile_security_service_v1alpha1_MobileSecurityServiceSpec(ref),
+		"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1.MobileSecurityServiceStatus":       schema_pkg_apis_mobile_security_service_v1alpha1_MobileSecurityServiceStatus(ref),
 	}
 }
 
-func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityService(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_pkg_apis_mobile_security_service_v1alpha1_MobileSecurityService(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -53,23 +53,23 @@ func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityService(ref co
 					},
 					"spec": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceSpec"),
+							Ref: ref("github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1.MobileSecurityServiceSpec"),
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceStatus"),
+							Ref: ref("github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1.MobileSecurityServiceStatus"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceSpec", "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+			"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1.MobileSecurityServiceSpec", "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1.MobileSecurityServiceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 	}
 }
 
-func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceApp(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_pkg_apis_mobile_security_service_v1alpha1_MobileSecurityServiceApp(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -96,23 +96,23 @@ func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceApp(ref
 					},
 					"spec": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceAppSpec"),
+							Ref: ref("github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1.MobileSecurityServiceAppSpec"),
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceAppStatus"),
+							Ref: ref("github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1.MobileSecurityServiceAppStatus"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceAppSpec", "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceAppStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+			"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1.MobileSecurityServiceAppSpec", "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1.MobileSecurityServiceAppStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 	}
 }
 
-func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceAppSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_pkg_apis_mobile_security_service_v1alpha1_MobileSecurityServiceAppSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -140,7 +140,7 @@ func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceAppSpec
 	}
 }
 
-func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceAppStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_pkg_apis_mobile_security_service_v1alpha1_MobileSecurityServiceAppStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -161,7 +161,7 @@ func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceAppStat
 	}
 }
 
-func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceBackup(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_pkg_apis_mobile_security_service_v1alpha1_MobileSecurityServiceBackup(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -188,23 +188,23 @@ func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceBackup(
 					},
 					"spec": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceBackupSpec"),
+							Ref: ref("github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1.MobileSecurityServiceBackupSpec"),
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceBackupStatus"),
+							Ref: ref("github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1.MobileSecurityServiceBackupStatus"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceBackupSpec", "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceBackupStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+			"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1.MobileSecurityServiceBackupSpec", "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1.MobileSecurityServiceBackupStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 	}
 }
 
-func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceBackupSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_pkg_apis_mobile_security_service_v1alpha1_MobileSecurityServiceBackupSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -315,7 +315,7 @@ func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceBackupS
 	}
 }
 
-func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceBackupStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_pkg_apis_mobile_security_service_v1alpha1_MobileSecurityServiceBackupStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -448,7 +448,7 @@ func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceBackupS
 	}
 }
 
-func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceDB(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_pkg_apis_mobile_security_service_v1alpha1_MobileSecurityServiceDB(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -475,23 +475,23 @@ func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceDB(ref 
 					},
 					"spec": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceDBSpec"),
+							Ref: ref("github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1.MobileSecurityServiceDBSpec"),
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceDBStatus"),
+							Ref: ref("github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1.MobileSecurityServiceDBStatus"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceDBSpec", "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1.MobileSecurityServiceDBStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+			"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1.MobileSecurityServiceDBSpec", "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1.MobileSecurityServiceDBStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 	}
 }
 
-func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceDBSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_pkg_apis_mobile_security_service_v1alpha1_MobileSecurityServiceDBSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -602,7 +602,7 @@ func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceDBSpec(
 	}
 }
 
-func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceDBStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_pkg_apis_mobile_security_service_v1alpha1_MobileSecurityServiceDBStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -657,7 +657,7 @@ func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceDBStatu
 	}
 }
 
-func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_pkg_apis_mobile_security_service_v1alpha1_MobileSecurityServiceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -735,7 +735,7 @@ func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceSpec(re
 					},
 					"image": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Service image:tag E.g quay.io/aerogear/mobile-security-service:0.2.2",
+							Description: "Service image:tag E.g quay.io/aerogear/mobile-security-service:0.1.0",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -817,7 +817,7 @@ func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceSpec(re
 	}
 }
 
-func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_pkg_apis_mobile_security_service_v1alpha1_MobileSecurityServiceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{

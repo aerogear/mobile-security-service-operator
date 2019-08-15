@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 
-	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
+	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 )
 
@@ -15,7 +15,7 @@ const (
 
 //getAppLabels returns an string map with the labels which wil be associated to the kubernetes/ocp resource which will be created and managed by this operator
 func getAppLabels(name string) map[string]string {
-	return map[string]string{"app": "mobilesecurityservice", "mobilesecurityservice_cr": name, "name": "mobilesecurityservice"}
+	return map[string]string{"app": "mobile-security-service", "mobilesecurityservice_cr": name, "name": "mobile-security-service"}
 }
 
 //buildAppEnvVars is a helper to build the env vars which will be configured in the deployment of the Mobile Security Service Project

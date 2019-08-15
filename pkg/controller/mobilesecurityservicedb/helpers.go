@@ -5,13 +5,13 @@ import (
 	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"time"
 
-	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
+	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 )
 
 func getDBLabels(name string) map[string]string {
-	return map[string]string{"app": "mobilesecurityservice", "mobilesecurityservicedb_cr": name, "name": "mobilesecurityservicedb"}
+	return map[string]string{"app": "mobile-security-service", "mobilesecurityservicedb_cr": name, "name": "mobilesecurityservicedb"}
 }
 
 func (r *ReconcileMobileSecurityServiceDB) getDatabaseNameEnvVar(db *mobilesecurityservicev1alpha1.MobileSecurityServiceDB, serviceConfigMapName string) corev1.EnvVar {

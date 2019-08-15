@@ -3,7 +3,7 @@ package mobilesecurityserviceapp
 import (
 	"context"
 
-	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
+	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1"
 
 	"github.com/go-logr/logr"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"

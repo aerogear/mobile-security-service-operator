@@ -1,8 +1,8 @@
 package mobilesecurityservicedb
 
 import (
-	"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
-	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
+	"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1"
+	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -80,7 +80,7 @@ var (
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      serviceInstance.Spec.ConfigMapName,
 			Namespace: serviceInstance.Namespace,
-			Labels:    map[string]string{"app": "mobilesecurityservice", "mobilesecurityservice_cr": serviceInstance.Name},
+			Labels:    map[string]string{"app": "mobile-security-service", "mobilesecurityservice_cr": serviceInstance.Name},
 		},
 		Data: map[string]string{
 			"PGHOST":                           serviceInstance.Spec.DatabaseHost,

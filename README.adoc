@@ -375,7 +375,7 @@ The Design Pattern adopted to build the objects in its controllers is http://tmr
 
 === Status Definition per Types
 
-* link:./pkg/apis/mobilesecurityservice/v1alpha1/mobilesecurityservice_types.go[MobileSecurityService]
+* link:./pkg/apis/mobile-security-service/v1alpha1/mobilesecurityservice_types.go[MobileSecurityService]
 +
 |===
 | *Status*    | *Description*
@@ -389,7 +389,7 @@ The Design Pattern adopted to build the objects in its controllers is http://tmr
 | `routeStatus` | Route Status from OCP API (https://docs.openshift.com/container-platform/3.7/rest_api/apis-route.openshift.io/v1.Route.html#object-schema[v1.Route]).
 |===
 
-* link:./pkg/apis/mobilesecurityservice/v1alpha1/mobilesecurityservicedb_types.go[MobileSecurityServiceDB]
+* link:./pkg/apis/mobile-security-service/v1alpha1/mobilesecurityservicedb_types.go[MobileSecurityServiceDB]
 +
 |===
 | *Status*    | *Description*
@@ -401,14 +401,14 @@ The Design Pattern adopted to build the objects in its controllers is http://tmr
 | `PersistentVolumeClaimName` | Name of the PersistentVolumeClaimName object created for the Database.
 |===
 
-* link:./pkg/apis/mobilesecurityservice/v1alpha1/mobilesecurityserviceapp_types.go[MobileSecurityServiceApp]
+* link:./pkg/apis/mobile-security-service/v1alpha1/mobilesecurityserviceapp_types.go[MobileSecurityServiceApp]
 +
 |===
 | *Status*    | *Description*
 | `bindStatus` | For this status is expected the value `OK` which means that the app was created in the API Service.
 |===
 
-* link:./pkg/apis/mobilesecurityservice/v1alpha1/mobilesecurityservicebackup_types.go[MobileSecurityServiceBackup]
+* link:./pkg/apis/mobile-security-service/v1alpha1/mobilesecurityservicebackup_types.go[MobileSecurityServiceBackup]
 +
 |===
 | *Status*    | *Description*

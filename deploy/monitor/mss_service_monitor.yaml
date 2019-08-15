@@ -11,4 +11,4 @@ spec:
       port: server
   selector:
     matchLabels:
-      app: mobilesecurityservice
+      app: mobile-security-service

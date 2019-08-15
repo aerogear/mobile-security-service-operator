@@ -8,7 +8,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      name: mobilesecurityservice
+      name: mobile-security-service
   json: |
     {
       "__inputs": [

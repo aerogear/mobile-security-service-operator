@@ -1,7 +1,7 @@
 package mobilesecurityservicebackup
 
 import (
-	"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
+	"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -57,7 +57,7 @@ var (
 		},
 	}
 
-	lsDB = map[string]string{"app": "mobilesecurityservice", "mobilesecurityservice_cr": utils.MobileSecurityServiceDBCRName}
+	lsDB = map[string]string{"app": "mobile-security-service", "mobilesecurityservice_cr": utils.MobileSecurityServiceDBCRName}
 
 	podDatabase = corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{

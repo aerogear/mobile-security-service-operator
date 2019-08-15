@@ -10,7 +10,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: mobilesecurityservice
+      app: mobile-security-service
   groups:
     - name: general.rules
       rules:

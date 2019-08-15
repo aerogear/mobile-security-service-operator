@@ -2,11 +2,11 @@ package mobilesecurityservicebackup
 
 import (
 	"fmt"
-	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
+	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1"
 )
 
 func getBkpLabels(name string) map[string]string {
-	return map[string]string{"app": "mobilesecurityservice", "mobilesecurityservicebackup_cr": name, "name": "mobilesecurityservicebackup"}
+	return map[string]string{"app": "mobile-security-service", "mobilesecurityservicebackup_cr": name, "name": "mobilesecurityservicebackup"}
 }
 
 func (r *ReconcileMobileSecurityServiceBackup) buildDBSecretData(bkp *mobilesecurityservicev1alpha1.MobileSecurityServiceBackup) (map[string][]byte, error) {

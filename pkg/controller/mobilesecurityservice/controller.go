@@ -3,7 +3,7 @@ package mobilesecurityservice
 import (
 	"context"
 
-	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
+	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"github.com/go-logr/logr"
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
@@ -42,7 +42,7 @@ func newReconciler(mgr manager.Manager) reconcile.Reconciler {
 // Add adds a new Controller to mgr with r as the reconcile.Reconciler
 func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	// Create a new controller
-	c, err := controller.New("mobilesecurityservice-controller", mgr, controller.Options{Reconciler: r})
+	c, err := controller.New("mobile-security-service-controller", mgr, controller.Options{Reconciler: r})
 	if err != nil {
 		return err
 	}

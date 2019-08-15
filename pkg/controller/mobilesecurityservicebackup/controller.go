@@ -2,7 +2,7 @@ package mobilesecurityservicebackup
 
 import (
 	"context"
-	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
+	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"github.com/go-logr/logr"
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"

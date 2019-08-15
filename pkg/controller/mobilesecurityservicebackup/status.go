@@ -3,7 +3,7 @@ package mobilesecurityservicebackup
 import (
 	"context"
 	"fmt"
-	"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
+	"github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1"
 	"github.com/go-logr/logr"
 	"k8s.io/api/batch/v1beta1"
 	corev1 "k8s.io/api/core/v1"

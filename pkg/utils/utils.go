@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
+	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1"
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 )

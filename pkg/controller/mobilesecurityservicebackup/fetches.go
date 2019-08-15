@@ -3,7 +3,7 @@ package mobilesecurityservicebackup
 import (
 	"context"
 	"fmt"
-	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobilesecurityservice/v1alpha1"
+	mobilesecurityservicev1alpha1 "github.com/aerogear/mobile-security-service-operator/pkg/apis/mobile-security-service/v1alpha1"
 	"github.com/aerogear/mobile-security-service-operator/pkg/utils"
 	"github.com/go-logr/logr"
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
@@ -115,7 +115,7 @@ func (r *ReconcileMobileSecurityServiceBackup) getListOpsToSearchDBObject(reqLog
 	}
 	// Create criteria
 	reqLogger.Info("Creating criteria to looking for Service ...")
-	ls := map[string]string{"app": "mobilesecurityservice", "mobilesecurityservicedb_cr": db.Name, "name": "mobilesecurityservicedb"}
+	ls := map[string]string{"app": "mobile-security-service", "mobilesecurityservicedb_cr": db.Name, "name": "mobilesecurityservicedb"}
 	labelSelector := labels.SelectorFromSet(ls)
 	listOps := &client.ListOptions{Namespace: operatorNamespace, LabelSelector: labelSelector}
 	return listOps, nil

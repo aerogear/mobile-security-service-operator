@@ -1,0 +1,97 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: mobile-security-service-operator
+rules:
+- apiGroups:
+  - mobile-security-service.aerogear.org
+  resources:
+  - '*'
+  - mobilesecurityservicebackups
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+- apiGroups:
+  - ""
+  resources:
+  - services
+  - persistentvolumeclaims
+  - events
+  - configmaps
+  - secrets
+  - serviceaccounts
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - batch
+  resources:
+  - cronjobs
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - route.openshift.io
+  resources:
+  - routes
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - replicasets
+  verbs:
+  - get
+- apiGroups:
+  - apps
+  resourceNames:
+  - mobile-security-service-operator
+  resources:
+  - deployments/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  verbs:
+  - get
