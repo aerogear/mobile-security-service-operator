@@ -101,11 +101,30 @@ spec:
               description: 'Oauth image:tag E.g docker.io/openshift/oauth-proxy:v1.1.0
                 More info: https://github.com/openshift/oauth-proxy'
               type: string
+            oAuthMemoryLimit:
+              description: Limit of Memory which will be available for the OAuth container
+              type: string
+            oAuthMemoryRequest:
+              description: Limit of Memory Request which will be available for the
+                OAuth container
+              type: string
+            oAuthResourceCpu:
+              description: CPU resource which will be available for the OAuth container
+              type: string
+            oAuthResourceCpuLimit:
+              description: Limit of CPU which will be available for the OAuth container
+              type: string
             port:
               description: 'Value for the Service Environment Variable (PORT) More
                 info: https://github.com/aerogear/mobile-security-service-operator#changing-the-environment-variables-values'
               format: int32
               type: integer
+            resourceCpu:
+              description: CPU resource which will be available for the Service container
+              type: string
+            resourceCpuLimit:
+              description: Limit of CPU which will be available for the Service container
+              type: string
             routeName:
               description: The name of the route which will vbe created to expose
                 the Service

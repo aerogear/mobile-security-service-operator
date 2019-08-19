@@ -66,6 +66,16 @@ func buildOAuthContainer(mss *mobilesecurityservicev1alpha1.MobileSecurityServic
 		Args:                     getOAuthArgsMap(mss),
 		TerminationMessagePath:   "/dev/termination-log",
 		TerminationMessagePolicy: "File",
+		Resources: corev1.ResourceRequirements{
+			Limits: corev1.ResourceList{
+				corev1.ResourceMemory: resource.MustParse(mss.Spec.OAuthMemoryLimit),
+				corev1.ResourceCPU:    resource.MustParse(mss.Spec.OAuthResourceCpuLimit),
+			},
+			Requests: corev1.ResourceList{
+				corev1.ResourceMemory: resource.MustParse(mss.Spec.OAuthMemoryRequest),
+				corev1.ResourceCPU:    resource.MustParse(mss.Spec.OAuthResourceCpu),
+			},
+		},
 	}
 }
 
@@ -119,9 +129,11 @@ func buildApplicationContainer(mss *mobilesecurityservicev1alpha1.MobileSecurity
 		Resources: corev1.ResourceRequirements{
 			Limits: corev1.ResourceList{
 				corev1.ResourceMemory: resource.MustParse(mss.Spec.MemoryLimit),
+				corev1.ResourceCPU:    resource.MustParse(mss.Spec.ResourceCpuLimit),
 			},
 			Requests: corev1.ResourceList{
 				corev1.ResourceMemory: resource.MustParse(mss.Spec.MemoryRequest),
+				corev1.ResourceCPU:    resource.MustParse(mss.Spec.ResourceCpu),
 			},
 		},
 	}

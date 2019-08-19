@@ -735,7 +735,7 @@ func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceSpec(re
 					},
 					"image": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Service image:tag E.g quay.io/aerogear/mobile-security-service:0.2.2",
+							Description: "Service image:tag E.g quay.io/aerogear/mobile-security-service:0.1.0",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -764,6 +764,48 @@ func schema_pkg_apis_mobilesecurityservice_v1alpha1_MobileSecurityServiceSpec(re
 					"memoryRequest": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Limit of Memory Request which will be available for the Service container",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"resourceCpuLimit": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Limit of CPU which will be available for the Service container",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"resourceCpu": {
+						SchemaProps: spec.SchemaProps{
+							Description: "CPU resource which will be available for the Service container",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"oAuthMemoryLimit": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Limit of Memory which will be available for the OAuth container",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"oAuthMemoryRequest": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Limit of Memory Request which will be available for the OAuth container",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"oAuthResourceCpuLimit": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Limit of CPU which will be available for the OAuth container",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"oAuthResourceCpu": {
+						SchemaProps: spec.SchemaProps{
+							Description: "CPU resource which will be available for the OAuth container",
 							Type:        []string{"string"},
 							Format:      "",
 						},
