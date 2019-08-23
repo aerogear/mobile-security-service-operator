@@ -65,6 +65,9 @@ func TestReconcileMobileSecurityService_update(t *testing.T) {
 				},
 			}
 
+			// Add const values for mandatory specs
+			addMandatorySpecsDefinitions(tt.fields.instanceToUpdate)
+
 			res, err := r.Reconcile(req)
 			if err != nil {
 				t.Fatalf("reconcile: (%v)", err)

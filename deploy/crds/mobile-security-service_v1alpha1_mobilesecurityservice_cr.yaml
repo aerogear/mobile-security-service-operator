@@ -39,8 +39,10 @@ spec:
 
   image: "quay.io/aerogear/mobile-security-service:0.2.2"
   containerName: "application"
-  memoryLimit: "512Mi"
-  memoryRequest: "512Mi"
+  memoryLimit: "128Mi"
+  memoryRequest: "64Mi"
+  resourceCpuLimit: "20m"
+  resourceCpu: "10m"
   # Use the following spec if you would like to define the image pull policy
   # containerImagePullPolicy: "IfNotPresent"
 
@@ -50,6 +52,13 @@ spec:
 
   oAuthImage: "docker.io/openshift/oauth-proxy:v1.1.0"
   oAuthContainerName: "oauth-proxy"
+  oAuthMemoryLimit: "64Mi"
+  oAuthMemoryRequest: "32Mi"
+  oAuthResourceCpuLimit: "20m"
+  oAuthResourceCpu: "10m"
+
   # Use the following spec if you would like to define the image policy
   # oAuthContainerImagePullPolicy: "IfNotPresent"
+
+
 

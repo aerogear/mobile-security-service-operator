@@ -61,6 +61,18 @@ type MobileSecurityServiceSpec struct {
 	MemoryLimit string `json:"memoryLimit,omitempty"`
 	// Limit of Memory Request which will be available for the Service container
 	MemoryRequest string `json:"memoryRequest,omitempty"`
+	// Limit of CPU which will be available for the Service container
+	ResourceCpuLimit string `json:"resourceCpuLimit,omitempty"`
+	// CPU resource which will be available for the Service container
+	ResourceCpu string `json:"resourceCpu,omitempty"`
+	// Limit of Memory which will be available for the OAuth container
+	OAuthMemoryLimit string `json:"oAuthMemoryLimit,omitempty"`
+	// Limit of Memory Request which will be available for the OAuth container
+	OAuthMemoryRequest string `json:"oAuthMemoryRequest,omitempty"`
+	// Limit of CPU which will be available for the OAuth container
+	OAuthResourceCpuLimit string `json:"oAuthResourceCpuLimit,omitempty"`
+	// CPU resource which will be available for the OAuth container
+	OAuthResourceCpu string `json:"oAuthResourceCpu,omitempty"`
 	// Oauth image:tag E.g docker.io/openshift/oauth-proxy:v1.1.0
 	// More info: https://github.com/openshift/oauth-proxy
 	OAuthImage string `json:"oAuthImage,omitempty"`

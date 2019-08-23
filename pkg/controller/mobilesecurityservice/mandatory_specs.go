@@ -17,7 +17,13 @@ const (
 	size                          = 1
 	clusterProtocol               = "http"
 	memoryLimit                   = "512Mi"
-	memoryRequest                 = "512Mi"
+	memoryRequest                 = "128Mi"
+	resourceCpuLimit              = "20m"
+	resourceCpu                   = "10m"
+	oAuthMemoryLimit              = "64Mi"
+	oAuthMemoryRequest            = "32Mi"
+	oAuthResourceCpuLimit         = "20m"
+	oAuthResourceCpu              = "10m"
 	image                         = "quay.io/aerogear/mobile-security-service:0.2.2"
 	containerName                 = "application"
 	oAuthImage                    = "docker.io/openshift/oauth-proxy:v1.1.0"
@@ -94,6 +100,30 @@ func addMandatorySpecsDefinitions(mss *mobilesecurityservicev1alpha1.MobileSecur
 
 	if mss.Spec.MemoryRequest == "" {
 		mss.Spec.MemoryRequest = memoryRequest
+	}
+
+	if mss.Spec.ResourceCpu == "" {
+		mss.Spec.ResourceCpu = resourceCpu
+	}
+
+	if mss.Spec.ResourceCpuLimit == "" {
+		mss.Spec.ResourceCpuLimit = resourceCpuLimit
+	}
+
+	if mss.Spec.OAuthMemoryLimit == "" {
+		mss.Spec.OAuthMemoryLimit = oAuthMemoryLimit
+	}
+
+	if mss.Spec.OAuthMemoryRequest == "" {
+		mss.Spec.OAuthMemoryRequest = oAuthMemoryRequest
+	}
+
+	if mss.Spec.OAuthResourceCpu == "" {
+		mss.Spec.OAuthResourceCpu = oAuthResourceCpu
+	}
+
+	if mss.Spec.OAuthResourceCpuLimit == "" {
+		mss.Spec.OAuthResourceCpuLimit = oAuthResourceCpuLimit
 	}
 
 	if mss.Spec.RouteName == "" {
