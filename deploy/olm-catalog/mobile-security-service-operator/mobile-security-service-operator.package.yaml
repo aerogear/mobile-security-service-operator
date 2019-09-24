@@ -1,0 +1,5 @@
+channels:
+- currentCSV: mobile-security-service-operator.v0.1.0
+  name: alpha
+defaultChannel: alpha
+packageName: mobile-security-service-operator
