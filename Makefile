@@ -16,7 +16,8 @@ IMAGE_MASTER_TAG=$(IMAGE_REGISTRY)/$(REGISTRY_ORG)/$(REGISTRY_REPO):master
 IMAGE_RELEASE_TAG=$(IMAGE_REGISTRY)/$(REGISTRY_ORG)/$(REGISTRY_REPO):$(CIRCLE_TAG)
 NAMESPACE=mobile-security-service
 APP_NAMESPACES=mobile-security-service-apps
-
+CODE_COMPILE_OUTPUT = build/_output/bin/mobile-security-service-operator
+TEST_COMPILE_OUTPUT = build/_output/bin/mobile-security-service-operator-test
 # This follows the output format for goreleaser
 BINARY_LINUX_64 = ./dist/linux_amd64/$(BINARY)
 
@@ -131,6 +132,10 @@ backup/uninstall:
 code/build/linux:
 	env GOOS=linux GOARCH=amd64 go build $(APP_FILE)
 
+.PHONY: code/compile
+code/compile: code/gen
+	@GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o=$(CODE_COMPILE_OUTPUT) ./cmd/manager/main.go
+	
 .PHONY: image/build/master
 image/build/master:
 	@echo Building operator with the tag: $(IMAGE_MASTER_TAG)
@@ -212,7 +217,9 @@ code/gen:
 test/run:
 	@echo Running tests:
 	GOCACHE=off go test -cover $(TEST_PKGS)
-
+.PHONY: test/compile
+test/compile:
+	@GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go test -c -o=$(TEST_COMPILE_OUTPUT) ./test/e2e/...
 .PHONY: test/integration-cover
 test/integration-cover:
 	echo "mode: count" > coverage-all.out
