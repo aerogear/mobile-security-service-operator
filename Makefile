@@ -16,7 +16,8 @@ IMAGE_MASTER_TAG=$(IMAGE_REGISTRY)/$(REGISTRY_ORG)/$(REGISTRY_REPO):master
 IMAGE_RELEASE_TAG=$(IMAGE_REGISTRY)/$(REGISTRY_ORG)/$(REGISTRY_REPO):$(CIRCLE_TAG)
 NAMESPACE=mobile-security-service
 APP_NAMESPACES=mobile-security-service-apps
-
+CODE_COMPILE_OUTPUT = build/_output/bin/mobile-security-service-operator
+TEST_COMPILE_OUTPUT = build/_output/bin/mobile-security-service-operator-test
 # This follows the output format for goreleaser
 BINARY_LINUX_64 = ./dist/linux_amd64/$(BINARY)
 
@@ -36,8 +37,8 @@ install:
 	- kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityserviceapp_crd.yaml
 	- kubectl apply -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebackup_crd.yaml
 	@echo ....... Applying Rules and Service Account .......
-	- kubectl apply -f deploy/cluster_role.yaml
-	- kubectl apply -f deploy/cluster_role_binding.yaml
+	- kubectl apply -f deploy/role.yaml
+	- kubectl apply -f deploy/role_binding.yaml
 	- kubectl apply -f deploy/service_account.yaml
 	@echo ....... Applying Mobile Security Service Operator .......
 	- kubectl apply -f deploy/operator.yaml
@@ -60,8 +61,8 @@ uninstall:
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicedb_crd.yaml
 	- kubectl delete -f deploy/crds/mobile-security-service_v1alpha1_mobilesecurityservicebackup_crd.yaml
 	@echo ....... Deleting Rules and Service Account .......
-	- kubectl delete -f deploy/cluster_role.yaml
-	- kubectl delete -f deploy/cluster_role_binding.yaml
+	- kubectl delete -f deploy/role.yaml
+	- kubectl delete -f deploy/role_binding.yaml
 	- kubectl delete -f deploy/service_account.yaml
 	@echo ....... Deleting Mobile Security Service Operator .......
 	- kubectl delete -f deploy/operator.yaml
@@ -131,6 +132,10 @@ backup/uninstall:
 code/build/linux:
 	env GOOS=linux GOARCH=amd64 go build $(APP_FILE)
 
+.PHONY: code/compile
+code/compile: code/gen
+	@GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o=$(CODE_COMPILE_OUTPUT) ./cmd/manager/main.go
+	
 .PHONY: image/build/master
 image/build/master:
 	@echo Building operator with the tag: $(IMAGE_MASTER_TAG)
@@ -212,7 +217,9 @@ code/gen:
 test/run:
 	@echo Running tests:
 	GOCACHE=off go test -cover $(TEST_PKGS)
-
+.PHONY: test/compile
+test/compile:
+	@GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go test -c -o=$(TEST_COMPILE_OUTPUT) ./test/e2e/...
 .PHONY: test/integration-cover
 test/integration-cover:
 	echo "mode: count" > coverage-all.out
