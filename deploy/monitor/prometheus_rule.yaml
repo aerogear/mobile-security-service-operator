@@ -15,7 +15,7 @@ spec:
     - name: general.rules
       rules:
       - alert: MobileSecurityServiceOperatorDown
-        expr: absent(up{job="mobile-security-service-operator"} == 1)
+        expr: absent(up{job="mobile-security-service-operator-metrics", endpoint="http-metrics"} == 1)
         for: 5m
         labels:
           severity: critical
