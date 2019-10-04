@@ -214,13 +214,13 @@ code/gen:
 .PHONY: test/run
 test/run:
 	@echo Running tests:
-	GOCACHE=off go test -cover $(TEST_PKGS)
+	go test -cover $(TEST_PKGS)
 .PHONY: test/compile
 test/compile:
 	@GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go test -c -o=$(TEST_COMPILE_OUTPUT) ./test/e2e/...
 .PHONY: test/integration-cover
 test/integration-cover:
 	echo "mode: count" > coverage-all.out
-	GOCACHE=off $(foreach pkg,$(PACKAGES),\
+	$(foreach pkg,$(PACKAGES),\
 		go test -failfast -tags=integration -coverprofile=coverage.out -covermode=count $(addprefix $(PKG)/,$(pkg)) || exit 1;\
 		tail -n +2 coverage.out >> coverage-all.out;)

@@ -7,7 +7,9 @@ jobs:
     working_directory: /go/src/github.com/aerogear/mobile-security-service-operator
 
     docker:
-      - image: circleci/golang:1.10
+      - image: circleci/golang:1.12
+        environment:
+          GO111MODULE: "off"
 
     steps:
       - checkout
@@ -27,7 +29,9 @@ jobs:
   image_push_master:
     working_directory: /go/src/github.com/aerogear/mobile-security-service-operator
     docker:
-      - image: circleci/golang:1.10
+      - image: circleci/golang:1.12
+        environment:
+          GO111MODULE: "off"
     steps:
       - checkout
       - run: 
@@ -46,7 +50,9 @@ jobs:
   image_release:
     working_directory: /go/src/github.com/aerogear/mobile-security-service-operator
     docker:
-      - image: circleci/golang:1.10
+      - image: circleci/golang:1.12
+        environment:
+          GO111MODULE: "off"
     steps:
       - checkout
       - run: 
