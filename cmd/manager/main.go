@@ -124,18 +124,20 @@ func main() {
 		log.Info("Could not create metrics Service", "error", err.Error())
 	}
 
-	err = addMonitoringKeyLabelToService(cfg, operatorNamespace, service)
-	if err != nil {
-		log.Error(err, "Could not add monitoring-key label to operator metrics Service")
-	}
+	if service != nil {
+		err = addMonitoringKeyLabelToService(cfg, operatorNamespace, service)
+		if err != nil {
+			log.Error(err, "Could not add monitoring-key label to operator metrics Service")
+		}
 
-	err = createServiceMonitor(cfg, operatorNamespace, service)
-	if err != nil {
-		log.Info("Could not create ServiceMonitor object", "error", err.Error())
-		// If this operator is deployed to a cluster without the prometheus-operator running, it will return
-		// ErrServiceMonitorNotPresent, which can be used to safely skip ServiceMonitor creation.
-		if err == metrics.ErrServiceMonitorNotPresent {
-			log.Info("Install prometheus-operator in you cluster to create ServiceMonitor objects", "error", err.Error())
+		err = createServiceMonitor(cfg, operatorNamespace, service)
+		if err != nil {
+			log.Info("Could not create ServiceMonitor object", "error", err.Error())
+			// If this operator is deployed to a cluster without the prometheus-operator running, it will return
+			// ErrServiceMonitorNotPresent, which can be used to safely skip ServiceMonitor creation.
+			if err == metrics.ErrServiceMonitorNotPresent {
+				log.Info("Install prometheus-operator in you cluster to create ServiceMonitor objects", "error", err.Error())
+			}
 		}
 	}
 
