@@ -94,7 +94,6 @@ monitoring/install:
 	@echo Installing service monitor in ${NAMESPACE} :
 	- oc project ${NAMESPACE}
 	- kubectl label namespace ${NAMESPACE} monitoring-key=middleware
-	- kubectl create -f deploy/monitor/service_monitor.yaml
 	- kubectl create -f deploy/monitor/mss_service_monitor.yaml
 	- kubectl create -f deploy/monitor/prometheus_rule.yaml
 	- kubectl create -f deploy/monitor/mss_prometheus_rule.yaml
@@ -105,7 +104,6 @@ monitoring/install:
 monitoring/uninstall:
 	@echo Uninstalling monitor service from ${NAMESPACE} :
 	- oc project ${NAMESPACE}
-	- kubectl delete -f deploy/monitor/service_monitor.yaml
 	- kubectl delete -f deploy/monitor/mss_service_monitor.yaml
 	- kubectl delete -f deploy/monitor/prometheus_rule.yaml
 	- kubectl delete -f deploy/monitor/mss_prometheus_rule.yaml
@@ -216,13 +214,13 @@ code/gen:
 .PHONY: test/run
 test/run:
 	@echo Running tests:
-	GOCACHE=off go test -cover $(TEST_PKGS)
+	go test -cover $(TEST_PKGS)
 .PHONY: test/compile
 test/compile:
 	@GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go test -c -o=$(TEST_COMPILE_OUTPUT) ./test/e2e/...
 .PHONY: test/integration-cover
 test/integration-cover:
 	echo "mode: count" > coverage-all.out
-	GOCACHE=off $(foreach pkg,$(PACKAGES),\
+	$(foreach pkg,$(PACKAGES),\
 		go test -failfast -tags=integration -coverprofile=coverage.out -covermode=count $(addprefix $(PKG)/,$(pkg)) || exit 1;\
 		tail -n +2 coverage.out >> coverage-all.out;)

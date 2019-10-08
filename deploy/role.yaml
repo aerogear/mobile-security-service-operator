@@ -107,3 +107,24 @@ rules:
   - namespaces
   verbs:
   - get
+
+# monitoring related permissions
+- apiGroups:
+    - monitoring.coreos.com
+  resources:
+    - servicemonitors
+  verbs:
+    - get
+    - create
+- apiGroups:
+    - ""
+  resources:
+    - services/finalizers
+  verbs:
+    - get
+    - list
+    - watch
+    - create
+    - update
+    - patch
+    - delete
