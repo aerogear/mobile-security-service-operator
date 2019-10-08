@@ -108,7 +108,7 @@ rules:
   verbs:
   - get
 
-# monitoring related perrmissions
+# monitoring related permissions
 - apiGroups:
     - monitoring.coreos.com
   resources:
