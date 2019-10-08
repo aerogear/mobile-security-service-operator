@@ -58,6 +58,21 @@ pipeline {
             }
         }
 
+        stage("Install Operator SDK") {
+            steps {
+                // qe-pipeline-library step
+                installOperatorSdk version: "v0.10.0"
+            }
+            post {
+                failure {
+                    echo "====++++'Install Operator SDK' execution failed++++===="
+                    echo "Please check if the version of operator-sdk you provided exists"
+                    echo "https://github.com/operator-framework/operator-sdk/releases"
+                }
+            }
+        }
+
+
         stage("Create an OpenShift project") {
             steps {
                 // qe-pipeline-library step
