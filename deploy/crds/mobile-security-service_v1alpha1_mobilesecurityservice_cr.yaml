@@ -50,7 +50,7 @@ spec:
   # OAuth Proxy
   # ---------------------------------
 
-  oAuthImage: "docker.io/openshift/oauth-proxy:v1.1.0"
+  oAuthImage: "quay.io/openshift/origin-oauth-proxy:4.2.0"
   oAuthContainerName: "oauth-proxy"
   oAuthMemoryLimit: "64Mi"
   oAuthMemoryRequest: "32Mi"

@@ -98,7 +98,7 @@ spec:
                 pod as sidecar
               type: string
             oAuthImage:
-              description: 'Oauth image:tag E.g docker.io/openshift/oauth-proxy:v1.1.0
+              description: 'Oauth image:tag E.g quay.io/openshift/origin-oauth-proxy:4.2.0
                 More info: https://github.com/openshift/oauth-proxy'
               type: string
             oAuthMemoryLimit:
