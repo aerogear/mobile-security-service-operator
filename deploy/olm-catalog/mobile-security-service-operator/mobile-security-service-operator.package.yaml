@@ -1,0 +1,5 @@
+channels:
+- currentCSV: mobile-security-service-operator.v0.4.1
+  name: stable
+defaultChannel: stable
+packageName: mobile-security-service-operator

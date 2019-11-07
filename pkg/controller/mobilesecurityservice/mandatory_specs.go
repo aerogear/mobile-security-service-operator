@@ -26,7 +26,7 @@ const (
 	oAuthResourceCpu              = "10m"
 	image                         = "quay.io/aerogear/mobile-security-service:0.2.2"
 	containerName                 = "application"
-	oAuthImage                    = "docker.io/openshift/oauth-proxy:v1.1.0"
+	oAuthImage                    = "quay.io/openshift/origin-oauth-proxy:4.2.0"
 	oAuthContainerName            = "oauth-proxy"
 	configMapName                 = "mobile-security-service-config"
 	routeName                     = "route"
