@@ -180,6 +180,46 @@ pipeline {
                 )
             }
         }
+        // rebuild and push the image so that it points to master tag of operand (for nightly testing purposes)
+        stage("Rebuild and push 'dev' image for nightly testing") {
+            when {
+                branch 'master'
+            }
+            environment {
+                // qe-pipeline-library step
+                DOCKER_DEV_TAG = getDevTag("${env.CLONED_REPOSITORY_PATH}")
+            }
+            steps{
+                dir("${env.CLONED_REPOSITORY_PATH}") {
+                    // remove original build
+                    sh "rm -rf build/_output"
+
+                    // replace specific operand version with 'master'
+                    sh 'sed -i -E \'s/quay.io\\/aerogear\\/mobile-security-service:[a-zA-Z0-9.+-]*/quay.io\\/aerogear\\/mobile-security-service:master/\' pkg/controller/mobilesecurityservice/mandatory_specs.go'
+
+                    // compile
+                    sh "make code/compile"
+
+                    // build image with full dev tag
+                    // qe-pipeline-library step
+                    dockerBuildAndPush(
+                        credentialsId: "${env.CREDENTIALS_ID}",
+                        containerRegistryServerName: "quay.io",
+                        containerImageName: "quay.io/aerogear/${env.OPERATOR_NAME}:${env.DOCKER_DEV_TAG}",
+                        pathToDockerfile: "build/Dockerfile"
+                    )
+                }
+
+                // create a 'dev' tag pointing at the full dev tag
+                // qe-pipeline-library step
+                tagRemoteContainerImage(
+                    credentialsId: "${env.CREDENTIALS_ID}",
+                    sourceImage: "quay.io/aerogear/${env.OPERATOR_NAME}:${env.DOCKER_DEV_TAG}",
+                    targetImage: "quay.io/aerogear/${env.OPERATOR_NAME}:dev",
+                    deleteOriginalImage: false
+                )
+            }
+        }
     }
     post {
         failure {
